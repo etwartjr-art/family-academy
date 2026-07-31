@@ -46,7 +46,16 @@ import { ImportarAlunosCSV } from "@/components/ImportarAlunosCSV";
 import { DetalhesAluno } from "@/components/DetalhesAluno";
 
 import { toast } from "sonner";
-import { ArrowLeft, History as HistoryIcon, Pencil, Search, Trash2, UserPlus } from "lucide-react";
+import {
+  ArrowLeft,
+  GraduationCap,
+  History as HistoryIcon,
+  Pencil,
+  Search,
+  Trash2,
+  UserPlus,
+} from "lucide-react";
+
 
 const ROTULOS_CAMPO: Record<string, string> = {
   nome: "Nome da turma",
