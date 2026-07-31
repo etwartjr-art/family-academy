@@ -26,7 +26,7 @@ import { QRCodeBox } from "@/components/QRCodeBox";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/salas")({
+export const Route = createFileRoute("/_authenticated/salas/")({
   head: () => ({
     meta: [
       { title: "Salas — Family Academy" },

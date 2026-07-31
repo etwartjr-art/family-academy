@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated/cursos'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as MatriculaConviteRouteImport } from './routes/matricula.$convite'
+import { Route as AuthenticatedSalasIndexRouteImport } from './routes/_authenticated/salas.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCursosRoute = AuthenticatedCursosRouteImport.update({
+  id: '/cursos',
+  path: '/cursos',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
@@ -33,35 +40,48 @@ const MatriculaConviteRoute = MatriculaConviteRouteImport.update({
   path: '/matricula/$convite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSalasIndexRoute = AuthenticatedSalasIndexRouteImport.update({
+  id: '/salas/',
+  path: '/salas/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cursos': typeof AuthenticatedCursosRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
+  '/salas/': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cursos': typeof AuthenticatedCursosRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
+  '/salas': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/cursos': typeof AuthenticatedCursosRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
+  '/_authenticated/salas/': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/painel' | '/matricula/$convite'
+  fullPaths: '/' | '/cursos' | '/painel' | '/matricula/$convite' | '/salas/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/painel' | '/matricula/$convite'
+  to: '/' | '/cursos' | '/painel' | '/matricula/$convite' | '/salas'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/cursos'
     | '/_authenticated/painel'
     | '/matricula/$convite'
+    | '/_authenticated/salas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,6 +106,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/cursos': {
+      id: '/_authenticated/cursos'
+      path: '/cursos'
+      fullPath: '/cursos'
+      preLoaderRoute: typeof AuthenticatedCursosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/painel': {
       id: '/_authenticated/painel'
       path: '/painel'
@@ -100,15 +127,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatriculaConviteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/salas/': {
+      id: '/_authenticated/salas/'
+      path: '/salas'
+      fullPath: '/salas/'
+      preLoaderRoute: typeof AuthenticatedSalasIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCursosRoute: typeof AuthenticatedCursosRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedSalasIndexRoute: typeof AuthenticatedSalasIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCursosRoute: AuthenticatedCursosRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedSalasIndexRoute: AuthenticatedSalasIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
