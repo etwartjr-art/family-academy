@@ -20,6 +20,7 @@ export type Database = {
           id: string
           modulo_id: string
           numero: number
+          professor_id: string | null
           titulo: string
         }
         Insert: {
@@ -27,6 +28,7 @@ export type Database = {
           id?: string
           modulo_id: string
           numero: number
+          professor_id?: string | null
           titulo: string
         }
         Update: {
@@ -34,6 +36,7 @@ export type Database = {
           id?: string
           modulo_id?: string
           numero?: number
+          professor_id?: string | null
           titulo?: string
         }
         Relationships: [
@@ -42,6 +45,13 @@ export type Database = {
             columns: ["modulo_id"]
             isOneToOne: false
             referencedRelation: "modulos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aulas_professor_id_fkey"
+            columns: ["professor_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
             referencedColumns: ["id"]
           },
         ]
@@ -364,6 +374,39 @@ export type Database = {
           },
         ]
       }
+      sala_professores: {
+        Row: {
+          criado_em: string
+          professor_id: string
+          sala_id: string
+        }
+        Insert: {
+          criado_em?: string
+          professor_id: string
+          sala_id: string
+        }
+        Update: {
+          criado_em?: string
+          professor_id?: string
+          sala_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sala_professores_professor_id_fkey"
+            columns: ["professor_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sala_professores_sala_id_fkey"
+            columns: ["sala_id"]
+            isOneToOne: false
+            referencedRelation: "salas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       salas: {
         Row: {
           convite: string
@@ -371,6 +414,7 @@ export type Database = {
           curso_id: string
           data_inicio: string
           id: string
+          modulo_ativo_id: string | null
           nome: string
           professor_id: string | null
           turno: string | null
@@ -381,6 +425,7 @@ export type Database = {
           curso_id: string
           data_inicio?: string
           id?: string
+          modulo_ativo_id?: string | null
           nome: string
           professor_id?: string | null
           turno?: string | null
@@ -391,6 +436,7 @@ export type Database = {
           curso_id?: string
           data_inicio?: string
           id?: string
+          modulo_ativo_id?: string | null
           nome?: string
           professor_id?: string | null
           turno?: string | null
@@ -401,6 +447,13 @@ export type Database = {
             columns: ["curso_id"]
             isOneToOne: false
             referencedRelation: "cursos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salas_modulo_ativo_id_fkey"
+            columns: ["modulo_ativo_id"]
+            isOneToOne: false
+            referencedRelation: "modulos"
             referencedColumns: ["id"]
           },
           {

@@ -17,6 +17,7 @@ export type Sala = {
   curso_id: string;
   nome: string;
   professor_id: string | null;
+  modulo_ativo_id: string | null;
   turno: string | null;
   convite: string;
   data_inicio: string;
@@ -34,6 +35,7 @@ export type Aula = {
   numero: number;
   titulo: string;
   data: string | null;
+  professor_id: string | null;
 };
 export type TipoMatricula = "individual" | "casal";
 export type Matricula = {

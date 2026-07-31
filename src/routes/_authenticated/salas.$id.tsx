@@ -89,6 +89,17 @@ function SalaDetalhe() {
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
   const { pode } = usePermissoes();
+  const salaProfs = useQuery({
+    queryKey: ["sala-professores", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sala_professores")
+        .select("professor_id")
+        .eq("sala_id", id);
+      if (error) throw error;
+      return (data ?? []).map((r) => r.professor_id);
+    },
+  });
   const auditoria = useQuery({
     queryKey: ["salas-auditoria", id],
     queryFn: async () => {
@@ -145,12 +156,23 @@ function SalaDetalhe() {
     (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
   );
   const coordenador = sessao?.papel === "coordenador";
+  const equipe = salaProfs.data ?? [];
   const gerencia =
     sessao?.papel === "coordenador" ||
-    (!!sala?.professor_id && sala.professor_id === sessao?.user.id);
+    (!!sala?.professor_id && sala.professor_id === sessao?.user.id) ||
+    (!!sessao?.user.id && equipe.includes(sessao.user.id));
   const podeEditar = gerencia && pode("turma_editar");
   const podeMatricular = gerencia && pode("turma_matricular");
   const podeDefinirProfessor = gerencia && pode("turma_definir_professor");
+
+  const listaModulos = modulos.data ?? [];
+  const moduloAtivo =
+    listaModulos.find((m) => m.id === sala?.modulo_ativo_id) ?? listaModulos[0] ?? null;
+  const aulasDoModulo = (aulas.data ?? []).filter((a) => a.modulo_id === moduloAtivo?.id);
+  const equipePerfis = equipe
+    .map((pid) => (perfis.data ?? []).find((p) => p.id === pid))
+    .filter((p): p is NonNullable<typeof p> => !!p);
+  const professoresDisponiveis = professores.filter((p) => !equipe.includes(p.id));
 
   const idsMatriculados = new Set((matriculas.data ?? []).map((m) => m.aluno_id));
   const termoExistente = buscaExistente.trim().toLowerCase();
@@ -336,6 +358,72 @@ function SalaDetalhe() {
     setEditando(true);
   }
 
+
+  const definirModuloAtivo = useMutation({
+    mutationFn: async (moduloId: string) => {
+      const { error } = await supabase
+        .from("salas")
+        .update({ modulo_ativo_id: moduloId })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Módulo da turma atualizado");
+      qc.invalidateQueries({ queryKey: ["salas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const adicionarProfessor = useMutation({
+    mutationFn: async (professorId: string) => {
+      const { error } = await supabase
+        .from("sala_professores")
+        .insert({ sala_id: id, professor_id: professorId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Professor adicionado à turma");
+      qc.invalidateQueries({ queryKey: ["sala-professores", id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removerProfessor = useMutation({
+    mutationFn: async (professorId: string) => {
+      const { error } = await supabase
+        .from("sala_professores")
+        .delete()
+        .eq("sala_id", id)
+        .eq("professor_id", professorId);
+      if (error) throw error;
+      const { error: erroAulas } = await supabase
+        .from("aulas")
+        .update({ professor_id: null })
+        .eq("professor_id", professorId)
+        .in("modulo_id", idsModulos.length > 0 ? idsModulos : ["00000000-0000-0000-0000-000000000000"]);
+      if (erroAulas) throw erroAulas;
+    },
+    onSuccess: () => {
+      toast.success("Professor removido da turma");
+      qc.invalidateQueries({ queryKey: ["sala-professores", id] });
+      qc.invalidateQueries({ queryKey: ["aulas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const definirProfessorAula = useMutation({
+    mutationFn: async ({ aulaId, professorId }: { aulaId: string; professorId: string | null }) => {
+      const { error } = await supabase
+        .from("aulas")
+        .update({ professor_id: professorId })
+        .eq("id", aulaId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["aulas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const salvarData = useMutation({
     mutationFn: async ({ aulaId, data }: { aulaId: string; data: string }) => {
@@ -566,40 +654,155 @@ function SalaDetalhe() {
 
 
 
-      <section className="space-y-3">
-        <h2 className="text-lg">Módulos e aulas</h2>
-        {(modulos.data ?? []).map((m) => (
-          <Card key={m.id} className="gap-3 p-4">
-            <h3 className="text-base font-semibold">{m.nome}</h3>
-            <ul className="divide-y rounded-xl border">
-              {(aulas.data ?? [])
-                .filter((a) => a.modulo_id === m.id)
-                .map((a) => (
-                  <li key={a.id} className="flex items-center gap-3 px-3 py-2.5">
-                    <span className="flex-1 text-sm">
-                      Aula {a.numero} · {a.titulo}
-                    </span>
-                    <Input
-                      type="date"
-                      defaultValue={a.data?.slice(0, 10) ?? ""}
-                      onBlur={(e) => salvarData.mutate({ aulaId: a.id, data: e.target.value })}
-                      className="w-40"
-                    />
-                  </li>
+      <Card className="gap-3 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg">Professores da turma</h2>
+            <p className="text-sm text-muted-foreground">
+              Vários professores podem atuar na mesma turma; a aula define quem ministra.
+            </p>
+          </div>
+          {podeDefinirProfessor && professoresDisponiveis.length > 0 && (
+            <Select value="" onValueChange={(v) => adicionarProfessor.mutate(v)}>
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Adicionar professor" />
+              </SelectTrigger>
+              <SelectContent>
+                {professoresDisponiveis.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.nome}
+                  </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+        {equipePerfis.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum professor vinculado a esta turma.</p>
+        ) : (
+          <ul className="divide-y rounded-xl border">
+            {equipePerfis.map((p) => (
+              <li key={p.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
+                <span className="grid size-8 place-items-center rounded-full bg-secondary text-[11px] font-bold text-secondary-foreground">
+                  {iniciais(p.nome)}
+                </span>
+                <span className="flex-1">
+                  <span className="block font-medium">{p.nome}</span>
+                  <span className="text-xs text-muted-foreground">{p.email ?? "—"}</span>
+                </span>
+                {sala.professor_id === p.id && (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs">Responsável</span>
+                )}
+                {podeDefinirProfessor && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => removerProfessor.mutate(p.id)}
+                  >
+                    <Trash2 className="size-4" /> Remover
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-lg">Módulo em andamento</h2>
+            <p className="text-sm text-muted-foreground">
+              A turma trabalha um módulo por vez — troque quando avançar na ementa.
+            </p>
+          </div>
+          {listaModulos.length > 0 && (
+            <div className="space-y-1.5">
+              <Label>Módulo da turma</Label>
+              <Select
+                value={moduloAtivo?.id ?? ""}
+                onValueChange={(v) => definirModuloAtivo.mutate(v)}
+                disabled={!podeEditar}
+              >
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Selecionar módulo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {listaModulos.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+
+        {moduloAtivo ? (
+          <Card className="gap-3 p-4">
+            <h3 className="text-base font-semibold">{moduloAtivo.nome}</h3>
+            <ul className="divide-y rounded-xl border">
+              {aulasDoModulo.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex flex-wrap items-center gap-3 px-3 py-2.5 sm:flex-nowrap"
+                >
+                  <span className="min-w-40 flex-1 text-sm">
+                    Aula {a.numero} · {a.titulo}
+                  </span>
+                  <Select
+                    value={a.professor_id ?? "nenhum"}
+                    onValueChange={(v) =>
+                      definirProfessorAula.mutate({
+                        aulaId: a.id,
+                        professorId: v === "nenhum" ? null : v,
+                      })
+                    }
+                    disabled={!podeDefinirProfessor}
+                  >
+                    <SelectTrigger className="h-9 w-48">
+                      <SelectValue placeholder="Professor da aula" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="nenhum">Sem professor definido</SelectItem>
+                      {(equipePerfis.length > 0 ? equipePerfis : professores).map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    type="date"
+                    defaultValue={a.data?.slice(0, 10) ?? ""}
+                    onBlur={(e) => salvarData.mutate({ aulaId: a.id, data: e.target.value })}
+                    className="w-40"
+                    disabled={!podeEditar}
+                  />
+                </li>
+              ))}
+              {aulasDoModulo.length === 0 && (
+                <li className="px-3 py-2.5 text-sm text-muted-foreground">
+                  Nenhuma aula cadastrada neste módulo.
+                </li>
+              )}
             </ul>
           </Card>
-        ))}
-        {(modulos.data ?? []).length === 0 && (
+        ) : (
           <p className="text-sm text-muted-foreground">
             Esta sala não tem módulos — cadastre a ementa do curso e crie a sala novamente.
           </p>
         )}
       </section>
 
+
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg">Alunos e inscrição por módulo</h2>
+          <h2 className="text-lg">
+            Alunos {moduloAtivo ? `· inscrição em ${moduloAtivo.nome}` : ""}
+          </h2>
           {podeMatricular && (
             <Button size="sm" onClick={() => setAdicionando((v) => !v)}>
               <UserPlus className="size-4" /> Adicionar aluno
@@ -810,11 +1013,11 @@ function SalaDetalhe() {
                 <th className="py-2 pr-3 font-medium">Aluno</th>
                 <th className="px-2 py-2 font-medium">Matrícula</th>
 
-                {(modulos.data ?? []).map((m) => (
-                  <th key={m.id} className="px-2 py-2 text-center font-medium">
-                    {m.ordem}
+                {moduloAtivo && (
+                  <th className="px-2 py-2 text-center font-medium">
+                    {moduloAtivo.nome}
                   </th>
-                ))}
+                )}
                 {podeMatricular && <th className="px-2 py-2 text-right font-medium">Ações</th>}
               </tr>
             </thead>
@@ -879,26 +1082,28 @@ function SalaDetalhe() {
                         </span>
                       )}
                     </td>
-                    {(modulos.data ?? []).map((m) => {
-                      const inscrito = (inscricoes.data ?? []).some(
-                        (i) => i.matricula_id === mat.id && i.modulo_id === m.id,
-                      );
-                      return (
-                        <td key={m.id} className="px-2 py-2 text-center">
-                          <Checkbox
-                            checked={inscrito}
-                            aria-label={`${perfil?.nome} em ${m.nome}`}
-                            onCheckedChange={() =>
-                              alternarInscricao.mutate({
-                                matriculaId: mat.id,
-                                moduloId: m.id,
-                                inscrito,
-                              })
-                            }
-                          />
-                        </td>
-                      );
-                    })}
+                    {moduloAtivo && (
+                      (() => {
+                        const inscrito = (inscricoes.data ?? []).some(
+                          (i) => i.matricula_id === mat.id && i.modulo_id === moduloAtivo.id,
+                        );
+                        return (
+                          <td className="px-2 py-2 text-center">
+                            <Checkbox
+                              checked={inscrito}
+                              aria-label={`${perfil?.nome} em ${moduloAtivo.nome}`}
+                              onCheckedChange={() =>
+                                alternarInscricao.mutate({
+                                  matriculaId: mat.id,
+                                  moduloId: moduloAtivo.id,
+                                  inscrito,
+                                })
+                              }
+                            />
+                          </td>
+                        );
+                      })()
+                    )}
                     {podeMatricular && (
                       <td className="px-2 py-2 text-right">
                         <Button
@@ -919,7 +1124,7 @@ function SalaDetalhe() {
               {matriculasVisiveis.length === 0 && (
                 <tr>
                   <td
-                    colSpan={(modulos.data ?? []).length + (podeMatricular ? 3 : 2)}
+                    colSpan={(moduloAtivo ? 1 : 0) + (podeMatricular ? 3 : 2)}
                     className="py-3 text-muted-foreground"
                   >
                     {(matriculas.data ?? []).length === 0

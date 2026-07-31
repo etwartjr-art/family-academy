@@ -121,8 +121,15 @@ function Chamada() {
     qc.invalidateQueries({ queryKey: ["presencas"] });
   }
 
-  const modulosDaSala = (modulos.data ?? []).filter((m) => !salaId || m.sala_id === salaId);
-  const aulasDoModulo = (aulas.data ?? []).filter((a) => !moduloId || a.modulo_id === moduloId);
+  const salaSelecionada = (salas.data ?? []).find((s) => s.id === salaId);
+  const modulosDaSala = (modulos.data ?? [])
+    .filter((m) => !salaId || m.sala_id === salaId)
+    .filter((m) => !salaSelecionada?.modulo_ativo_id || m.id === salaSelecionada.modulo_ativo_id);
+  const moduloEfetivo =
+    modulosDaSala.find((m) => m.id === moduloId)?.id ?? modulosDaSala[0]?.id ?? "";
+  const aulasDoModulo = (aulas.data ?? []).filter(
+    (a) => !moduloEfetivo || a.modulo_id === moduloEfetivo,
+  );
 
   return (
     <div className="space-y-6">
@@ -159,7 +166,7 @@ function Chamada() {
         <div className="space-y-1.5">
           <Label>Módulo</Label>
           <Select
-            value={moduloId}
+            value={moduloEfetivo}
             onValueChange={(v) => {
               setModuloId(v);
               setAulaId("");
