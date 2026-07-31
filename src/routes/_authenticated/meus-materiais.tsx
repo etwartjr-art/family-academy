@@ -16,12 +16,12 @@ import { Download } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/meus-materiais")({
   head: () => ({
     meta: [
-      { title: "Meus materiais — Escola de Finanças Academy" },
+      { title: "Meus materiais — Escola de Finanças" },
       {
         name: "description",
         content: "Baixe os materiais de estudo das aulas dos módulos em que você está inscrito.",
       },
-      { property: "og:title", content: "Meus materiais — Escola de Finanças Academy" },
+      { property: "og:title", content: "Meus materiais — Escola de Finanças" },
       { property: "og:description", content: "Materiais de estudo dos seus módulos e aulas." },
     ],
   }),

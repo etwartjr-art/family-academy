@@ -56,7 +56,7 @@ function Marca() {
     <div className="flex items-center gap-2.5 px-2 pb-4 pt-1">
       <img
         src={logoAsset.url}
-        alt="Escola de Finanças Academy"
+        alt="Escola de Finanças"
         className="size-9 shrink-0 rounded-[10px] object-cover"
       />
       <div className="leading-tight">

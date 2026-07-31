@@ -18,12 +18,12 @@ import { Card } from "@/components/ui/card";
 export const Route = createFileRoute("/_authenticated/meu-painel")({
   head: () => ({
     meta: [
-      { title: "Minha carteirinha — Escola de Finanças Academy" },
+      { title: "Minha carteirinha — Escola de Finanças" },
       {
         name: "description",
         content: "Sua carteirinha digital com QR code e o acompanhamento da sua frequência.",
       },
-      { property: "og:title", content: "Minha carteirinha — Escola de Finanças Academy" },
+      { property: "og:title", content: "Minha carteirinha — Escola de Finanças" },
       { property: "og:description", content: "Carteirinha digital e frequência do aluno." },
     ],
   }),
@@ -57,7 +57,7 @@ function MeuPainel() {
           <QRCodeBox valor={`FA|ALUNO|${perfil.codigo}`} tamanho={112} />
           <div className="min-w-0">
             <div className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
-              Escola de Finanças Academy
+              Escola de Finanças
             </div>
             <div className="truncate font-display text-xl font-extrabold">{perfil.nome}</div>
             <div className="font-mono text-lg">{perfil.codigo}</div>

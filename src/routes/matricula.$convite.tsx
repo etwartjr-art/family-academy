@@ -11,15 +11,15 @@ import { z } from "zod";
 export const Route = createFileRoute("/matricula/$convite")({
   head: () => ({
     meta: [
-      { title: "Matrícula — Escola de Finanças Academy" },
+      { title: "Matrícula — Escola de Finanças" },
       {
         name: "description",
-        content: "Faça sua matrícula na turma da Escola de Finanças Academy usando o código de convite da sala.",
+        content: "Faça sua matrícula na turma da Escola de Finanças usando o código de convite da sala.",
       },
-      { property: "og:title", content: "Matrícula — Escola de Finanças Academy" },
+      { property: "og:title", content: "Matrícula — Escola de Finanças" },
       {
         property: "og:description",
-        content: "Cadastro de aluno na turma da Escola de Finanças Academy.",
+        content: "Cadastro de aluno na turma da Escola de Finanças.",
       },
     ],
   }),

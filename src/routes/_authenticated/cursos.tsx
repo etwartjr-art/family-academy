@@ -13,12 +13,12 @@ import { Plus, Trash2 } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/cursos")({
   head: () => ({
     meta: [
-      { title: "Cursos — Escola de Finanças Academy" },
+      { title: "Cursos — Escola de Finanças" },
       {
         name: "description",
-        content: "Crie cursos e edite a ementa de módulos que gera as turmas da Escola de Finanças Academy.",
+        content: "Crie cursos e edite a ementa de módulos que gera as turmas da Escola de Finanças.",
       },
-      { property: "og:title", content: "Cursos — Escola de Finanças Academy" },
+      { property: "og:title", content: "Cursos — Escola de Finanças" },
       { property: "og:description", content: "Cursos e ementa de módulos." },
     ],
   }),

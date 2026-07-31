@@ -23,12 +23,12 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/pessoas")({
   head: () => ({
     meta: [
-      { title: "Pessoas — Escola de Finanças Academy" },
+      { title: "Pessoas — Escola de Finanças" },
       {
         name: "description",
-        content: "Gerencie os papéis de coordenadores, professores e alunos da Escola de Finanças Academy.",
+        content: "Gerencie os papéis de coordenadores, professores e alunos da Escola de Finanças.",
       },
-      { property: "og:title", content: "Pessoas — Escola de Finanças Academy" },
+      { property: "og:title", content: "Pessoas — Escola de Finanças" },
       { property: "og:description", content: "Papéis de acesso da plataforma." },
     ],
   }),
