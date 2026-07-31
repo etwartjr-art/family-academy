@@ -88,7 +88,7 @@ function Entrada() {
             Escola de Finanças
           </h1>
           <p className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
-            Academy
+            {" "}
           </p>
         </div>
 
