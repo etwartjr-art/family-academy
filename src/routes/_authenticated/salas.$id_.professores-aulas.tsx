@@ -26,7 +26,7 @@ import {
 import { toast } from "sonner";
 import { ArrowLeft, GraduationCap } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/salas/$id/professores-aulas")({
+export const Route = createFileRoute("/_authenticated/salas/$id_/professores-aulas")({
   head: () => ({
     meta: [
       { title: "Professores por aula — Family Academy" },
