@@ -592,14 +592,14 @@ function SalaDetalhe() {
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg">Alunos e inscrição por módulo</h2>
-          {coordenador && (
+          {podeMatricular && (
             <Button size="sm" onClick={() => setAdicionando((v) => !v)}>
               <UserPlus className="size-4" /> Adicionar aluno
             </Button>
           )}
         </div>
 
-        {coordenador && adicionando && (
+        {podeMatricular && adicionando && (
           <Card className="gap-4 p-4">
             <h3 className="text-base font-semibold">Novo aluno na turma</h3>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -684,7 +684,7 @@ function SalaDetalhe() {
           </Card>
         )}
 
-        {coordenador && (
+        {podeMatricular && (
           <Card className="gap-4 p-4">
             <div>
               <h3 className="text-base font-semibold">Matricular aluno já cadastrado</h3>
@@ -804,7 +804,7 @@ function SalaDetalhe() {
                     {m.ordem}
                   </th>
                 ))}
-                {podeEditar && <th className="px-2 py-2 text-right font-medium">Ações</th>}
+                {podeMatricular && <th className="px-2 py-2 text-right font-medium">Ações</th>}
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -827,7 +827,7 @@ function SalaDetalhe() {
                       </span>
                     </td>
                     <td className="px-2 py-2">
-                      {podeEditar ? (
+                      {podeMatricular ? (
                         <div className="flex flex-col gap-1.5">
                           <Select
                             value={mat.tipo}
@@ -888,7 +888,7 @@ function SalaDetalhe() {
                         </td>
                       );
                     })}
-                    {podeEditar && (
+                    {podeMatricular && (
                       <td className="px-2 py-2 text-right">
                         <Button
                           size="sm"
