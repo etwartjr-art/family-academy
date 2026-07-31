@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from "react";
+import { FundoMarca } from "@/components/FundoMarca";
+
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -101,9 +103,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="relative flex min-h-screen w-full bg-background">
+      <FundoMarca />
+
       {/* barra lateral — desktop */}
-      <aside className="sem-impressao sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col justify-between bg-sidebar p-4 md:flex">
+      <aside className="sem-impressao sticky top-0 z-10 hidden h-screen w-[236px] shrink-0 flex-col justify-between bg-sidebar p-4 md:flex">
         <div>
           <Marca />
           {navegacao}
@@ -117,7 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* topo — mobile */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <header className="sem-impressao sticky top-0 z-30 flex items-center justify-between bg-sidebar px-3 py-2 md:hidden">
           <Marca />
           <button
