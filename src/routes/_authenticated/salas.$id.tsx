@@ -687,10 +687,12 @@ function SalaDetalhe() {
                     {m.ordem}
                   </th>
                 ))}
+                {podeEditar && <th className="px-2 py-2 text-right font-medium">Ações</th>}
               </tr>
             </thead>
             <tbody className="divide-y">
-              {(matriculas.data ?? []).map((mat) => {
+              {matriculasVisiveis.map((mat) => {
+
                 const perfil = (perfis.data ?? []).find((p) => p.id === mat.aluno_id);
                 return (
                   <tr key={mat.id}>
