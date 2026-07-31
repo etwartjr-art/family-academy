@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION interno.aula_do_caminho(text) TO authenticated;
