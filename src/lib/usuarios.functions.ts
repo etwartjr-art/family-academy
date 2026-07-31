@@ -51,3 +51,43 @@ export const criarUsuario = createServerFn({ method: "POST" })
 
     return { id: novoId };
   });
+
+const esquemaEdicao = z.object({
+  id: z.string().uuid(),
+  nome: z.string().trim().min(2).max(100),
+  email: z.string().trim().email().max(255),
+  telefone: z.string().trim().max(30).optional().or(z.literal("")),
+  senha: z.string().min(6).max(72).optional().or(z.literal("")),
+});
+
+export const editarUsuario = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => esquemaEdicao.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: ehCoordenador, error: erroPapel } = await context.supabase.rpc("tem_papel", {
+      _user_id: context.userId,
+      _papel: "coordenador",
+    });
+    if (erroPapel) throw new Error(erroPapel.message);
+    if (!ehCoordenador) throw new Error("Apenas coordenadores podem editar usuários");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const atualizacao: { email: string; password?: string; user_metadata: Record<string, unknown> } =
+      {
+        email: data.email,
+        user_metadata: { nome: data.nome, telefone: data.telefone || null },
+      };
+    if (data.senha) atualizacao.password = data.senha;
+
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, atualizacao);
+    if (error) throw new Error(error.message);
+
+    const { error: erroPerfil } = await supabaseAdmin
+      .from("perfis")
+      .update({ nome: data.nome, email: data.email, telefone: data.telefone || null })
+      .eq("id", data.id);
+    if (erroPerfil) throw new Error(erroPerfil.message);
+
+    return { id: data.id };
+  });
