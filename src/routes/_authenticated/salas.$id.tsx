@@ -42,7 +42,20 @@ import {
 } from "@/components/ui/alert-dialog";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { toast } from "sonner";
-import { ArrowLeft, Pencil, Search, Trash2, UserPlus } from "lucide-react";
+import { ArrowLeft, History as HistoryIcon, Pencil, Search, Trash2, UserPlus } from "lucide-react";
+
+const ROTULOS_CAMPO: Record<string, string> = {
+  nome: "Nome da turma",
+  professor: "Professor",
+  turno: "Turno",
+  data_inicio: "Data de início",
+};
+
+function formatarValor(campo: string, valor: string | null) {
+  if (!valor) return "—";
+  if (campo === "data_inicio") return new Date(`${valor}T00:00:00`).toLocaleDateString("pt-BR");
+  return valor;
+}
 
 
 
