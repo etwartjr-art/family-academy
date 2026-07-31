@@ -560,10 +560,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      aluno_visivel: { Args: { _aluno_id: string }; Returns: boolean }
-      e_coordenador: { Args: never; Returns: boolean }
-      e_professor_da_sala: { Args: { _sala_id: string }; Returns: boolean }
-      esta_matriculado: { Args: { _sala_id: string }; Returns: boolean }
       gerar_codigo: { Args: { _tamanho: number }; Returns: string }
       matricular_por_convite: {
         Args: {
@@ -584,8 +580,6 @@ export type Database = {
         }
         Returns: Json
       }
-      sala_da_aula: { Args: { _aula_id: string }; Returns: string }
-      sala_do_modulo: { Args: { _modulo_id: string }; Returns: string }
       sala_gerenciavel: { Args: { _sala_id: string }; Returns: boolean }
       sala_por_convite: {
         Args: { _convite: string }
@@ -595,7 +589,6 @@ export type Database = {
           turno: string
         }[]
       }
-      sala_visivel: { Args: { _sala_id: string }; Returns: boolean }
       tem_papel: {
         Args: {
           _papel: Database["public"]["Enums"]["papel_app"]
