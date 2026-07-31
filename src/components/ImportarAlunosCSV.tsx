@@ -2,13 +2,16 @@ import { useMemo, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { importarAlunosLote, type ResultadoImportacao } from "@/lib/importacao.functions";
+import { mapearAlunosComIA } from "@/lib/importacao-ia.functions";
 import { analisarCSVAlunos, MODELO_CSV, type LinhaCSV } from "@/lib/csv-alunos";
+import { arquivoParaTexto, ACEITA_ARQUIVOS } from "@/lib/planilha-alunos";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Download, Upload } from "lucide-react";
+import { Download, Sparkles, Upload } from "lucide-react";
+
 
 const ROTULO_STATUS: Record<ResultadoImportacao["status"], string> = {
   criado: "Criado",
