@@ -89,6 +89,17 @@ function SalaDetalhe() {
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
   const { pode } = usePermissoes();
+  const salaProfs = useQuery({
+    queryKey: ["sala-professores", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sala_professores")
+        .select("professor_id")
+        .eq("sala_id", id);
+      if (error) throw error;
+      return (data ?? []).map((r) => r.professor_id);
+    },
+  });
   const auditoria = useQuery({
     queryKey: ["salas-auditoria", id],
     queryFn: async () => {
