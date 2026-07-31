@@ -14,6 +14,7 @@ import {
   dataBR,
   iniciais,
 } from "@/lib/api";
+import { listarMateriais } from "@/lib/materiais";
 import { useSessao } from "@/hooks/useSessao";
 import { usePermissoes } from "@/hooks/usePermissoes";
 import { useServerFn } from "@tanstack/react-start";
