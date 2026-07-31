@@ -43,6 +43,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { ImportarAlunosCSV } from "@/components/ImportarAlunosCSV";
+import { DetalhesAluno } from "@/components/DetalhesAluno";
+
 import { toast } from "sonner";
 import { ArrowLeft, History as HistoryIcon, Pencil, Search, Trash2, UserPlus } from "lucide-react";
 
@@ -1180,7 +1182,7 @@ function SalaDetalhe() {
                     {moduloAtivo.nome}
                   </th>
                 )}
-                {podeMatricular && <th className="px-2 py-2 text-right font-medium">Ações</th>}
+                <th className="px-2 py-2 text-right font-medium">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -1266,27 +1268,48 @@ function SalaDetalhe() {
                         );
                       })()
                     )}
-                    {podeMatricular && (
-                      <td className="px-2 py-2 text-right">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() =>
+                    <td className="px-2 py-2 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <DetalhesAluno
+                          matricula={mat}
+                          perfil={perfil}
+                          salaNome={sala?.nome}
+                          cursoNome={curso?.nome}
+                          modulosInscritos={(inscricoes.data ?? [])
+                            .filter((i) => i.matricula_id === mat.id)
+                            .map(
+                              (i) =>
+                                listaModulos.find((m) => m.id === i.modulo_id)?.nome ?? "",
+                            )
+                            .filter(Boolean)}
+                          aulaIds={aulasDoModulo.map((a) => a.id)}
+                          podeRemover={podeMatricular}
+                          onRemover={() =>
                             setRemovendo({ id: mat.id, nome: perfil?.nome ?? "este aluno" })
                           }
-                        >
-                          <Trash2 className="size-4" /> Remover
-                        </Button>
-                      </td>
-                    )}
+                        />
+                        {podeMatricular && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() =>
+                              setRemovendo({ id: mat.id, nome: perfil?.nome ?? "este aluno" })
+                            }
+                          >
+                            <Trash2 className="size-4" /> Remover
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+
                   </tr>
                 );
               })}
               {matriculasVisiveis.length === 0 && (
                 <tr>
                   <td
-                    colSpan={(moduloAtivo ? 1 : 0) + (podeMatricular ? 3 : 2)}
+                    colSpan={(moduloAtivo ? 1 : 0) + 3}
                     className="py-3 text-muted-foreground"
                   >
                     {(matriculas.data ?? []).length === 0
