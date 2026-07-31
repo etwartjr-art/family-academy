@@ -91,7 +91,7 @@ function Matricula() {
     const { error } = await supabase.rpc("matricular_por_convite", {
       _convite: convite,
       _tipo: r.data.tipo,
-      _nome_casal: r.data.tipo === "casal" ? (r.data.nomeCasal ?? null) : null,
+      _nome_casal: r.data.tipo === "casal" ? (r.data.nomeCasal ?? "") : "",
     });
     setCarregando(false);
     if (error) {
