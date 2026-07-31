@@ -250,9 +250,30 @@ function Acessos() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium">{p.nome}</span>
-                      <span className="text-xs capitalize text-muted-foreground">{papel}</span>
+                      <span className="text-xs capitalize text-muted-foreground">
+                        {papel}
+                        {excecoesDe(p.id).length > 0 &&
+                          ` · ${excecoesDe(p.id).length} exceção(ões)`}
+                      </span>
                     </span>
+                    {excecoesDe(p.id).length > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setAlvo({
+                            userId: p.id,
+                            nome: p.nome,
+                            papel,
+                            chaves: excecoesDe(p.id),
+                          })
+                        }
+                      >
+                        Usar padrão em tudo
+                      </Button>
+                    )}
                   </div>
+
                   <div className="flex flex-wrap gap-2">
                     {CATALOGO.map((c) => {
                       const excecao = (porUsuario.data ?? []).find(
