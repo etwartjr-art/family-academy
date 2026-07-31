@@ -86,6 +86,7 @@ function SalaDetalhe() {
   const inscricoes = useQuery({ queryKey: ["inscricoes"], queryFn: listarInscricoes });
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
+  const { pode } = usePermissoes();
   const auditoria = useQuery({
     queryKey: ["salas-auditoria", id],
     queryFn: async () => {
