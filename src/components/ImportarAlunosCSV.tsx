@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Download, Sparkles, Upload } from "lucide-react";
+import { AlertTriangle, Download, Sparkles, Upload } from "lucide-react";
 
 
 const ROTULO_STATUS: Record<ResultadoImportacao["status"], string> = {
@@ -25,10 +25,18 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
   const arquivoRef = useRef<HTMLInputElement>(null);
   const [texto, setTexto] = useState("");
   const [resultados, setResultados] = useState<ResultadoImportacao[] | null>(null);
+  const [soErros, setSoErros] = useState(false);
 
   const linhas: LinhaCSV[] = useMemo(() => analisarCSVAlunos(texto), [texto]);
   const validas = linhas.filter((l) => l.erros.length === 0);
   const invalidas = linhas.filter((l) => l.erros.length > 0);
+  const exibidas = soErros ? invalidas : linhas;
+  const resumoErros = useMemo(() => {
+    const contagem = new Map<string, number>();
+    for (const l of linhas) for (const e of l.erros) contagem.set(e, (contagem.get(e) ?? 0) + 1);
+    return [...contagem.entries()].sort((a, b) => b[1] - a[1]);
+  }, [linhas]);
+
 
   const importar = useServerFn(importarAlunosLote);
   const mapearIA = useServerFn(mapearAlunosComIA);
@@ -153,27 +161,60 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
 
       {linhas.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm">
-            <strong>{validas.length}</strong> linha(s) prontas
-            {invalidas.length > 0 && <> · {invalidas.length} com problema</>}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm">
+              <strong>{validas.length}</strong> linha(s) prontas
+              {invalidas.length > 0 && (
+                <>
+                  {" · "}
+                  <span className="text-destructive">{invalidas.length} com problema</span>
+                </>
+              )}
+            </p>
+            {invalidas.length > 0 && (
+              <Button size="sm" variant="ghost" onClick={() => setSoErros((v) => !v)}>
+                {soErros ? "Mostrar todas" : "Ver só as com problema"}
+              </Button>
+            )}
+          </div>
+
+          {invalidas.length > 0 && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3">
+              <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+                <AlertTriangle className="size-4" /> Corrija antes de importar
+              </p>
+              <ul className="mt-1.5 space-y-0.5 text-sm text-muted-foreground">
+                {resumoErros.map(([erro, qtd]) => (
+                  <li key={erro}>
+                    • {erro} — {qtd} linha(s)
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                As linhas com problema não serão importadas.
+              </p>
+            </div>
+          )}
+
           <div className="max-h-64 overflow-auto rounded-md border">
-            <table className="w-full min-w-[560px] text-sm">
+            <table className="w-full min-w-[640px] text-sm">
               <thead className="bg-muted/50 text-left">
                 <tr>
                   <th className="px-3 py-2 font-medium">#</th>
                   <th className="px-3 py-2 font-medium">Nome</th>
                   <th className="px-3 py-2 font-medium">E-mail</th>
+                  <th className="px-3 py-2 font-medium">Telefone</th>
                   <th className="px-3 py-2 font-medium">Tipo</th>
                   <th className="px-3 py-2 font-medium">Situação</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {linhas.map((l) => (
+                {exibidas.map((l) => (
                   <tr key={l.linha} className={l.erros.length ? "bg-destructive/5" : undefined}>
                     <td className="px-3 py-2 text-muted-foreground">{l.linha}</td>
                     <td className="px-3 py-2">{l.nome || "—"}</td>
                     <td className="px-3 py-2">{l.email || "—"}</td>
+                    <td className="px-3 py-2">{l.telefone || "—"}</td>
                     <td className="px-3 py-2">
                       {l.tipo === "casal" ? `Casal · ${l.nome_casal || "—"}` : "Individual"}
                     </td>
@@ -191,6 +232,7 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
           </div>
         </div>
       )}
+
 
       <div className="flex flex-wrap items-center gap-2">
         <Button

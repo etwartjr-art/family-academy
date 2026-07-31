@@ -101,15 +101,34 @@ export function analisarCSVAlunos(texto: string): LinhaCSV[] {
       }
     });
 
-    if (item.nome.length < 2) item.erros.push("Nome inválido");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(item.email)) item.erros.push("E-mail inválido");
-    if (item.tipo === "casal" && item.nome_casal.length < 2)
+    // Campos obrigatórios
+    if (!item.nome) item.erros.push("Nome é obrigatório");
+    else if (item.nome.replace(/[^\p{L}]/gu, "").length < 2) item.erros.push("Nome inválido");
+    else if (item.nome.length > 120) item.erros.push("Nome muito longo (máx. 120)");
+
+    if (!item.email) item.erros.push("E-mail é obrigatório");
+    else if (item.email.length > 255) item.erros.push("E-mail muito longo (máx. 255)");
+    else if (!/^[^\s@,;]+@[^\s@,;]+\.[a-z]{2,}$/i.test(item.email))
+      item.erros.push("E-mail inválido (ex.: nome@dominio.com)");
+
+    // Telefone: opcional, mas quando informado precisa ter DDD + 8/9 dígitos
+    if (item.telefone) {
+      const digitos = item.telefone.replace(/\D/g, "");
+      if (/[a-zA-Z]/.test(item.telefone)) item.erros.push("Telefone não pode conter letras");
+      else if (digitos.length < 10 || digitos.length > 13)
+        item.erros.push("Telefone inválido (use DDD + número, ex.: 62999990000)");
+      else item.telefone = digitos;
+    }
+
+    if (item.tipo === "casal" && item.nome_casal.replace(/[^\p{L}]/gu, "").length < 2)
       item.erros.push("Nome do casal é obrigatório quando o tipo é Casal");
     if (item.senha && item.senha.length < 6) item.erros.push("Senha precisa ter 6+ caracteres");
 
     const chave = item.email.toLowerCase();
     if (chave && vistos.has(chave)) item.erros.push("E-mail repetido no arquivo");
     if (chave) vistos.add(chave);
+
+
 
     return item;
   });
