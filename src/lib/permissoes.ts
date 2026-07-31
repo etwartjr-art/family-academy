@@ -13,20 +13,52 @@ export type ChaveAcesso =
   | "frequencia"
   | "carteirinhas"
   | "pessoas"
-  | "acessos";
+  | "acessos"
+  | "turma_editar"
+  | "turma_matricular"
+  | "turma_definir_professor";
 
-export const CATALOGO: { chave: ChaveAcesso; rotulo: string; descricao: string }[] = [
-  { chave: "painel", rotulo: "Painel", descricao: "Visão geral com indicadores e próximas aulas" },
-  { chave: "meu_painel", rotulo: "Minha carteirinha", descricao: "Carteirinha e frequência pessoal" },
-  { chave: "cursos", rotulo: "Cursos", descricao: "Criar cursos e definir a ementa dos módulos" },
-  { chave: "salas", rotulo: "Salas", descricao: "Criar e editar turmas, aulas e matrículas" },
-  { chave: "alunos", rotulo: "Alunos", descricao: "Lista de alunos por curso e turma" },
-  { chave: "chamada", rotulo: "Chamada", descricao: "Registrar presença por QR, código ou manual" },
-  { chave: "frequencia", rotulo: "Frequência", descricao: "Grade de presença e exportação" },
-  { chave: "carteirinhas", rotulo: "Carteirinhas", descricao: "Gerar carteirinhas para impressão" },
-  { chave: "pessoas", rotulo: "Pessoas", descricao: "Cadastrar, editar e definir papéis" },
-  { chave: "acessos", rotulo: "Níveis de acesso", descricao: "Configurar permissões de papéis e usuários" },
+export type ItemCatalogo = {
+  chave: ChaveAcesso;
+  rotulo: string;
+  descricao: string;
+  grupo: "area" | "acao";
+};
+
+export const CATALOGO: ItemCatalogo[] = [
+  { chave: "painel", rotulo: "Painel", descricao: "Visão geral com indicadores e próximas aulas", grupo: "area" },
+  { chave: "meu_painel", rotulo: "Minha carteirinha", descricao: "Carteirinha e frequência pessoal", grupo: "area" },
+  { chave: "cursos", rotulo: "Cursos", descricao: "Criar cursos e definir a ementa dos módulos", grupo: "area" },
+  { chave: "salas", rotulo: "Salas", descricao: "Ver turmas, aulas e matrículas", grupo: "area" },
+  { chave: "alunos", rotulo: "Alunos", descricao: "Lista de alunos por curso e turma", grupo: "area" },
+  { chave: "chamada", rotulo: "Chamada", descricao: "Registrar presença por QR, código ou manual", grupo: "area" },
+  { chave: "frequencia", rotulo: "Frequência", descricao: "Grade de presença e exportação", grupo: "area" },
+  { chave: "carteirinhas", rotulo: "Carteirinhas", descricao: "Gerar carteirinhas para impressão", grupo: "area" },
+  { chave: "pessoas", rotulo: "Pessoas", descricao: "Cadastrar, editar e definir papéis", grupo: "area" },
+  { chave: "acessos", rotulo: "Níveis de acesso", descricao: "Configurar permissões de papéis e usuários", grupo: "area" },
+  {
+    chave: "turma_editar",
+    rotulo: "Editar turma",
+    descricao: "Alterar nome, turno e data de início da turma",
+    grupo: "acao",
+  },
+  {
+    chave: "turma_matricular",
+    rotulo: "Matricular / remover alunos",
+    descricao: "Adicionar, matricular e remover alunos da turma",
+    grupo: "acao",
+  },
+  {
+    chave: "turma_definir_professor",
+    rotulo: "Definir professor",
+    descricao: "Escolher ou trocar o professor responsável pela turma",
+    grupo: "acao",
+  },
 ];
+
+export const AREAS = CATALOGO.filter((c) => c.grupo === "area");
+export const ACOES = CATALOGO.filter((c) => c.grupo === "acao");
+
 
 export type PermissaoPapel = { papel: Papel; chave: string; permitido: boolean };
 export type PermissaoUsuario = { user_id: string; chave: string; permitido: boolean };
