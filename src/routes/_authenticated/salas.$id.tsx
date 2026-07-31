@@ -43,6 +43,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { ImportarAlunosCSV } from "@/components/ImportarAlunosCSV";
+import { DetalhesAluno } from "@/components/DetalhesAluno";
+
 import { toast } from "sonner";
 import { ArrowLeft, History as HistoryIcon, Pencil, Search, Trash2, UserPlus } from "lucide-react";
 
