@@ -134,22 +134,28 @@ export type Database = {
           aluno_id: string
           criado_em: string
           id: string
+          nome_casal: string | null
           sala_id: string
           status: Database["public"]["Enums"]["status_matricula"]
+          tipo: Database["public"]["Enums"]["tipo_matricula"]
         }
         Insert: {
           aluno_id: string
           criado_em?: string
           id?: string
+          nome_casal?: string | null
           sala_id: string
           status?: Database["public"]["Enums"]["status_matricula"]
+          tipo?: Database["public"]["Enums"]["tipo_matricula"]
         }
         Update: {
           aluno_id?: string
           criado_em?: string
           id?: string
+          nome_casal?: string | null
           sala_id?: string
           status?: Database["public"]["Enums"]["status_matricula"]
+          tipo?: Database["public"]["Enums"]["tipo_matricula"]
         }
         Relationships: [
           {
@@ -461,7 +467,16 @@ export type Database = {
       e_professor_da_sala: { Args: { _sala_id: string }; Returns: boolean }
       esta_matriculado: { Args: { _sala_id: string }; Returns: boolean }
       gerar_codigo: { Args: { _tamanho: number }; Returns: string }
-      matricular_por_convite: { Args: { _convite: string }; Returns: string }
+      matricular_por_convite:
+        | { Args: { _convite: string }; Returns: string }
+        | {
+            Args: {
+              _convite: string
+              _nome_casal?: string
+              _tipo?: Database["public"]["Enums"]["tipo_matricula"]
+            }
+            Returns: string
+          }
       pode: { Args: { _chave: string; _user_id: string }; Returns: boolean }
       registrar_presenca: {
         Args: {
@@ -497,6 +512,7 @@ export type Database = {
       metodo_presenca: "qr" | "codigo" | "manual"
       papel_app: "coordenador" | "professor" | "aluno"
       status_matricula: "ativa" | "pendente" | "cancelada"
+      tipo_matricula: "individual" | "casal"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -627,6 +643,7 @@ export const Constants = {
       metodo_presenca: ["qr", "codigo", "manual"],
       papel_app: ["coordenador", "professor", "aluno"],
       status_matricula: ["ativa", "pendente", "cancelada"],
+      tipo_matricula: ["individual", "casal"],
     },
   },
 } as const
