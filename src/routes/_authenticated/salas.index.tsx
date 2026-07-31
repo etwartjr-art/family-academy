@@ -11,6 +11,7 @@ import {
   dataBR,
 } from "@/lib/api";
 import { useSessao } from "@/hooks/useSessao";
+import { usePermissoes } from "@/hooks/usePermissoes";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
