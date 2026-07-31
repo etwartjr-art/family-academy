@@ -13,6 +13,7 @@ import {
   ScanLine,
   ClipboardCheck,
   IdCard,
+  Library,
   ShieldCheck,
   LogOut,
   Menu,
