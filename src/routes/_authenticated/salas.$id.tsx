@@ -29,9 +29,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { toast } from "sonner";
-import { ArrowLeft, Pencil, UserPlus } from "lucide-react";
+import { ArrowLeft, Pencil, Search, Trash2, UserPlus } from "lucide-react";
+
 
 
 export const Route = createFileRoute("/_authenticated/salas/$id")({
