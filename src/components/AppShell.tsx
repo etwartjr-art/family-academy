@@ -24,6 +24,8 @@ import { usePermissoes } from "@/hooks/usePermissoes";
 import type { ChaveAcesso } from "@/lib/permissoes";
 import { iniciais } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import logoAsset from "@/assets/logo-escola-financas-academy.jpg.asset.json";
+
 
 export type Item = {
   para: string;
