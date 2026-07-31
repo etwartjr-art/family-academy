@@ -16,7 +16,25 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+
+type AlvoPadrao = {
+  userId: string;
+  nome: string;
+  papel: Papel;
+  chaves: string[];
+};
+
 
 export const Route = createFileRoute("/_authenticated/acessos")({
   head: () => ({
@@ -79,6 +97,48 @@ function Acessos() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const [alvo, setAlvo] = useState<AlvoPadrao | null>(null);
+
+  const aplicarPadrao = useMutation({
+    mutationFn: async ({ userId, chaves }: { userId: string; chaves: string[] }) => {
+      for (const chave of chaves) await salvarPermissaoUsuario(userId, chave, null);
+    },
+    onSuccess: (_d, v) => {
+      toast.success(
+        v.chaves.length === 1
+          ? "Exceção removida — voltou ao padrão do papel"
+          : `${v.chaves.length} exceções removidas — voltaram ao padrão do papel`,
+      );
+      setAlvo(null);
+      invalidar();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  /** Diferenças entre a exceção do usuário e o padrão do papel. */
+  const diffs = (userId: string, papel: Papel, chaves: string[]) =>
+    chaves.map((chave) => {
+      const item = CATALOGO.find((c) => c.chave === chave);
+      const excecao = (porUsuario.data ?? []).find(
+        (x) => x.user_id === userId && x.chave === chave,
+      );
+      const padrao =
+        (porPapel.data ?? []).find((x) => x.papel === papel && x.chave === chave)?.permitido ??
+        false;
+      return {
+        chave,
+        rotulo: item?.rotulo ?? chave,
+        atual: excecao?.permitido ?? padrao,
+        padrao,
+        muda: (excecao?.permitido ?? padrao) !== padrao,
+      };
+    });
+
+  const excecoesDe = (userId: string) =>
+    (porUsuario.data ?? []).filter((x) => x.user_id === userId).map((x) => x.chave);
+
+
 
   const papelDe = (id: string): Papel =>
     ((papeis.data ?? []).find((r) => r.user_id === id)?.papel as Papel) ?? "aluno";
@@ -190,9 +250,30 @@ function Acessos() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium">{p.nome}</span>
-                      <span className="text-xs capitalize text-muted-foreground">{papel}</span>
+                      <span className="text-xs capitalize text-muted-foreground">
+                        {papel}
+                        {excecoesDe(p.id).length > 0 &&
+                          ` · ${excecoesDe(p.id).length} exceção(ões)`}
+                      </span>
                     </span>
+                    {excecoesDe(p.id).length > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setAlvo({
+                            userId: p.id,
+                            nome: p.nome,
+                            papel,
+                            chaves: excecoesDe(p.id),
+                          })
+                        }
+                      >
+                        Usar padrão em tudo
+                      </Button>
+                    )}
                   </div>
+
                   <div className="flex flex-wrap gap-2">
                     {CATALOGO.map((c) => {
                       const excecao = (porUsuario.data ?? []).find(
@@ -223,12 +304,18 @@ function Acessos() {
                               size="sm"
                               className="h-6 px-1.5 text-[11px]"
                               onClick={() =>
-                                mudarUsuario.mutate({ userId: p.id, chave: c.chave, valor: null })
+                                setAlvo({
+                                  userId: p.id,
+                                  nome: p.nome,
+                                  papel,
+                                  chaves: [c.chave],
+                                })
                               }
                             >
                               usar padrão
                             </Button>
                           )}
+
                         </div>
                       );
                     })}
@@ -242,6 +329,56 @@ function Acessos() {
           </ul>
         </Card>
       </section>
+
+      <AlertDialog open={!!alvo} onOpenChange={(o) => !o && setAlvo(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Voltar ao padrão do papel?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {alvo && (
+                <>
+                  As exceções de <span className="font-medium">{alvo.nome}</span> serão removidas e
+                  as permissões passarão a seguir o padrão do papel{" "}
+                  <span className="capitalize">{alvo.papel}</span>.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {alvo && (
+            <ul className="divide-y rounded-lg border text-sm">
+              {diffs(alvo.userId, alvo.papel, alvo.chaves).map((d) => (
+                <li key={d.chave} className="flex items-center justify-between gap-3 px-3 py-2">
+                  <span className="min-w-0 flex-1 truncate">{d.rotulo}</span>
+                  {d.muda ? (
+                    <span className="shrink-0 font-mono text-xs">
+                      <span className="text-destructive">{d.atual ? "liberado" : "bloqueado"}</span>
+                      {" → "}
+                      <span className="font-semibold">{d.padrao ? "liberado" : "bloqueado"}</span>
+                    </span>
+                  ) : (
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      sem mudança ({d.padrao ? "liberado" : "bloqueado"})
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={aplicarPadrao.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (alvo) aplicarPadrao.mutate({ userId: alvo.userId, chaves: alvo.chaves });
+              }}
+            >
+              Confirmar sobrescrita
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+
   );
 }
