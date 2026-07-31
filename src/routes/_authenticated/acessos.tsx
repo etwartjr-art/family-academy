@@ -16,7 +16,25 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+
+type AlvoPadrao = {
+  userId: string;
+  nome: string;
+  papel: Papel;
+  chaves: string[];
+};
+
 
 export const Route = createFileRoute("/_authenticated/acessos")({
   head: () => ({
