@@ -11,12 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedCarteirinhasRouteImport } from './routes/_authenticated/carteirinhas'
 import { Route as AuthenticatedChamadaRouteImport } from './routes/_authenticated/chamada'
 import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated/cursos'
 import { Route as AuthenticatedFrequenciaRouteImport } from './routes/_authenticated/frequencia'
+import { Route as AuthenticatedMeuPainelRouteImport } from './routes/_authenticated/meu-painel'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticated/pessoas'
 import { Route as MatriculaConviteRouteImport } from './routes/matricula.$convite'
 import { Route as AuthenticatedSalasIndexRouteImport } from './routes/_authenticated/salas.index'
+import { Route as AuthenticatedSalasIdRouteImport } from './routes/_authenticated/salas.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,6 +31,12 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCarteirinhasRoute =
+  AuthenticatedCarteirinhasRouteImport.update({
+    id: '/carteirinhas',
+    path: '/carteirinhas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedChamadaRoute = AuthenticatedChamadaRouteImport.update({
   id: '/chamada',
   path: '/chamada',
@@ -42,9 +52,19 @@ const AuthenticatedFrequenciaRoute = AuthenticatedFrequenciaRouteImport.update({
   path: '/frequencia',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMeuPainelRoute = AuthenticatedMeuPainelRouteImport.update({
+  id: '/meu-painel',
+  path: '/meu-painel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPessoasRoute = AuthenticatedPessoasRouteImport.update({
+  id: '/pessoas',
+  path: '/pessoas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const MatriculaConviteRoute = MatriculaConviteRouteImport.update({
@@ -57,64 +77,93 @@ const AuthenticatedSalasIndexRoute = AuthenticatedSalasIndexRouteImport.update({
   path: '/salas/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSalasIdRoute = AuthenticatedSalasIdRouteImport.update({
+  id: '/salas/$id',
+  path: '/salas/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/carteirinhas': typeof AuthenticatedCarteirinhasRoute
   '/chamada': typeof AuthenticatedChamadaRoute
   '/cursos': typeof AuthenticatedCursosRoute
   '/frequencia': typeof AuthenticatedFrequenciaRoute
+  '/meu-painel': typeof AuthenticatedMeuPainelRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
+  '/salas/$id': typeof AuthenticatedSalasIdRoute
   '/salas/': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/carteirinhas': typeof AuthenticatedCarteirinhasRoute
   '/chamada': typeof AuthenticatedChamadaRoute
   '/cursos': typeof AuthenticatedCursosRoute
   '/frequencia': typeof AuthenticatedFrequenciaRoute
+  '/meu-painel': typeof AuthenticatedMeuPainelRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
+  '/salas/$id': typeof AuthenticatedSalasIdRoute
   '/salas': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/carteirinhas': typeof AuthenticatedCarteirinhasRoute
   '/_authenticated/chamada': typeof AuthenticatedChamadaRoute
   '/_authenticated/cursos': typeof AuthenticatedCursosRoute
   '/_authenticated/frequencia': typeof AuthenticatedFrequenciaRoute
+  '/_authenticated/meu-painel': typeof AuthenticatedMeuPainelRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
+  '/_authenticated/salas/$id': typeof AuthenticatedSalasIdRoute
   '/_authenticated/salas/': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/carteirinhas'
     | '/chamada'
     | '/cursos'
     | '/frequencia'
+    | '/meu-painel'
     | '/painel'
+    | '/pessoas'
     | '/matricula/$convite'
+    | '/salas/$id'
     | '/salas/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/carteirinhas'
     | '/chamada'
     | '/cursos'
     | '/frequencia'
+    | '/meu-painel'
     | '/painel'
+    | '/pessoas'
     | '/matricula/$convite'
+    | '/salas/$id'
     | '/salas'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/carteirinhas'
     | '/_authenticated/chamada'
     | '/_authenticated/cursos'
     | '/_authenticated/frequencia'
+    | '/_authenticated/meu-painel'
     | '/_authenticated/painel'
+    | '/_authenticated/pessoas'
     | '/matricula/$convite'
+    | '/_authenticated/salas/$id'
     | '/_authenticated/salas/'
   fileRoutesById: FileRoutesById
 }
@@ -140,6 +189,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/carteirinhas': {
+      id: '/_authenticated/carteirinhas'
+      path: '/carteirinhas'
+      fullPath: '/carteirinhas'
+      preLoaderRoute: typeof AuthenticatedCarteirinhasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/chamada': {
       id: '/_authenticated/chamada'
       path: '/chamada'
@@ -161,11 +217,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFrequenciaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/meu-painel': {
+      id: '/_authenticated/meu-painel'
+      path: '/meu-painel'
+      fullPath: '/meu-painel'
+      preLoaderRoute: typeof AuthenticatedMeuPainelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/painel': {
       id: '/_authenticated/painel'
       path: '/painel'
       fullPath: '/painel'
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pessoas': {
+      id: '/_authenticated/pessoas'
+      path: '/pessoas'
+      fullPath: '/pessoas'
+      preLoaderRoute: typeof AuthenticatedPessoasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/matricula/$convite': {
@@ -182,22 +252,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalasIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/salas/$id': {
+      id: '/_authenticated/salas/$id'
+      path: '/salas/$id'
+      fullPath: '/salas/$id'
+      preLoaderRoute: typeof AuthenticatedSalasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCarteirinhasRoute: typeof AuthenticatedCarteirinhasRoute
   AuthenticatedChamadaRoute: typeof AuthenticatedChamadaRoute
   AuthenticatedCursosRoute: typeof AuthenticatedCursosRoute
   AuthenticatedFrequenciaRoute: typeof AuthenticatedFrequenciaRoute
+  AuthenticatedMeuPainelRoute: typeof AuthenticatedMeuPainelRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
+  AuthenticatedSalasIdRoute: typeof AuthenticatedSalasIdRoute
   AuthenticatedSalasIndexRoute: typeof AuthenticatedSalasIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCarteirinhasRoute: AuthenticatedCarteirinhasRoute,
   AuthenticatedChamadaRoute: AuthenticatedChamadaRoute,
   AuthenticatedCursosRoute: AuthenticatedCursosRoute,
   AuthenticatedFrequenciaRoute: AuthenticatedFrequenciaRoute,
+  AuthenticatedMeuPainelRoute: AuthenticatedMeuPainelRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
+  AuthenticatedSalasIdRoute: AuthenticatedSalasIdRoute,
   AuthenticatedSalasIndexRoute: AuthenticatedSalasIndexRoute,
 }
 
@@ -212,3 +297,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
