@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
 import { GraduationCap } from "lucide-react";
+import { FundoMarca } from "@/components/FundoMarca";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
