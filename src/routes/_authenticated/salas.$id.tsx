@@ -514,7 +514,7 @@ function SalaDetalhe() {
       {podeEditar && (
         <Card className="gap-3 p-4">
           <div className="flex items-center gap-2">
-            <History className="size-4 text-muted-foreground" />
+            <HistoryIcon className="size-4 text-muted-foreground" />
             <h2 className="text-lg">Histórico de alterações</h2>
           </div>
           {auditoria.isLoading ? (
