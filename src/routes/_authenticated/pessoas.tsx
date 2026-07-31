@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listarPerfis, listarPapeis, iniciais, type Papel } from "@/lib/api";
-import { criarUsuario } from "@/lib/usuarios.functions";
+import { criarUsuario, editarUsuario } from "@/lib/usuarios.functions";
 import { useSessao } from "@/hooks/useSessao";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
