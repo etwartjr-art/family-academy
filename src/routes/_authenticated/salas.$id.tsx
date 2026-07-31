@@ -287,10 +287,16 @@ function SalaDetalhe() {
 
   const matricularExistente = useMutation({
     mutationFn: async () => {
+      const alunoId = existente.aluno_id;
+      if ((matriculas.data ?? []).some((m) => m.aluno_id === alunoId)) {
+        const nome = (perfis.data ?? []).find((p) => p.id === alunoId)?.nome ?? "Este aluno";
+        throw new Error(`${nome} já está matriculado nesta turma.`);
+      }
+
       const { data: matricula, error } = await supabase
         .from("matriculas")
         .insert({
-          aluno_id: existente.aluno_id,
+          aluno_id: alunoId,
           sala_id: id,
           status: "ativa",
           tipo: existente.tipo,
@@ -299,7 +305,7 @@ function SalaDetalhe() {
         })
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) throw new Error(mensagemMatricula(error));
 
       if (idsModulos.length > 0) {
         const { error: erroMod } = await supabase
