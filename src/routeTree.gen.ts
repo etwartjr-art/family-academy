@@ -10,33 +10,167 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedCarteirinhasRouteImport } from './routes/_authenticated/carteirinhas'
+import { Route as AuthenticatedChamadaRouteImport } from './routes/_authenticated/chamada'
+import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated/cursos'
+import { Route as AuthenticatedFrequenciaRouteImport } from './routes/_authenticated/frequencia'
+import { Route as AuthenticatedMeuPainelRouteImport } from './routes/_authenticated/meu-painel'
+import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticated/pessoas'
+import { Route as MatriculaConviteRouteImport } from './routes/matricula.$convite'
+import { Route as AuthenticatedSalasIndexRouteImport } from './routes/_authenticated/salas.index'
+import { Route as AuthenticatedSalasIdRouteImport } from './routes/_authenticated/salas.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCarteirinhasRoute =
+  AuthenticatedCarteirinhasRouteImport.update({
+    id: '/carteirinhas',
+    path: '/carteirinhas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedChamadaRoute = AuthenticatedChamadaRouteImport.update({
+  id: '/chamada',
+  path: '/chamada',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCursosRoute = AuthenticatedCursosRouteImport.update({
+  id: '/cursos',
+  path: '/cursos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFrequenciaRoute = AuthenticatedFrequenciaRouteImport.update({
+  id: '/frequencia',
+  path: '/frequencia',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMeuPainelRoute = AuthenticatedMeuPainelRouteImport.update({
+  id: '/meu-painel',
+  path: '/meu-painel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPessoasRoute = AuthenticatedPessoasRouteImport.update({
+  id: '/pessoas',
+  path: '/pessoas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const MatriculaConviteRoute = MatriculaConviteRouteImport.update({
+  id: '/matricula/$convite',
+  path: '/matricula/$convite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSalasIndexRoute = AuthenticatedSalasIndexRouteImport.update({
+  id: '/salas/',
+  path: '/salas/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSalasIdRoute = AuthenticatedSalasIdRouteImport.update({
+  id: '/salas/$id',
+  path: '/salas/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/carteirinhas': typeof AuthenticatedCarteirinhasRoute
+  '/chamada': typeof AuthenticatedChamadaRoute
+  '/cursos': typeof AuthenticatedCursosRoute
+  '/frequencia': typeof AuthenticatedFrequenciaRoute
+  '/meu-painel': typeof AuthenticatedMeuPainelRoute
+  '/painel': typeof AuthenticatedPainelRoute
+  '/pessoas': typeof AuthenticatedPessoasRoute
+  '/matricula/$convite': typeof MatriculaConviteRoute
+  '/salas/$id': typeof AuthenticatedSalasIdRoute
+  '/salas/': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/carteirinhas': typeof AuthenticatedCarteirinhasRoute
+  '/chamada': typeof AuthenticatedChamadaRoute
+  '/cursos': typeof AuthenticatedCursosRoute
+  '/frequencia': typeof AuthenticatedFrequenciaRoute
+  '/meu-painel': typeof AuthenticatedMeuPainelRoute
+  '/painel': typeof AuthenticatedPainelRoute
+  '/pessoas': typeof AuthenticatedPessoasRoute
+  '/matricula/$convite': typeof MatriculaConviteRoute
+  '/salas/$id': typeof AuthenticatedSalasIdRoute
+  '/salas': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/carteirinhas': typeof AuthenticatedCarteirinhasRoute
+  '/_authenticated/chamada': typeof AuthenticatedChamadaRoute
+  '/_authenticated/cursos': typeof AuthenticatedCursosRoute
+  '/_authenticated/frequencia': typeof AuthenticatedFrequenciaRoute
+  '/_authenticated/meu-painel': typeof AuthenticatedMeuPainelRoute
+  '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
+  '/matricula/$convite': typeof MatriculaConviteRoute
+  '/_authenticated/salas/$id': typeof AuthenticatedSalasIdRoute
+  '/_authenticated/salas/': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/carteirinhas'
+    | '/chamada'
+    | '/cursos'
+    | '/frequencia'
+    | '/meu-painel'
+    | '/painel'
+    | '/pessoas'
+    | '/matricula/$convite'
+    | '/salas/$id'
+    | '/salas/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/carteirinhas'
+    | '/chamada'
+    | '/cursos'
+    | '/frequencia'
+    | '/meu-painel'
+    | '/painel'
+    | '/pessoas'
+    | '/matricula/$convite'
+    | '/salas/$id'
+    | '/salas'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/carteirinhas'
+    | '/_authenticated/chamada'
+    | '/_authenticated/cursos'
+    | '/_authenticated/frequencia'
+    | '/_authenticated/meu-painel'
+    | '/_authenticated/painel'
+    | '/_authenticated/pessoas'
+    | '/matricula/$convite'
+    | '/_authenticated/salas/$id'
+    | '/_authenticated/salas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  MatriculaConviteRoute: typeof MatriculaConviteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +182,118 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/carteirinhas': {
+      id: '/_authenticated/carteirinhas'
+      path: '/carteirinhas'
+      fullPath: '/carteirinhas'
+      preLoaderRoute: typeof AuthenticatedCarteirinhasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/chamada': {
+      id: '/_authenticated/chamada'
+      path: '/chamada'
+      fullPath: '/chamada'
+      preLoaderRoute: typeof AuthenticatedChamadaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cursos': {
+      id: '/_authenticated/cursos'
+      path: '/cursos'
+      fullPath: '/cursos'
+      preLoaderRoute: typeof AuthenticatedCursosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/frequencia': {
+      id: '/_authenticated/frequencia'
+      path: '/frequencia'
+      fullPath: '/frequencia'
+      preLoaderRoute: typeof AuthenticatedFrequenciaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meu-painel': {
+      id: '/_authenticated/meu-painel'
+      path: '/meu-painel'
+      fullPath: '/meu-painel'
+      preLoaderRoute: typeof AuthenticatedMeuPainelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/painel': {
+      id: '/_authenticated/painel'
+      path: '/painel'
+      fullPath: '/painel'
+      preLoaderRoute: typeof AuthenticatedPainelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pessoas': {
+      id: '/_authenticated/pessoas'
+      path: '/pessoas'
+      fullPath: '/pessoas'
+      preLoaderRoute: typeof AuthenticatedPessoasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/matricula/$convite': {
+      id: '/matricula/$convite'
+      path: '/matricula/$convite'
+      fullPath: '/matricula/$convite'
+      preLoaderRoute: typeof MatriculaConviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/salas/': {
+      id: '/_authenticated/salas/'
+      path: '/salas'
+      fullPath: '/salas/'
+      preLoaderRoute: typeof AuthenticatedSalasIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/salas/$id': {
+      id: '/_authenticated/salas/$id'
+      path: '/salas/$id'
+      fullPath: '/salas/$id'
+      preLoaderRoute: typeof AuthenticatedSalasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCarteirinhasRoute: typeof AuthenticatedCarteirinhasRoute
+  AuthenticatedChamadaRoute: typeof AuthenticatedChamadaRoute
+  AuthenticatedCursosRoute: typeof AuthenticatedCursosRoute
+  AuthenticatedFrequenciaRoute: typeof AuthenticatedFrequenciaRoute
+  AuthenticatedMeuPainelRoute: typeof AuthenticatedMeuPainelRoute
+  AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
+  AuthenticatedSalasIdRoute: typeof AuthenticatedSalasIdRoute
+  AuthenticatedSalasIndexRoute: typeof AuthenticatedSalasIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCarteirinhasRoute: AuthenticatedCarteirinhasRoute,
+  AuthenticatedChamadaRoute: AuthenticatedChamadaRoute,
+  AuthenticatedCursosRoute: AuthenticatedCursosRoute,
+  AuthenticatedFrequenciaRoute: AuthenticatedFrequenciaRoute,
+  AuthenticatedMeuPainelRoute: AuthenticatedMeuPainelRoute,
+  AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
+  AuthenticatedSalasIdRoute: AuthenticatedSalasIdRoute,
+  AuthenticatedSalasIndexRoute: AuthenticatedSalasIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  MatriculaConviteRoute: MatriculaConviteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

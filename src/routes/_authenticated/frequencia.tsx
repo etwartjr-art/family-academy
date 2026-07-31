@@ -1,0 +1,211 @@
+import { useMemo, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import {
+  listarSalas,
+  listarModulos,
+  listarAulas,
+  listarMatriculas,
+  listarPerfis,
+  listarInscricoes,
+  listarPresencas,
+  baixarCSV,
+  FREQUENCIA_MINIMA,
+} from "@/lib/api";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Download, AlertTriangle } from "lucide-react";
+
+export const Route = createFileRoute("/_authenticated/frequencia")({
+  head: () => ({
+    meta: [
+      { title: "Frequência — Family Academy" },
+      {
+        name: "description",
+        content: "Grade de presença por módulo com percentual por aluno e exportação em CSV.",
+      },
+      { property: "og:title", content: "Frequência — Family Academy" },
+      { property: "og:description", content: "Grade de frequência e exportação CSV." },
+    ],
+  }),
+  component: Frequencia,
+});
+
+function Frequencia() {
+  const [salaId, setSalaId] = useState("");
+  const [moduloId, setModuloId] = useState("");
+
+  const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });
+  const modulos = useQuery({ queryKey: ["modulos"], queryFn: () => listarModulos() });
+  const aulas = useQuery({ queryKey: ["aulas"], queryFn: () => listarAulas() });
+  const matriculas = useQuery({ queryKey: ["matriculas"], queryFn: () => listarMatriculas() });
+  const inscricoes = useQuery({ queryKey: ["inscricoes"], queryFn: listarInscricoes });
+  const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
+  const presencas = useQuery({ queryKey: ["presencas"], queryFn: () => listarPresencas() });
+
+  const modulo = (modulos.data ?? []).find((m) => m.id === moduloId);
+  const aulasModulo = (aulas.data ?? [])
+    .filter((a) => a.modulo_id === moduloId)
+    .sort((a, b) => a.numero - b.numero);
+
+  const linhas = useMemo(() => {
+    if (!modulo) return [];
+    const inscritos = new Set(
+      (inscricoes.data ?? []).filter((i) => i.modulo_id === modulo.id).map((i) => i.matricula_id),
+    );
+    const mats = (matriculas.data ?? []).filter(
+      (m) => m.sala_id === modulo.sala_id && inscritos.has(m.id),
+    );
+    const idsAulas = aulasModulo.map((a) => a.id);
+    return mats
+      .map((m) => {
+        const perfil = (perfis.data ?? []).find((p) => p.id === m.aluno_id);
+        const marcas = idsAulas.map((idAula) =>
+          (presencas.data ?? []).some((p) => p.aula_id === idAula && p.aluno_id === m.aluno_id),
+        );
+        const total = marcas.filter(Boolean).length;
+        const pct = idsAulas.length ? Math.round((total / idsAulas.length) * 100) : 0;
+        return { nome: perfil?.nome ?? "—", codigo: perfil?.codigo ?? "—", marcas, pct };
+      })
+      .sort((a, b) => a.nome.localeCompare(b.nome));
+  }, [modulo, aulasModulo, inscricoes.data, matriculas.data, perfis.data, presencas.data]);
+
+  const abaixo = linhas.filter((l) => l.pct < FREQUENCIA_MINIMA);
+  const modulosDaSala = (modulos.data ?? []).filter((m) => !salaId || m.sala_id === salaId);
+
+  function exportar() {
+    const cabecalho = ["Aluno", "Código", ...aulasModulo.map((a) => `Aula ${a.numero}`), "%"];
+    const corpo = linhas.map((l) => [
+      l.nome,
+      l.codigo,
+      ...l.marcas.map((m) => (m ? "P" : "F")),
+      `${l.pct}%`,
+    ]);
+    baixarCSV(`frequencia-${modulo?.nome ?? "modulo"}.csv`, [cabecalho, ...corpo]);
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl">Frequência</h1>
+        <p className="text-sm text-muted-foreground">
+          Mínimo exigido: {FREQUENCIA_MINIMA}% de presença por módulo.
+        </p>
+      </div>
+
+      <Card className="grid gap-3 p-4 md:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label>Sala</Label>
+          <Select
+            value={salaId}
+            onValueChange={(v) => {
+              setSalaId(v);
+              setModuloId("");
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Escolha a sala" />
+            </SelectTrigger>
+            <SelectContent>
+              {(salas.data ?? []).map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Módulo</Label>
+          <Select value={moduloId} onValueChange={setModuloId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Escolha o módulo" />
+            </SelectTrigger>
+            <SelectContent>
+              {modulosDaSala.map((m) => (
+                <SelectItem key={m.id} value={m.id}>
+                  {m.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </Card>
+
+      {modulo && (
+        <>
+          {abaixo.length > 0 && (
+            <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" />
+              <p>
+                <strong>{abaixo.length}</strong> aluno(s) abaixo de {FREQUENCIA_MINIMA}%:{" "}
+                {abaixo.map((a) => a.nome).join(", ")}
+              </p>
+            </div>
+          )}
+
+          <Card className="gap-3 overflow-x-auto p-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-lg">{modulo.nome}</h2>
+              <Button size="sm" variant="secondary" onClick={exportar}>
+                <Download className="size-4" /> CSV
+              </Button>
+            </div>
+            <table className="w-full min-w-[520px] text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="py-2 pr-3 font-medium">Aluno</th>
+                  {aulasModulo.map((a) => (
+                    <th key={a.id} className="px-2 py-2 text-center font-medium">
+                      A{a.numero}
+                    </th>
+                  ))}
+                  <th className="px-2 py-2 text-right font-medium">%</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {linhas.map((l) => (
+                  <tr key={l.codigo}>
+                    <td className="py-2 pr-3">
+                      <span className="block font-medium">{l.nome}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{l.codigo}</span>
+                    </td>
+                    {l.marcas.map((m, i) => (
+                      <td key={i} className="px-2 py-2 text-center">
+                        <span className={m ? "text-primary" : "text-muted-foreground"}>
+                          {m ? "P" : "·"}
+                        </span>
+                      </td>
+                    ))}
+                    <td
+                      className={`px-2 py-2 text-right font-semibold ${
+                        l.pct < FREQUENCIA_MINIMA ? "text-destructive" : ""
+                      }`}
+                    >
+                      {l.pct}%
+                    </td>
+                  </tr>
+                ))}
+                {linhas.length === 0 && (
+                  <tr>
+                    <td colSpan={aulasModulo.length + 2} className="py-3 text-muted-foreground">
+                      Nenhum aluno inscrito neste módulo.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
