@@ -11,7 +11,7 @@ export function FundoMarca({ tom = "claro" }: { tom?: "claro" | "escuro" }) {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-10 select-none"
+      className="pointer-events-none fixed inset-0 z-0 select-none"
       style={{
         backgroundImage: `url(${logoAsset.url})`,
         backgroundRepeat: "no-repeat",
