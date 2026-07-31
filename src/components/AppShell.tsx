@@ -101,7 +101,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="relative flex min-h-screen w-full bg-background">
+      <FundoMarca />
+
       {/* barra lateral — desktop */}
       <aside className="sem-impressao sticky top-0 hidden h-screen w-[236px] shrink-0 flex-col justify-between bg-sidebar p-4 md:flex">
         <div>
