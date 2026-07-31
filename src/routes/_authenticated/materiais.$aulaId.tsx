@@ -158,14 +158,18 @@ function PainelAula() {
             </Select>
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="url">Link externo</Label>
+            <Label htmlFor="url">
+              Link externo <span className="text-muted-foreground">(opcional)</span>
+            </Label>
             <Input
               id="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://…"
-              disabled={!!arquivo}
             />
+            <p className="text-xs text-muted-foreground">
+              Você pode enviar um arquivo, informar um link, ou os dois.
+            </p>
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="arquivo">Ou enviar arquivo</Label>
