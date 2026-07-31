@@ -42,6 +42,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { QRCodeBox } from "@/components/QRCodeBox";
+import { ImportarAlunosCSV } from "@/components/ImportarAlunosCSV";
 import { toast } from "sonner";
 import { ArrowLeft, History as HistoryIcon, Pencil, Search, Trash2, UserPlus } from "lucide-react";
 
@@ -787,6 +788,9 @@ function SalaDetalhe() {
             </div>
           </Card>
         )}
+
+        {podeMatricular && <ImportarAlunosCSV salaId={id} />}
+
 
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
