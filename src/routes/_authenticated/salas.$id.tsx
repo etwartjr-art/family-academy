@@ -15,6 +15,7 @@ import {
   iniciais,
 } from "@/lib/api";
 import { useSessao } from "@/hooks/useSessao";
+import { usePermissoes } from "@/hooks/usePermissoes";
 import { useServerFn } from "@tanstack/react-start";
 import { criarUsuario } from "@/lib/usuarios.functions";
 import { Card } from "@/components/ui/card";
