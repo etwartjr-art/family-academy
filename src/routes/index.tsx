@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { GraduationCap } from "lucide-react";
 import { FundoMarca } from "@/components/FundoMarca";
-import logoAsset from "@/assets/logo-family-academy.png.asset.json";
+import logoAsset from "@/assets/logo-escola-financas-academy.jpg.asset.json";
 
 
 export const Route = createFileRoute("/")({
