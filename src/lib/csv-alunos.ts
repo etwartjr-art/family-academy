@@ -7,6 +7,10 @@ export type LinhaCSV = {
   tipo: "individual" | "casal";
   nome_casal: string;
   erros: string[];
+  /** "identico" = mesmo nome+e-mail; "email" = mesmo e-mail com nome diferente */
+  duplicado: "identico" | "email" | null;
+  duplicadoDaLinha: number | null;
+
 };
 
 const CABECALHOS: Record<string, keyof Omit<LinhaCSV, "linha" | "erros">> = {
