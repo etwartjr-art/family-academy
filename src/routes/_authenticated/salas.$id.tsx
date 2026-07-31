@@ -359,6 +359,72 @@ function SalaDetalhe() {
   }
 
 
+  const definirModuloAtivo = useMutation({
+    mutationFn: async (moduloId: string) => {
+      const { error } = await supabase
+        .from("salas")
+        .update({ modulo_ativo_id: moduloId })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Módulo da turma atualizado");
+      qc.invalidateQueries({ queryKey: ["salas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const adicionarProfessor = useMutation({
+    mutationFn: async (professorId: string) => {
+      const { error } = await supabase
+        .from("sala_professores")
+        .insert({ sala_id: id, professor_id: professorId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Professor adicionado à turma");
+      qc.invalidateQueries({ queryKey: ["sala-professores", id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removerProfessor = useMutation({
+    mutationFn: async (professorId: string) => {
+      const { error } = await supabase
+        .from("sala_professores")
+        .delete()
+        .eq("sala_id", id)
+        .eq("professor_id", professorId);
+      if (error) throw error;
+      const { error: erroAulas } = await supabase
+        .from("aulas")
+        .update({ professor_id: null })
+        .eq("professor_id", professorId)
+        .in("modulo_id", idsModulos.length > 0 ? idsModulos : ["00000000-0000-0000-0000-000000000000"]);
+      if (erroAulas) throw erroAulas;
+    },
+    onSuccess: () => {
+      toast.success("Professor removido da turma");
+      qc.invalidateQueries({ queryKey: ["sala-professores", id] });
+      qc.invalidateQueries({ queryKey: ["aulas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const definirProfessorAula = useMutation({
+    mutationFn: async ({ aulaId, professorId }: { aulaId: string; professorId: string | null }) => {
+      const { error } = await supabase
+        .from("aulas")
+        .update({ professor_id: professorId })
+        .eq("id", aulaId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["aulas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const salvarData = useMutation({
     mutationFn: async ({ aulaId, data }: { aulaId: string; data: string }) => {
       const { error } = await supabase
