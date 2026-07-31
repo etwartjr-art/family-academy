@@ -59,6 +59,12 @@ function formatarValor(campo: string, valor: string | null) {
   return valor;
 }
 
+function mensagemMatricula(erro: { code?: string; message: string }) {
+  if (erro.code === "23505" || /duplicate key|matriculas_aluno_sala_unico/i.test(erro.message)) {
+    return "Este aluno já está matriculado nesta turma.";
+  }
+  return erro.message;
+}
 
 
 export const Route = createFileRoute("/_authenticated/salas/$id")({
