@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { mensagemAuth } from "@/lib/usuarios-erros";
 
 const esquema = z.object({
   nome: z.string().trim().min(2).max(100),
@@ -33,7 +34,7 @@ export const criarUsuario = createServerFn({ method: "POST" })
         papel: data.papel,
       },
     });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(mensagemAuth(error.message));
     const novoId = criado.user?.id;
     if (!novoId) throw new Error("Não foi possível criar o usuário");
 
@@ -81,7 +82,7 @@ export const editarUsuario = createServerFn({ method: "POST" })
     if (data.senha) atualizacao.password = data.senha;
 
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, atualizacao);
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(mensagemAuth(error.message));
 
     const { error: erroPerfil } = await supabaseAdmin
       .from("perfis")
