@@ -142,9 +142,12 @@ function SalaDetalhe() {
     (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
   );
   const coordenador = sessao?.papel === "coordenador";
-  const podeEditar =
+  const gerencia =
     sessao?.papel === "coordenador" ||
     (!!sala?.professor_id && sala.professor_id === sessao?.user.id);
+  const podeEditar = gerencia && pode("turma_editar");
+  const podeMatricular = gerencia && pode("turma_matricular");
+  const podeDefinirProfessor = gerencia && pode("turma_definir_professor");
 
   const idsMatriculados = new Set((matriculas.data ?? []).map((m) => m.aluno_id));
   const termoExistente = buscaExistente.trim().toLowerCase();
