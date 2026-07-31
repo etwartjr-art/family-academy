@@ -804,7 +804,31 @@ function SalaDetalhe() {
 
           </table>
         </Card>
+
+        <AlertDialog open={!!removendo} onOpenChange={(o) => !o && setRemovendo(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remover inscrição</AlertDialogTitle>
+              <AlertDialogDescription>
+                {removendo?.nome} será removido desta turma, junto com as inscrições nos módulos. As
+                presenças já registradas permanecem no histórico.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (removendo) removerMatricula.mutate(removendo.id);
+                }}
+              >
+                {removerMatricula.isPending ? "Removendo…" : "Remover"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </section>
+
     </div>
   );
 }
