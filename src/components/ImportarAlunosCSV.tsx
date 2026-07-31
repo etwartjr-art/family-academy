@@ -3,7 +3,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { importarAlunosLote, type ResultadoImportacao } from "@/lib/importacao.functions";
 import { mapearAlunosComIA } from "@/lib/importacao-ia.functions";
-import { analisarCSVAlunos, MODELO_CSV, type LinhaCSV } from "@/lib/csv-alunos";
+import {
+  analisarCSVAlunos,
+  linhasImportaveis,
+  resolverDuplicados,
+  MODELO_CSV,
+  type LinhaCSV,
+} from "@/lib/csv-alunos";
 import { arquivoParaTexto, ACEITA_ARQUIVOS, baixarModeloXLSX } from "@/lib/planilha-alunos";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
