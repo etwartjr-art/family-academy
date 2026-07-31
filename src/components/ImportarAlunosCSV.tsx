@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Download, Sparkles, Upload } from "lucide-react";
+import { AlertTriangle, Download, Sparkles, Upload } from "lucide-react";
 
 
 const ROTULO_STATUS: Record<ResultadoImportacao["status"], string> = {
