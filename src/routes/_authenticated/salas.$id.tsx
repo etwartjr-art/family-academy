@@ -1080,26 +1080,28 @@ function SalaDetalhe() {
                         </span>
                       )}
                     </td>
-                    {(modulos.data ?? []).map((m) => {
-                      const inscrito = (inscricoes.data ?? []).some(
-                        (i) => i.matricula_id === mat.id && i.modulo_id === m.id,
-                      );
-                      return (
-                        <td key={m.id} className="px-2 py-2 text-center">
-                          <Checkbox
-                            checked={inscrito}
-                            aria-label={`${perfil?.nome} em ${m.nome}`}
-                            onCheckedChange={() =>
-                              alternarInscricao.mutate({
-                                matriculaId: mat.id,
-                                moduloId: m.id,
-                                inscrito,
-                              })
-                            }
-                          />
-                        </td>
-                      );
-                    })}
+                    {moduloAtivo && (
+                      (() => {
+                        const inscrito = (inscricoes.data ?? []).some(
+                          (i) => i.matricula_id === mat.id && i.modulo_id === moduloAtivo.id,
+                        );
+                        return (
+                          <td className="px-2 py-2 text-center">
+                            <Checkbox
+                              checked={inscrito}
+                              aria-label={`${perfil?.nome} em ${moduloAtivo.nome}`}
+                              onCheckedChange={() =>
+                                alternarInscricao.mutate({
+                                  matriculaId: mat.id,
+                                  moduloId: moduloAtivo.id,
+                                  inscrito,
+                                })
+                              }
+                            />
+                          </td>
+                        );
+                      })()
+                    )}
                     {podeMatricular && (
                       <td className="px-2 py-2 text-right">
                         <Button
