@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listarPerfis, listarPapeis, iniciais, type Papel } from "@/lib/api";
 import {
+  ACOES,
+  AREAS,
   CATALOGO,
   PAPEIS,
   calcular,
@@ -216,48 +218,55 @@ function Acessos() {
         </p>
       </div>
 
-      <section className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide">Padrão por papel</h2>
-        <Card className="gap-0 overflow-x-auto p-0">
-          <table className="w-full min-w-[560px] text-sm">
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th className="px-4 py-2 font-medium">Área</th>
-                {PAPEIS.map((p) => (
-                  <th key={p} className="px-4 py-2 font-medium capitalize">
-                    {p}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {CATALOGO.map((c) => (
-                <tr key={c.chave}>
-                  <td className="px-4 py-3">
-                    <div className="font-medium">{c.rotulo}</div>
-                    <div className="text-xs text-muted-foreground">{c.descricao}</div>
-                  </td>
-                  {PAPEIS.map((papel) => {
-                    const atual =
-                      (porPapel.data ?? []).find((x) => x.papel === papel && x.chave === c.chave)
-                        ?.permitido ?? false;
-                    return (
-                      <td key={papel} className="px-4 py-3">
-                        <Switch
-                          checked={atual}
-                          onCheckedChange={(v) =>
-                            mudarPapel.mutate({ papel, chave: c.chave, permitido: v })
-                          }
-                        />
-                      </td>
-                    );
-                  })}
+      {(
+        [
+          { titulo: "Padrão por papel — áreas", coluna: "Área", itens: AREAS },
+          { titulo: "Padrão por papel — ações", coluna: "Ação", itens: ACOES },
+        ] as const
+      ).map((grupo) => (
+        <section key={grupo.titulo} className="space-y-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wide">{grupo.titulo}</h2>
+          <Card className="gap-0 overflow-x-auto p-0">
+            <table className="w-full min-w-[560px] text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="px-4 py-2 font-medium">{grupo.coluna}</th>
+                  {PAPEIS.map((p) => (
+                    <th key={p} className="px-4 py-2 font-medium capitalize">
+                      {p}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      </section>
+              </thead>
+              <tbody className="divide-y">
+                {grupo.itens.map((c) => (
+                  <tr key={c.chave}>
+                    <td className="px-4 py-3">
+                      <div className="font-medium">{c.rotulo}</div>
+                      <div className="text-xs text-muted-foreground">{c.descricao}</div>
+                    </td>
+                    {PAPEIS.map((papel) => {
+                      const atual =
+                        (porPapel.data ?? []).find((x) => x.papel === papel && x.chave === c.chave)
+                          ?.permitido ?? false;
+                      return (
+                        <td key={papel} className="px-4 py-3">
+                          <Switch
+                            checked={atual}
+                            onCheckedChange={(v) =>
+                              mudarPapel.mutate({ papel, chave: c.chave, permitido: v })
+                            }
+                          />
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        </section>
+      ))}
 
       <section className="space-y-2">
         <h2 className="text-sm font-semibold uppercase tracking-wide">Ver como</h2>
@@ -331,6 +340,43 @@ function Acessos() {
                       }
                     >
                       {liberado ? "Acessa" : "Bloqueado"}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="border-t bg-muted/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide">
+              Ações na turma
+            </div>
+            <ul className="divide-y">
+              {ACOES.map((c) => {
+                const excecao = (porUsuario.data ?? []).find(
+                  (x) => x.user_id === verComoPerfil.id && x.chave === c.chave,
+                );
+                const liberado = calcular(
+                  c.chave,
+                  papelDe(verComoPerfil.id),
+                  verComoPerfil.id,
+                  porPapel.data ?? [],
+                  porUsuario.data ?? [],
+                );
+                return (
+                  <li key={c.chave} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{c.rotulo}</span>
+                      <span className="text-xs text-muted-foreground">{c.descricao}</span>
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {excecao ? "exceção do usuário" : "padrão do papel"}
+                    </span>
+                    <span
+                      className={
+                        liberado
+                          ? "shrink-0 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
+                          : "shrink-0 rounded-full border px-2 py-0.5 text-xs text-muted-foreground"
+                      }
+                    >
+                      {liberado ? "Pode" : "Bloqueado"}
                     </span>
                   </li>
                 );

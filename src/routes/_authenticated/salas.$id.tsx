@@ -15,6 +15,7 @@ import {
   iniciais,
 } from "@/lib/api";
 import { useSessao } from "@/hooks/useSessao";
+import { usePermissoes } from "@/hooks/usePermissoes";
 import { useServerFn } from "@tanstack/react-start";
 import { criarUsuario } from "@/lib/usuarios.functions";
 import { Card } from "@/components/ui/card";
@@ -86,6 +87,7 @@ function SalaDetalhe() {
   const inscricoes = useQuery({ queryKey: ["inscricoes"], queryFn: listarInscricoes });
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
+  const { pode } = usePermissoes();
   const auditoria = useQuery({
     queryKey: ["salas-auditoria", id],
     queryFn: async () => {
@@ -142,9 +144,12 @@ function SalaDetalhe() {
     (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
   );
   const coordenador = sessao?.papel === "coordenador";
-  const podeEditar =
+  const gerencia =
     sessao?.papel === "coordenador" ||
     (!!sala?.professor_id && sala.professor_id === sessao?.user.id);
+  const podeEditar = gerencia && pode("turma_editar");
+  const podeMatricular = gerencia && pode("turma_matricular");
+  const podeDefinirProfessor = gerencia && pode("turma_definir_professor");
 
   const idsMatriculados = new Set((matriculas.data ?? []).map((m) => m.aluno_id));
   const termoExistente = buscaExistente.trim().toLowerCase();
@@ -465,6 +470,7 @@ function SalaDetalhe() {
                 onValueChange={(v) =>
                   setForm({ ...form, professor_id: v === "nenhum" ? "" : v })
                 }
+                disabled={!podeDefinirProfessor}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Sem professor" />
@@ -478,7 +484,13 @@ function SalaDetalhe() {
                   ))}
                 </SelectContent>
               </Select>
+              {!podeDefinirProfessor && (
+                <p className="text-xs text-muted-foreground">
+                  Você não tem permissão para definir o professor responsável.
+                </p>
+              )}
             </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="turno-sala">Turno</Label>
               <Input
@@ -587,14 +599,14 @@ function SalaDetalhe() {
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg">Alunos e inscrição por módulo</h2>
-          {coordenador && (
+          {podeMatricular && (
             <Button size="sm" onClick={() => setAdicionando((v) => !v)}>
               <UserPlus className="size-4" /> Adicionar aluno
             </Button>
           )}
         </div>
 
-        {coordenador && adicionando && (
+        {podeMatricular && adicionando && (
           <Card className="gap-4 p-4">
             <h3 className="text-base font-semibold">Novo aluno na turma</h3>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -679,7 +691,7 @@ function SalaDetalhe() {
           </Card>
         )}
 
-        {coordenador && (
+        {podeMatricular && (
           <Card className="gap-4 p-4">
             <div>
               <h3 className="text-base font-semibold">Matricular aluno já cadastrado</h3>
@@ -799,7 +811,7 @@ function SalaDetalhe() {
                     {m.ordem}
                   </th>
                 ))}
-                {podeEditar && <th className="px-2 py-2 text-right font-medium">Ações</th>}
+                {podeMatricular && <th className="px-2 py-2 text-right font-medium">Ações</th>}
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -822,7 +834,7 @@ function SalaDetalhe() {
                       </span>
                     </td>
                     <td className="px-2 py-2">
-                      {podeEditar ? (
+                      {podeMatricular ? (
                         <div className="flex flex-col gap-1.5">
                           <Select
                             value={mat.tipo}
@@ -883,7 +895,7 @@ function SalaDetalhe() {
                         </td>
                       );
                     })}
-                    {podeEditar && (
+                    {podeMatricular && (
                       <td className="px-2 py-2 text-right">
                         <Button
                           size="sm"
@@ -903,7 +915,7 @@ function SalaDetalhe() {
               {matriculasVisiveis.length === 0 && (
                 <tr>
                   <td
-                    colSpan={(modulos.data ?? []).length + (podeEditar ? 3 : 2)}
+                    colSpan={(modulos.data ?? []).length + (podeMatricular ? 3 : 2)}
                     className="py-3 text-muted-foreground"
                   >
                     {(matriculas.data ?? []).length === 0

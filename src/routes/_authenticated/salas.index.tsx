@@ -11,6 +11,7 @@ import {
   dataBR,
 } from "@/lib/api";
 import { useSessao } from "@/hooks/useSessao";
+import { usePermissoes } from "@/hooks/usePermissoes";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,9 +70,11 @@ function Salas() {
   const [turno, setTurno] = useState("Noite");
   const [inicio, setInicio] = useState(new Date().toISOString().slice(0, 10));
 
+  const { pode } = usePermissoes();
   const coordenador = sessao?.papel === "coordenador";
   const professor = sessao?.papel === "professor";
   const podeCriar = coordenador || professor;
+  const podeDefinirProfessor = pode("turma_definir_professor");
   const professores = (perfis.data ?? []).filter((p) =>
     (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
   );
@@ -179,7 +182,7 @@ function Salas() {
             </div>
             <div className="space-y-1.5">
               <Label>Professor responsável</Label>
-              {coordenador ? (
+              {coordenador && podeDefinirProfessor ? (
                 <Select value={professorId} onValueChange={setProfessorId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sem professor" />
@@ -192,6 +195,8 @@ function Salas() {
                     ))}
                   </SelectContent>
                 </Select>
+              ) : coordenador ? (
+                <Input value="Sem permissão para definir professor" readOnly disabled />
               ) : (
                 <Input value={sessao?.perfil?.nome ?? "Você"} readOnly disabled />
               )}
