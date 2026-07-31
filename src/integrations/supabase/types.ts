@@ -467,16 +467,14 @@ export type Database = {
       e_professor_da_sala: { Args: { _sala_id: string }; Returns: boolean }
       esta_matriculado: { Args: { _sala_id: string }; Returns: boolean }
       gerar_codigo: { Args: { _tamanho: number }; Returns: string }
-      matricular_por_convite:
-        | { Args: { _convite: string }; Returns: string }
-        | {
-            Args: {
-              _convite: string
-              _nome_casal?: string
-              _tipo?: Database["public"]["Enums"]["tipo_matricula"]
-            }
-            Returns: string
-          }
+      matricular_por_convite: {
+        Args: {
+          _convite: string
+          _nome_casal?: string
+          _tipo?: Database["public"]["Enums"]["tipo_matricula"]
+        }
+        Returns: string
+      }
       pode: { Args: { _chave: string; _user_id: string }; Returns: boolean }
       registrar_presenca: {
         Args: {

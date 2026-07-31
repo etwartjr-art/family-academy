@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.matricular_por_convite(text);
