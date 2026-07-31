@@ -13,7 +13,9 @@ export type LinhaCSV = {
 
 };
 
-const CABECALHOS: Record<string, keyof Omit<LinhaCSV, "linha" | "erros">> = {
+type CampoCSV = keyof Omit<LinhaCSV, "linha" | "erros" | "duplicado" | "duplicadoDaLinha">;
+
+const CABECALHOS: Record<string, CampoCSV> = {
   nome: "nome",
   "nome do aluno": "nome",
   aluno: "nome",
@@ -74,14 +76,13 @@ export function analisarCSVAlunos(texto: string): LinhaCSV[] {
   const primeira = partir(linhas[0]!, sep);
   const temCabecalho = primeira.some((c) => normalizar(c) in CABECALHOS);
 
-  const mapa: (keyof Omit<LinhaCSV, "linha" | "erros"> | null)[] = temCabecalho
+  const mapa: (CampoCSV | null)[] = temCabecalho
     ? primeira.map((c) => CABECALHOS[normalizar(c)] ?? null)
     : ["nome", "email", "telefone", "tipo", "nome_casal", "senha"];
 
   const corpo = temCabecalho ? linhas.slice(1) : linhas;
-  const vistos = new Set<string>();
 
-  return corpo.map((bruta, idx) => {
+  const itens = corpo.map((bruta, idx) => {
     const cols = partir(bruta, sep);
     const item: LinhaCSV = {
       linha: idx + (temCabecalho ? 2 : 1),
@@ -91,7 +92,9 @@ export function analisarCSVAlunos(texto: string): LinhaCSV[] {
       senha: "",
       tipo: "individual",
       nome_casal: "",
-      erros: [],
+      erros: [] as string[],
+      duplicado: null,
+      duplicadoDaLinha: null,
     };
 
     cols.forEach((valor, i) => {
