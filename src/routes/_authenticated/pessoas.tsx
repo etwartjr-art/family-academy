@@ -44,11 +44,20 @@ function Pessoas() {
   const [busca, setBusca] = useState("");
   const [form, setForm] = useState(VAZIO);
   const [aberto, setAberto] = useState(false);
+  const [edicao, setEdicao] = useState<null | {
+    id: string;
+    nome: string;
+    email: string;
+    telefone: string;
+    senha: string;
+  }>(null);
   const sessao = useSessao();
   const ehCoordenador = sessao.data?.papel === "coordenador";
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
   const criar = useServerFn(criarUsuario);
+  const editar = useServerFn(editarUsuario);
+
 
   const cadastrar = useMutation({
     mutationFn: async () => criar({ data: form }),
