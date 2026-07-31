@@ -156,12 +156,23 @@ function SalaDetalhe() {
     (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
   );
   const coordenador = sessao?.papel === "coordenador";
+  const equipe = salaProfs.data ?? [];
   const gerencia =
     sessao?.papel === "coordenador" ||
-    (!!sala?.professor_id && sala.professor_id === sessao?.user.id);
+    (!!sala?.professor_id && sala.professor_id === sessao?.user.id) ||
+    (!!sessao?.user.id && equipe.includes(sessao.user.id));
   const podeEditar = gerencia && pode("turma_editar");
   const podeMatricular = gerencia && pode("turma_matricular");
   const podeDefinirProfessor = gerencia && pode("turma_definir_professor");
+
+  const listaModulos = modulos.data ?? [];
+  const moduloAtivo =
+    listaModulos.find((m) => m.id === sala?.modulo_ativo_id) ?? listaModulos[0] ?? null;
+  const aulasDoModulo = (aulas.data ?? []).filter((a) => a.modulo_id === moduloAtivo?.id);
+  const equipePerfis = equipe
+    .map((pid) => (perfis.data ?? []).find((p) => p.id === pid))
+    .filter((p): p is NonNullable<typeof p> => !!p);
+  const professoresDisponiveis = professores.filter((p) => !equipe.includes(p.id));
 
   const idsMatriculados = new Set((matriculas.data ?? []).map((m) => m.aluno_id));
   const termoExistente = buscaExistente.trim().toLowerCase();
