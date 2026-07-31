@@ -42,12 +42,12 @@ import { Plus, Trash2 } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/salas/")({
   head: () => ({
     meta: [
-      { title: "Salas — Family Academy" },
+      { title: "Salas — Escola de Finanças Academy" },
       {
         name: "description",
-        content: "Turmas da Family Academy agrupadas por curso, com QR de convite para matrícula.",
+        content: "Turmas da Escola de Finanças Academy agrupadas por curso, com QR de convite para matrícula.",
       },
-      { property: "og:title", content: "Salas — Family Academy" },
+      { property: "og:title", content: "Salas — Escola de Finanças Academy" },
       { property: "og:description", content: "Turmas e convites por QR code." },
     ],
   }),

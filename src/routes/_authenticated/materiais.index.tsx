@@ -11,13 +11,13 @@ import { Library, ChevronRight } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/materiais/")({
   head: () => ({
     meta: [
-      { title: "Materiais de estudo — Family Academy" },
+      { title: "Materiais de estudo — Escola de Finanças Academy" },
       {
         name: "description",
         content:
           "Biblioteca de materiais por aula: e-books, apostilas, planilhas, slides, vídeos e links das turmas.",
       },
-      { property: "og:title", content: "Materiais de estudo — Family Academy" },
+      { property: "og:title", content: "Materiais de estudo — Escola de Finanças Academy" },
       { property: "og:description", content: "Biblioteca de materiais por curso, turma e aula." },
     ],
   }),

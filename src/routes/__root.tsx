@@ -81,14 +81,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Family Academy — Plataforma de aulas" },
+      { title: "Escola de Finanças Academy — Plataforma de aulas" },
       {
         name: "description",
         content:
-          "Gestão de turmas, módulos e frequência da Family Academy com chamada validada por QR code.",
+          "Gestão de turmas, módulos e frequência da Escola de Finanças Academy com chamada validada por QR code.",
       },
-      { name: "author", content: "Family Academy" },
-      { property: "og:title", content: "Family Academy — Plataforma de aulas" },
+      { name: "author", content: "Escola de Finanças Academy" },
+      { property: "og:title", content: "Escola de Finanças Academy — Plataforma de aulas" },
       {
         property: "og:description",
         content: "Turmas, módulos e chamada por QR code em um só lugar.",
@@ -99,8 +99,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "Family Academy" },
-      { name: "application-name", content: "Family Academy" },
+      { name: "apple-mobile-web-app-title", content: "Escola de Finanças Academy" },
+      { name: "application-name", content: "Escola de Finanças Academy" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

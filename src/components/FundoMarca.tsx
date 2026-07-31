@@ -1,7 +1,7 @@
 import logoAsset from "@/assets/logo-family-academy.png.asset.json";
 
 /**
- * Marca d'água fixa da Family Academy usada como fundo do sistema
+ * Marca d'água fixa da Escola de Finanças Academy usada como fundo do sistema
  * e da tela inicial. Puramente decorativa.
  *
  * A logo original é preta sobre branco: usamos blend modes para

@@ -60,7 +60,7 @@ function Marca() {
         className="size-9 shrink-0 rounded-[10px] object-cover"
       />
       <div className="leading-tight">
-        <div className="font-display text-[15px] font-extrabold text-white">Family Academy</div>
+        <div className="font-display text-[15px] font-extrabold text-white">Escola de Finanças Academy</div>
         <div className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
           Escola de Finanças
         </div>

@@ -11,15 +11,15 @@ import { z } from "zod";
 export const Route = createFileRoute("/matricula/$convite")({
   head: () => ({
     meta: [
-      { title: "Matrícula — Family Academy" },
+      { title: "Matrícula — Escola de Finanças Academy" },
       {
         name: "description",
-        content: "Faça sua matrícula na turma da Family Academy usando o código de convite da sala.",
+        content: "Faça sua matrícula na turma da Escola de Finanças Academy usando o código de convite da sala.",
       },
-      { property: "og:title", content: "Matrícula — Family Academy" },
+      { property: "og:title", content: "Matrícula — Escola de Finanças Academy" },
       {
         property: "og:description",
-        content: "Cadastro de aluno na turma da Family Academy.",
+        content: "Cadastro de aluno na turma da Escola de Finanças Academy.",
       },
     ],
   }),
@@ -110,7 +110,7 @@ function Matricula() {
             FA
           </div>
           <div className="leading-tight">
-            <h1 className="text-xl text-white">Family Academy</h1>
+            <h1 className="text-xl text-white">Escola de Finanças Academy</h1>
             <p className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
               Matrícula
             </p>

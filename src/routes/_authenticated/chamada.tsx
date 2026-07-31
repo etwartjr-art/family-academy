@@ -34,13 +34,13 @@ export const Route = createFileRoute("/_authenticated/chamada")({
   validateSearch: z.object({ aula: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Chamada — Family Academy" },
+      { title: "Chamada — Escola de Finanças Academy" },
       {
         name: "description",
         content:
           "Registre presença por leitura de QR da carteirinha, código do aluno ou marcação manual.",
       },
-      { property: "og:title", content: "Chamada — Family Academy" },
+      { property: "og:title", content: "Chamada — Escola de Finanças Academy" },
       { property: "og:description", content: "Presença por QR, código ou manual." },
     ],
   }),

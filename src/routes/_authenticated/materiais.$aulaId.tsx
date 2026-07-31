@@ -31,12 +31,12 @@ import { ArrowLeft, Download, Trash2, Upload } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/materiais/$aulaId")({
   head: () => ({
     meta: [
-      { title: "Materiais da aula — Family Academy" },
+      { title: "Materiais da aula — Escola de Finanças Academy" },
       {
         name: "description",
         content: "Publique e organize os materiais de estudo de uma aula da turma.",
       },
-      { property: "og:title", content: "Materiais da aula — Family Academy" },
+      { property: "og:title", content: "Materiais da aula — Escola de Finanças Academy" },
       { property: "og:description", content: "Publicação de materiais de estudo por aula." },
     ],
   }),

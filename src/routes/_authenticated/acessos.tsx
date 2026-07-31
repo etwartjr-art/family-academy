@@ -50,13 +50,13 @@ type AlvoPadrao = {
 export const Route = createFileRoute("/_authenticated/acessos")({
   head: () => ({
     meta: [
-      { title: "Níveis de acesso — Family Academy" },
+      { title: "Níveis de acesso — Escola de Finanças Academy" },
       {
         name: "description",
         content:
-          "Configure o que coordenadores, professores e alunos podem acessar na plataforma Family Academy.",
+          "Configure o que coordenadores, professores e alunos podem acessar na plataforma Escola de Finanças Academy.",
       },
-      { property: "og:title", content: "Níveis de acesso — Family Academy" },
+      { property: "og:title", content: "Níveis de acesso — Escola de Finanças Academy" },
       { property: "og:description", content: "Permissões por papel e por usuário." },
     ],
   }),

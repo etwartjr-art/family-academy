@@ -17,12 +17,12 @@ import { ScanLine } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
     meta: [
-      { title: "Painel — Family Academy" },
+      { title: "Painel — Escola de Finanças Academy" },
       {
         name: "description",
-        content: "Visão geral das turmas, alunos e frequência média da Family Academy.",
+        content: "Visão geral das turmas, alunos e frequência média da Escola de Finanças Academy.",
       },
-      { property: "og:title", content: "Painel — Family Academy" },
+      { property: "og:title", content: "Painel — Escola de Finanças Academy" },
       { property: "og:description", content: "Métricas e aulas pendentes de chamada." },
     ],
   }),
