@@ -11,13 +11,15 @@ import {
   ScanLine,
   ClipboardCheck,
   IdCard,
+  ShieldCheck,
   LogOut,
   Menu,
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessao } from "@/hooks/useSessao";
-import type { Papel } from "@/lib/api";
+import { usePermissoes } from "@/hooks/usePermissoes";
+import type { ChaveAcesso } from "@/lib/permissoes";
 import { iniciais } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -25,35 +27,20 @@ type Item = {
   para: string;
   rotulo: string;
   icone: typeof Users;
-  papeis: Papel[];
+  chave: ChaveAcesso;
 };
 
 const MENU: Item[] = [
-  {
-    para: "/painel",
-    rotulo: "Painel",
-    icone: LayoutDashboard,
-    papeis: ["coordenador", "professor", "aluno"],
-  },
-  { para: "/meu-painel", rotulo: "Minha carteirinha", icone: IdCard, papeis: ["aluno"] },
-  { para: "/cursos", rotulo: "Cursos", icone: BookOpen, papeis: ["coordenador"] },
-  { para: "/salas", rotulo: "Salas", icone: School, papeis: ["coordenador", "professor"] },
-  { para: "/alunos", rotulo: "Alunos", icone: GraduationCap, papeis: ["coordenador", "professor"] },
-  { para: "/chamada", rotulo: "Chamada", icone: ScanLine, papeis: ["coordenador", "professor"] },
-
-  {
-    para: "/frequencia",
-    rotulo: "Frequência",
-    icone: ClipboardCheck,
-    papeis: ["coordenador", "professor", "aluno"],
-  },
-  {
-    para: "/carteirinhas",
-    rotulo: "Carteirinhas",
-    icone: IdCard,
-    papeis: ["coordenador", "professor"],
-  },
-  { para: "/pessoas", rotulo: "Pessoas", icone: Users, papeis: ["coordenador"] },
+  { para: "/painel", rotulo: "Painel", icone: LayoutDashboard, chave: "painel" },
+  { para: "/meu-painel", rotulo: "Minha carteirinha", icone: IdCard, chave: "meu_painel" },
+  { para: "/cursos", rotulo: "Cursos", icone: BookOpen, chave: "cursos" },
+  { para: "/salas", rotulo: "Salas", icone: School, chave: "salas" },
+  { para: "/alunos", rotulo: "Alunos", icone: GraduationCap, chave: "alunos" },
+  { para: "/chamada", rotulo: "Chamada", icone: ScanLine, chave: "chamada" },
+  { para: "/frequencia", rotulo: "Frequência", icone: ClipboardCheck, chave: "frequencia" },
+  { para: "/carteirinhas", rotulo: "Carteirinhas", icone: IdCard, chave: "carteirinhas" },
+  { para: "/pessoas", rotulo: "Pessoas", icone: Users, chave: "pessoas" },
+  { para: "/acessos", rotulo: "Níveis de acesso", icone: ShieldCheck, chave: "acessos" },
 ];
 
 function Marca() {
@@ -80,7 +67,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const caminho = useRouterState({ select: (s) => s.location.pathname });
 
   const papel = sessao?.papel ?? "aluno";
-  const itens = MENU.filter((i) => i.papeis.includes(papel));
+  const { pode } = usePermissoes();
+  const itens = MENU.filter((i) => pode(i.chave));
 
   async function sair() {
     await queryClient.cancelQueries();
