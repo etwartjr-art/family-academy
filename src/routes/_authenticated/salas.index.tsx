@@ -23,8 +23,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { QRCodeBox } from "@/components/QRCodeBox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/salas/")({
   head: () => ({
@@ -58,17 +70,24 @@ function Salas() {
   const [inicio, setInicio] = useState(new Date().toISOString().slice(0, 10));
 
   const coordenador = sessao?.papel === "coordenador";
+  const professor = sessao?.papel === "professor";
+  const podeCriar = coordenador || professor;
   const professores = (perfis.data ?? []).filter((p) =>
     (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
   );
 
+  const podeExcluir = (sala: { professor_id: string | null }) =>
+    coordenador || (professor && sala.professor_id === sessao?.user.id);
+
   const criar = useMutation({
     mutationFn: async () => {
       if (!nome.trim() || !cursoId) throw new Error("Informe nome e curso");
+      // professor só cria turmas em que ele é o responsável (regra também aplicada no banco)
+      const responsavel = coordenador ? professorId || null : (sessao?.user.id ?? null);
       const { error } = await supabase.from("salas").insert({
         nome: nome.trim(),
         curso_id: cursoId,
-        professor_id: professorId || null,
+        professor_id: responsavel,
         turno,
         data_inicio: inicio,
       });
@@ -82,8 +101,22 @@ function Salas() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const excluir = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("salas").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Turma excluída");
+      qc.invalidateQueries();
+    },
+    onError: (e: Error) =>
+      toast.error(e.message || "Não foi possível excluir. Verifique suas permissões."),
+  });
+
   const visiveis = (salas.data ?? []).filter((s) => filtro === "todos" || s.curso_id === filtro);
   const origem = typeof window !== "undefined" ? window.location.origin : "";
+
 
   return (
     <div className="space-y-6">
@@ -109,9 +142,10 @@ function Salas() {
         </Select>
       </div>
 
-      {coordenador && (
+      {podeCriar && (
         <Card className="gap-3 p-4">
           <h2 className="text-lg">Nova sala</h2>
+
           <form
             className="grid gap-3 md:grid-cols-2"
             onSubmit={(e) => {
@@ -145,19 +179,24 @@ function Salas() {
             </div>
             <div className="space-y-1.5">
               <Label>Professor responsável</Label>
-              <Select value={professorId} onValueChange={setProfessorId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sem professor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {professores.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {coordenador ? (
+                <Select value={professorId} onValueChange={setProfessorId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sem professor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {professores.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input value={sessao?.perfil?.nome ?? "Você"} readOnly disabled />
+              )}
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="turno">Turno</Label>
@@ -202,11 +241,38 @@ function Salas() {
                 </div>
                 <QRCodeBox valor={`${origem}/matricula/${s.convite}`} tamanho={92} />
               </div>
-              <Button asChild variant="secondary" size="sm">
-                <Link to="/salas/$id" params={{ id: s.id }}>
-                  Abrir sala
-                </Link>
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="secondary" size="sm">
+                  <Link to="/salas/$id" params={{ id: s.id }}>
+                    Abrir sala
+                  </Link>
+                </Button>
+                {podeExcluir(s) && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm" disabled={excluir.isPending}>
+                        <Trash2 className="size-4" /> Excluir turma
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir {s.nome}?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação remove a turma com seus módulos, aulas, matrículas e presenças
+                          registradas. Não é possível desfazer.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => excluir.mutate(s.id)}>
+                          Excluir definitivamente
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+
             </Card>
           );
         })}

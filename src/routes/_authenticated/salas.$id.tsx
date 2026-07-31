@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -38,6 +38,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { toast } from "sonner";
@@ -107,6 +108,7 @@ function SalaDetalhe() {
     enabled: idsModulos.length > 0,
   });
 
+  const navigate = useNavigate();
   const sala = (salas.data ?? []).find((s) => s.id === id);
   const curso = (cursos.data ?? []).find((c) => c.id === sala?.curso_id);
   const origem = typeof window !== "undefined" ? window.location.origin : "";
@@ -342,9 +344,24 @@ function SalaDetalhe() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const excluirTurma = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("salas").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Turma excluída");
+      qc.invalidateQueries();
+      navigate({ to: "/salas" });
+    },
+    onError: (e: Error) =>
+      toast.error(e.message || "Não foi possível excluir. Verifique suas permissões."),
+  });
+
   if (!sala) {
     return <p className="text-sm text-muted-foreground">Carregando sala…</p>;
   }
+
 
   return (
     <div className="space-y-6">
@@ -366,11 +383,38 @@ function SalaDetalhe() {
             {(perfis.data ?? []).find((p) => p.id === sala.professor_id)?.nome ?? "—"}
           </p>
           <p className="mt-1 font-mono text-sm">{sala.convite}</p>
-          {podeEditar && !editando && (
-            <Button variant="outline" size="sm" className="mt-3" onClick={abrirEdicao}>
-              <Pencil className="size-4" /> Editar turma
-            </Button>
-          )}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {podeEditar && !editando && (
+              <Button variant="outline" size="sm" onClick={abrirEdicao}>
+                <Pencil className="size-4" /> Editar turma
+              </Button>
+            )}
+            {podeEditar && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" disabled={excluirTurma.isPending}>
+                    <Trash2 className="size-4" /> Excluir turma
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir {sala.nome}?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Remove a turma com seus módulos, aulas, matrículas e presenças. Não é
+                      possível desfazer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => excluirTurma.mutate()}>
+                      Excluir definitivamente
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
+
         </div>
         <QRCodeBox valor={`${origem}/matricula/${sala.convite}`} tamanho={104} />
       </div>
