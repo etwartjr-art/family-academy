@@ -884,7 +884,16 @@ function SalaDetalhe() {
               </form>
             )}
 
+            <div className="mb-3">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/salas/$id_/professores-aulas" params={{ id }}>
+                  <GraduationCap className="size-4" /> Professores por aula
+                </Link>
+              </Button>
+            </div>
+
             <ul className="divide-y rounded-xl border">
+
               {aulasDoModulo.map((a) => (
                 <li
                   key={a.id}

@@ -23,7 +23,7 @@ import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticate
 import { Route as MatriculaConviteRouteImport } from './routes/matricula.$convite'
 import { Route as AuthenticatedSalasIndexRouteImport } from './routes/_authenticated/salas.index'
 import { Route as AuthenticatedSalasIdRouteImport } from './routes/_authenticated/salas.$id'
-import { Route as AuthenticatedSalasIdProfessoresAulasRouteImport } from './routes/_authenticated/salas.$id.professores-aulas'
+import { Route as AuthenticatedSalasIdProfessoresAulasRouteImport } from './routes/_authenticated/salas.$id_.professores-aulas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -97,9 +97,9 @@ const AuthenticatedSalasIdRoute = AuthenticatedSalasIdRouteImport.update({
 } as any)
 const AuthenticatedSalasIdProfessoresAulasRoute =
   AuthenticatedSalasIdProfessoresAulasRouteImport.update({
-    id: '/professores-aulas',
-    path: '/professores-aulas',
-    getParentRoute: () => AuthenticatedSalasIdRoute,
+    id: '/salas/$id_/professores-aulas',
+    path: '/salas/$id/professores-aulas',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -114,7 +114,7 @@ export interface FileRoutesByFullPath {
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
-  '/salas/$id': typeof AuthenticatedSalasIdRouteWithChildren
+  '/salas/$id': typeof AuthenticatedSalasIdRoute
   '/salas/': typeof AuthenticatedSalasIndexRoute
   '/salas/$id/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
@@ -130,7 +130,7 @@ export interface FileRoutesByTo {
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
-  '/salas/$id': typeof AuthenticatedSalasIdRouteWithChildren
+  '/salas/$id': typeof AuthenticatedSalasIdRoute
   '/salas': typeof AuthenticatedSalasIndexRoute
   '/salas/$id/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
@@ -148,9 +148,9 @@ export interface FileRoutesById {
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
-  '/_authenticated/salas/$id': typeof AuthenticatedSalasIdRouteWithChildren
+  '/_authenticated/salas/$id': typeof AuthenticatedSalasIdRoute
   '/_authenticated/salas/': typeof AuthenticatedSalasIndexRoute
-  '/_authenticated/salas/$id/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
+  '/_authenticated/salas/$id_/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,7 +201,7 @@ export interface FileRouteTypes {
     | '/matricula/$convite'
     | '/_authenticated/salas/$id'
     | '/_authenticated/salas/'
-    | '/_authenticated/salas/$id/professores-aulas'
+    | '/_authenticated/salas/$id_/professores-aulas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -310,27 +310,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalasIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/salas/$id/professores-aulas': {
-      id: '/_authenticated/salas/$id/professores-aulas'
-      path: '/professores-aulas'
+    '/_authenticated/salas/$id_/professores-aulas': {
+      id: '/_authenticated/salas/$id_/professores-aulas'
+      path: '/salas/$id/professores-aulas'
       fullPath: '/salas/$id/professores-aulas'
       preLoaderRoute: typeof AuthenticatedSalasIdProfessoresAulasRouteImport
-      parentRoute: typeof AuthenticatedSalasIdRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
-
-interface AuthenticatedSalasIdRouteChildren {
-  AuthenticatedSalasIdProfessoresAulasRoute: typeof AuthenticatedSalasIdProfessoresAulasRoute
-}
-
-const AuthenticatedSalasIdRouteChildren: AuthenticatedSalasIdRouteChildren = {
-  AuthenticatedSalasIdProfessoresAulasRoute:
-    AuthenticatedSalasIdProfessoresAulasRoute,
-}
-
-const AuthenticatedSalasIdRouteWithChildren =
-  AuthenticatedSalasIdRoute._addFileChildren(AuthenticatedSalasIdRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAcessosRoute: typeof AuthenticatedAcessosRoute
@@ -342,8 +330,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMeuPainelRoute: typeof AuthenticatedMeuPainelRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
-  AuthenticatedSalasIdRoute: typeof AuthenticatedSalasIdRouteWithChildren
+  AuthenticatedSalasIdRoute: typeof AuthenticatedSalasIdRoute
   AuthenticatedSalasIndexRoute: typeof AuthenticatedSalasIndexRoute
+  AuthenticatedSalasIdProfessoresAulasRoute: typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -356,8 +345,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMeuPainelRoute: AuthenticatedMeuPainelRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
-  AuthenticatedSalasIdRoute: AuthenticatedSalasIdRouteWithChildren,
+  AuthenticatedSalasIdRoute: AuthenticatedSalasIdRoute,
   AuthenticatedSalasIndexRoute: AuthenticatedSalasIndexRoute,
+  AuthenticatedSalasIdProfessoresAulasRoute:
+    AuthenticatedSalasIdProfessoresAulasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -371,13 +362,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
