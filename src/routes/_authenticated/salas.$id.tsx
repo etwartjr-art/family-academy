@@ -771,20 +771,37 @@ function SalaDetalhe() {
                         </td>
                       );
                     })}
+                    {podeEditar && (
+                      <td className="px-2 py-2 text-right">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() =>
+                            setRemovendo({ id: mat.id, nome: perfil?.nome ?? "este aluno" })
+                          }
+                        >
+                          <Trash2 className="size-4" /> Remover
+                        </Button>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
-              {(matriculas.data ?? []).length === 0 && (
+              {matriculasVisiveis.length === 0 && (
                 <tr>
                   <td
-                    colSpan={(modulos.data ?? []).length + 2}
+                    colSpan={(modulos.data ?? []).length + (podeEditar ? 3 : 2)}
                     className="py-3 text-muted-foreground"
                   >
-                    Nenhum aluno matriculado. Compartilhe o QR de convite.
+                    {(matriculas.data ?? []).length === 0
+                      ? "Nenhum aluno matriculado. Compartilhe o QR de convite."
+                      : "Nenhum aluno encontrado para esta busca."}
                   </td>
                 </tr>
               )}
             </tbody>
+
           </table>
         </Card>
       </section>
