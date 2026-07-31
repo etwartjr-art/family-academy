@@ -1309,7 +1309,7 @@ function SalaDetalhe() {
               {matriculasVisiveis.length === 0 && (
                 <tr>
                   <td
-                    colSpan={(moduloAtivo ? 1 : 0) + (podeMatricular ? 3 : 2)}
+                    colSpan={(moduloAtivo ? 1 : 0) + 3}
                     className="py-3 text-muted-foreground"
                   >
                     {(matriculas.data ?? []).length === 0
