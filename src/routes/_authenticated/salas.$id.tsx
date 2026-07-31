@@ -342,9 +342,24 @@ function SalaDetalhe() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const excluirTurma = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("salas").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Turma excluída");
+      qc.invalidateQueries();
+      navigate({ to: "/salas" });
+    },
+    onError: (e: Error) =>
+      toast.error(e.message || "Não foi possível excluir. Verifique suas permissões."),
+  });
+
   if (!sala) {
     return <p className="text-sm text-muted-foreground">Carregando sala…</p>;
   }
+
 
   return (
     <div className="space-y-6">
