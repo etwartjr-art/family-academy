@@ -22,6 +22,7 @@ import { Route as AuthenticatedMeuPainelRouteImport } from './routes/_authentica
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticated/pessoas'
 import { Route as MatriculaConviteRouteImport } from './routes/matricula.$convite'
+import { Route as AuthenticatedMateriaisIndexRouteImport } from './routes/_authenticated/materiais.index'
 import { Route as AuthenticatedSalasIndexRouteImport } from './routes/_authenticated/salas.index'
 import { Route as AuthenticatedSalasIdRouteImport } from './routes/_authenticated/salas.$id'
 import { Route as AuthenticatedSalasIdProfessoresAulasRouteImport } from './routes/_authenticated/salas.$id_.professores-aulas'
@@ -91,6 +92,12 @@ const MatriculaConviteRoute = MatriculaConviteRouteImport.update({
   path: '/matricula/$convite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedMateriaisIndexRoute =
+  AuthenticatedMateriaisIndexRouteImport.update({
+    id: '/materiais/',
+    path: '/materiais/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSalasIndexRoute = AuthenticatedSalasIndexRouteImport.update({
   id: '/salas/',
   path: '/salas/',
@@ -122,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/salas/$id': typeof AuthenticatedSalasIdRoute
+  '/materiais/': typeof AuthenticatedMateriaisIndexRoute
   '/salas/': typeof AuthenticatedSalasIndexRoute
   '/salas/$id/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
@@ -139,6 +147,7 @@ export interface FileRoutesByTo {
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/salas/$id': typeof AuthenticatedSalasIdRoute
+  '/materiais': typeof AuthenticatedMateriaisIndexRoute
   '/salas': typeof AuthenticatedSalasIndexRoute
   '/salas/$id/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
@@ -158,6 +167,7 @@ export interface FileRoutesById {
   '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/_authenticated/salas/$id': typeof AuthenticatedSalasIdRoute
+  '/_authenticated/materiais/': typeof AuthenticatedMateriaisIndexRoute
   '/_authenticated/salas/': typeof AuthenticatedSalasIndexRoute
   '/_authenticated/salas/$id_/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/pessoas'
     | '/matricula/$convite'
     | '/salas/$id'
+    | '/materiais/'
     | '/salas/'
     | '/salas/$id/professores-aulas'
   fileRoutesByTo: FileRoutesByTo
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/pessoas'
     | '/matricula/$convite'
     | '/salas/$id'
+    | '/materiais'
     | '/salas'
     | '/salas/$id/professores-aulas'
   id:
@@ -212,6 +224,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pessoas'
     | '/matricula/$convite'
     | '/_authenticated/salas/$id'
+    | '/_authenticated/materiais/'
     | '/_authenticated/salas/'
     | '/_authenticated/salas/$id_/professores-aulas'
   fileRoutesById: FileRoutesById
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatriculaConviteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/materiais/': {
+      id: '/_authenticated/materiais/'
+      path: '/materiais'
+      fullPath: '/materiais/'
+      preLoaderRoute: typeof AuthenticatedMateriaisIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/salas/': {
       id: '/_authenticated/salas/'
       path: '/salas'
@@ -351,6 +371,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
   AuthenticatedSalasIdRoute: typeof AuthenticatedSalasIdRoute
+  AuthenticatedMateriaisIndexRoute: typeof AuthenticatedMateriaisIndexRoute
   AuthenticatedSalasIndexRoute: typeof AuthenticatedSalasIndexRoute
   AuthenticatedSalasIdProfessoresAulasRoute: typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
@@ -366,6 +387,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
   AuthenticatedSalasIdRoute: AuthenticatedSalasIdRoute,
+  AuthenticatedMateriaisIndexRoute: AuthenticatedMateriaisIndexRoute,
   AuthenticatedSalasIndexRoute: AuthenticatedSalasIndexRoute,
   AuthenticatedSalasIdProfessoresAulasRoute:
     AuthenticatedSalasIdProfessoresAulasRoute,
