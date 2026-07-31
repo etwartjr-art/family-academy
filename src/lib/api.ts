@@ -35,11 +35,14 @@ export type Aula = {
   titulo: string;
   data: string | null;
 };
+export type TipoMatricula = "individual" | "casal";
 export type Matricula = {
   id: string;
   aluno_id: string;
   sala_id: string;
   status: "ativa" | "pendente" | "cancelada";
+  tipo: TipoMatricula;
+  nome_casal: string | null;
 };
 export type Presenca = {
   id: string;
