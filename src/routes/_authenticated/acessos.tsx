@@ -156,6 +156,21 @@ function Acessos() {
     `${p.nome} ${p.email ?? ""} ${p.codigo}`.toLowerCase().includes(busca.toLowerCase()),
   );
 
+  const [verComo, setVerComo] = useState("");
+  const verComoPerfil = (perfis.data ?? []).find((p) => p.id === verComo);
+  const verComoLiberadas = verComoPerfil
+    ? MENU.filter((item) =>
+        calcular(
+          item.chave,
+          papelDe(verComoPerfil.id),
+          verComoPerfil.id,
+          porPapel.data ?? [],
+          porUsuario.data ?? [],
+        ),
+      )
+    : [];
+
+
   if (!ehCoordenador) {
     return (
       <div className="space-y-4">
