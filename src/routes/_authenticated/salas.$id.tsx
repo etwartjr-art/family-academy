@@ -46,7 +46,16 @@ import { ImportarAlunosCSV } from "@/components/ImportarAlunosCSV";
 import { DetalhesAluno } from "@/components/DetalhesAluno";
 
 import { toast } from "sonner";
-import { ArrowLeft, History as HistoryIcon, Pencil, Search, Trash2, UserPlus } from "lucide-react";
+import {
+  ArrowLeft,
+  GraduationCap,
+  History as HistoryIcon,
+  Pencil,
+  Search,
+  Trash2,
+  UserPlus,
+} from "lucide-react";
+
 
 const ROTULOS_CAMPO: Record<string, string> = {
   nome: "Nome da turma",
@@ -884,7 +893,16 @@ function SalaDetalhe() {
               </form>
             )}
 
+            <div className="mb-3">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/salas/$id_/professores-aulas" params={{ id }}>
+                  <GraduationCap className="size-4" /> Professores por aula
+                </Link>
+              </Button>
+            </div>
+
             <ul className="divide-y rounded-xl border">
+
               {aulasDoModulo.map((a) => (
                 <li
                   key={a.id}
