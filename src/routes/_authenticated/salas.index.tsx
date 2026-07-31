@@ -179,19 +179,24 @@ function Salas() {
             </div>
             <div className="space-y-1.5">
               <Label>Professor responsável</Label>
-              <Select value={professorId} onValueChange={setProfessorId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sem professor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {professores.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {coordenador ? (
+                <Select value={professorId} onValueChange={setProfessorId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sem professor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {professores.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input value={sessao?.perfil?.nome ?? "Você"} readOnly disabled />
+              )}
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="turno">Turno</Label>
