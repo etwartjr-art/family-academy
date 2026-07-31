@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION interno.aluno_ve_aula(uuid) TO authenticated;
