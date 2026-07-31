@@ -956,6 +956,12 @@ function SalaDetalhe() {
                     className="w-40"
                     disabled={!podeEditar}
                   />
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/materiais/$aulaId" params={{ aulaId: a.id }}>
+                      <Library className="size-4" /> Material ·{" "}
+                      {(materiais.data ?? []).filter((m) => m.aula_id === a.id).length}
+                    </Link>
+                  </Button>
                 </li>
               ))}
               {aulasDoModulo.length === 0 && (
