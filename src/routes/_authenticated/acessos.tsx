@@ -26,7 +26,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MENU } from "@/components/AppShell";
 import { toast } from "sonner";
+
 
 type AlvoPadrao = {
   userId: string;
@@ -147,6 +156,21 @@ function Acessos() {
     `${p.nome} ${p.email ?? ""} ${p.codigo}`.toLowerCase().includes(busca.toLowerCase()),
   );
 
+  const [verComo, setVerComo] = useState("");
+  const verComoPerfil = (perfis.data ?? []).find((p) => p.id === verComo);
+  const verComoLiberadas = verComoPerfil
+    ? MENU.filter((item) =>
+        calcular(
+          item.chave,
+          papelDe(verComoPerfil.id),
+          verComoPerfil.id,
+          porPapel.data ?? [],
+          porUsuario.data ?? [],
+        ),
+      )
+    : [];
+
+
   if (!ehCoordenador) {
     return (
       <div className="space-y-4">
@@ -231,6 +255,88 @@ function Acessos() {
       </section>
 
       <section className="space-y-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide">Ver como</h2>
+        <p className="text-sm text-muted-foreground">
+          Escolha uma pessoa para conferir exatamente quais páginas e itens de menu ela consegue
+          acessar hoje.
+        </p>
+        <Select value={verComo} onValueChange={setVerComo}>
+          <SelectTrigger className="max-w-sm">
+            <SelectValue placeholder="Selecione um usuário" />
+          </SelectTrigger>
+          <SelectContent>
+            {(perfis.data ?? []).map((p) => (
+              <SelectItem key={p.id} value={p.id}>
+                {p.nome} — {papelDe(p.id)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {verComoPerfil && (
+          <Card className="gap-0 overflow-hidden p-0">
+            <div className="flex items-center gap-3 border-b bg-muted/40 px-4 py-3">
+              <span className="grid size-9 place-items-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
+                {iniciais(verComoPerfil.nome)}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium">{verComoPerfil.nome}</span>
+                <span className="text-xs capitalize text-muted-foreground">
+                  {papelDe(verComoPerfil.id)} · {verComoLiberadas.length} de {MENU.length} áreas
+                  liberadas
+                </span>
+              </span>
+              <Button variant="ghost" size="sm" onClick={() => setVerComo("")}>
+                Limpar
+              </Button>
+            </div>
+            <ul className="divide-y">
+              {MENU.map((item) => {
+                const papel = papelDe(verComoPerfil.id);
+                const excecao = (porUsuario.data ?? []).find(
+                  (x) => x.user_id === verComoPerfil.id && x.chave === item.chave,
+                );
+                const liberado = calcular(
+                  item.chave,
+                  papel,
+                  verComoPerfil.id,
+                  porPapel.data ?? [],
+                  porUsuario.data ?? [],
+                );
+                const Icone = item.icone;
+                return (
+                  <li key={item.chave} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+                    <Icone
+                      className={
+                        liberado ? "size-4 shrink-0" : "size-4 shrink-0 text-muted-foreground"
+                      }
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{item.rotulo}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{item.para}</span>
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {excecao ? "exceção do usuário" : "padrão do papel"}
+                    </span>
+                    <span
+                      className={
+                        liberado
+                          ? "shrink-0 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
+                          : "shrink-0 rounded-full border px-2 py-0.5 text-xs text-muted-foreground"
+                      }
+                    >
+                      {liberado ? "Acessa" : "Bloqueado"}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </Card>
+        )}
+      </section>
+
+      <section className="space-y-2">
+
         <h2 className="text-sm font-semibold uppercase tracking-wide">Exceções por usuário</h2>
         <Input
           value={busca}

@@ -23,14 +23,15 @@ import type { ChaveAcesso } from "@/lib/permissoes";
 import { iniciais } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-type Item = {
+export type Item = {
   para: string;
   rotulo: string;
   icone: typeof Users;
   chave: ChaveAcesso;
 };
 
-const MENU: Item[] = [
+export const MENU: Item[] = [
+
   { para: "/painel", rotulo: "Painel", icone: LayoutDashboard, chave: "painel" },
   { para: "/meu-painel", rotulo: "Minha carteirinha", icone: IdCard, chave: "meu_painel" },
   { para: "/cursos", rotulo: "Cursos", icone: BookOpen, chave: "cursos" },
