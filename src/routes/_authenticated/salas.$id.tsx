@@ -437,6 +437,44 @@ function SalaDetalhe() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const salvarModulo = useMutation({
+    mutationFn: async (dados: {
+      moduloId: string;
+      nome: string;
+      ordem: number;
+      data_inicio: string;
+    }) => {
+      const { error } = await supabase
+        .from("modulos")
+        .update({
+          nome: dados.nome.trim(),
+          ordem: dados.ordem,
+          data_inicio: dados.data_inicio || null,
+        })
+        .eq("id", dados.moduloId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Módulo atualizado");
+      setEditandoModulo(false);
+      qc.invalidateQueries({ queryKey: ["modulos", id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const salvarTituloAula = useMutation({
+    mutationFn: async ({ aulaId, titulo }: { aulaId: string; titulo: string }) => {
+      const limpo = titulo.trim();
+      if (!limpo) throw new Error("O título da aula não pode ficar vazio");
+      const { error } = await supabase.from("aulas").update({ titulo: limpo }).eq("id", aulaId);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["aulas"] }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   const alternarInscricao = useMutation({
     mutationFn: async ({
       matriculaId,
