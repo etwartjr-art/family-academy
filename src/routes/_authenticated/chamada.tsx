@@ -166,12 +166,6 @@ function Chamada() {
         <div className="space-y-1.5">
           <Label>Módulo</Label>
           <Select
-            value={moduloId}
-            onValueChange={(v) => {
-              setModuloId(v);
-              setAulaId("");
-            }}
-          >
             value={moduloEfetivo}
             onValueChange={(v) => {
               setModuloId(v);
