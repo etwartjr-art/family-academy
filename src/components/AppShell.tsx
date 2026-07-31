@@ -121,7 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* topo — mobile */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <header className="sem-impressao sticky top-0 z-30 flex items-center justify-between bg-sidebar px-3 py-2 md:hidden">
           <Marca />
           <button
