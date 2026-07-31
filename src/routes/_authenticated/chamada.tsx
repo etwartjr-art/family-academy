@@ -172,6 +172,12 @@ function Chamada() {
               setAulaId("");
             }}
           >
+            value={moduloEfetivo}
+            onValueChange={(v) => {
+              setModuloId(v);
+              setAulaId("");
+            }}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Escolha o módulo" />
             </SelectTrigger>
