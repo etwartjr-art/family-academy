@@ -1,7 +1,7 @@
 import logoAsset from "@/assets/logo-escola-financas-academy.jpg.asset.json";
 
 /**
- * Imagem de fundo da Escola de Finanças Academy usada no sistema
+ * Imagem de fundo da Escola de Finanças usada no sistema
  * e na tela inicial. Puramente decorativa.
  */
 export function FundoMarca({ tom = "claro" }: { tom?: "claro" | "escuro" }) {

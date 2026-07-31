@@ -1,7 +1,7 @@
 {
-  "name": "Escola de Finanças Academy",
-  "short_name": "Escola de Finanças Academy",
-  "description": "Gestão de turmas, módulos e frequência da Escola de Finanças Academy com chamada por QR code.",
+  "name": "Escola de Finanças",
+  "short_name": "Escola de Finanças",
+  "description": "Gestão de turmas, módulos e frequência da Escola de Finanças com chamada por QR code.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

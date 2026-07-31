@@ -18,12 +18,12 @@ import { Printer } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/carteirinhas")({
   head: () => ({
     meta: [
-      { title: "Carteirinhas — Escola de Finanças Academy" },
+      { title: "Carteirinhas — Escola de Finanças" },
       {
         name: "description",
         content: "Gere e imprima as carteirinhas dos alunos com QR code para a chamada.",
       },
-      { property: "og:title", content: "Carteirinhas — Escola de Finanças Academy" },
+      { property: "og:title", content: "Carteirinhas — Escola de Finanças" },
       { property: "og:description", content: "Carteirinhas com QR para chamada." },
     ],
   }),
@@ -86,7 +86,7 @@ function Carteirinhas() {
             <QRCodeBox valor={`FA|ALUNO|${a.codigo}`} tamanho={84} />
             <div className="min-w-0">
               <div className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                {curso?.nome ?? "Escola de Finanças Academy"}
+                {curso?.nome ?? "Escola de Finanças"}
               </div>
               <div className="truncate font-display text-base font-extrabold">{a.nome}</div>
               <div className="font-mono text-sm">{a.codigo}</div>

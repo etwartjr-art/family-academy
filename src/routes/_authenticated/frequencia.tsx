@@ -27,12 +27,12 @@ import { Download, AlertTriangle } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/frequencia")({
   head: () => ({
     meta: [
-      { title: "Frequência — Escola de Finanças Academy" },
+      { title: "Frequência — Escola de Finanças" },
       {
         name: "description",
         content: "Grade de presença por módulo com percentual por aluno e exportação em CSV.",
       },
-      { property: "og:title", content: "Frequência — Escola de Finanças Academy" },
+      { property: "og:title", content: "Frequência — Escola de Finanças" },
       { property: "og:description", content: "Grade de frequência e exportação CSV." },
     ],
   }),

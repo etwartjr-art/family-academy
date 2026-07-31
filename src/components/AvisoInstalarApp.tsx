@@ -80,7 +80,7 @@ export function AvisoInstalarApp() {
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-foreground">
-              Instalar Escola de Finanças Academy
+              Instalar Escola de Finanças
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {modoIos ? (
