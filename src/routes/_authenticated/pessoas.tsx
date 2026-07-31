@@ -62,6 +62,20 @@ function Pessoas() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const salvar = useMutation({
+    mutationFn: async () => {
+      if (!edicao) throw new Error("Nada para salvar");
+      return editar({ data: edicao });
+    },
+    onSuccess: () => {
+      toast.success("Dados atualizados");
+      setEdicao(null);
+      qc.invalidateQueries({ queryKey: ["perfis"] });
+      qc.invalidateQueries({ queryKey: ["sessao"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const alterar = useMutation({
     mutationFn: async ({ userId, papel }: { userId: string; papel: Papel }) => {
       const { error: erroDelete } = await supabase
