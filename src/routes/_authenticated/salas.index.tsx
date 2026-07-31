@@ -235,11 +235,38 @@ function Salas() {
                 </div>
                 <QRCodeBox valor={`${origem}/matricula/${s.convite}`} tamanho={92} />
               </div>
-              <Button asChild variant="secondary" size="sm">
-                <Link to="/salas/$id" params={{ id: s.id }}>
-                  Abrir sala
-                </Link>
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="secondary" size="sm">
+                  <Link to="/salas/$id" params={{ id: s.id }}>
+                    Abrir sala
+                  </Link>
+                </Button>
+                {podeExcluir(s) && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm" disabled={excluir.isPending}>
+                        <Trash2 className="size-4" /> Excluir turma
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir {s.nome}?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação remove a turma com seus módulos, aulas, matrículas e presenças
+                          registradas. Não é possível desfazer.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => excluir.mutate(s.id)}>
+                          Excluir definitivamente
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+
             </Card>
           );
         })}
