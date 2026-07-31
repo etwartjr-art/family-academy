@@ -115,6 +115,8 @@ function SalaDetalhe() {
   });
 
   const [editando, setEditando] = useState(false);
+  const [editandoModulo, setEditandoModulo] = useState(false);
+  const [formModulo, setFormModulo] = useState({ nome: "", ordem: 0, data_inicio: "" });
   const [adicionando, setAdicionando] = useState(false);
   const [novo, setNovo] = useState({
     nome: "",
@@ -437,6 +439,44 @@ function SalaDetalhe() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const salvarModulo = useMutation({
+    mutationFn: async (dados: {
+      moduloId: string;
+      nome: string;
+      ordem: number;
+      data_inicio: string;
+    }) => {
+      const { error } = await supabase
+        .from("modulos")
+        .update({
+          nome: dados.nome.trim(),
+          ordem: dados.ordem,
+          ...(dados.data_inicio ? { data_inicio: dados.data_inicio } : {}),
+        })
+        .eq("id", dados.moduloId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Módulo atualizado");
+      setEditandoModulo(false);
+      qc.invalidateQueries({ queryKey: ["modulos", id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const salvarTituloAula = useMutation({
+    mutationFn: async ({ aulaId, titulo }: { aulaId: string; titulo: string }) => {
+      const limpo = titulo.trim();
+      if (!limpo) throw new Error("O título da aula não pode ficar vazio");
+      const { error } = await supabase.from("aulas").update({ titulo: limpo }).eq("id", aulaId);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["aulas"] }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   const alternarInscricao = useMutation({
     mutationFn: async ({
       matriculaId,
@@ -742,16 +782,100 @@ function SalaDetalhe() {
 
         {moduloAtivo ? (
           <Card className="gap-3 p-4">
-            <h3 className="text-base font-semibold">{moduloAtivo.nome}</h3>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 className="text-base font-semibold">{moduloAtivo.nome}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Ordem {moduloAtivo.ordem} · início {dataBR(moduloAtivo.data_inicio)}
+                </p>
+              </div>
+              {podeEditar && !editandoModulo && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormModulo({
+                      nome: moduloAtivo.nome,
+                      ordem: moduloAtivo.ordem,
+                      data_inicio: moduloAtivo.data_inicio?.slice(0, 10) ?? "",
+                    });
+                    setEditandoModulo(true);
+                  }}
+                >
+                  <Pencil className="size-4" /> Editar módulo
+                </Button>
+              )}
+            </div>
+
+            {editandoModulo && (
+              <form
+                className="grid gap-3 rounded-xl border p-3 sm:grid-cols-[2fr_auto_auto]"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  salvarModulo.mutate({ moduloId: moduloAtivo.id, ...formModulo });
+                }}
+              >
+                <div className="space-y-1.5">
+                  <Label htmlFor="mod-nome">Nome do módulo</Label>
+                  <Input
+                    id="mod-nome"
+                    value={formModulo.nome}
+                    onChange={(e) => setFormModulo({ ...formModulo, nome: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="mod-ordem">Ordem</Label>
+                  <Input
+                    id="mod-ordem"
+                    type="number"
+                    min={0}
+                    className="w-24"
+                    value={formModulo.ordem}
+                    onChange={(e) =>
+                      setFormModulo({ ...formModulo, ordem: Number(e.target.value) || 0 })
+                    }
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="mod-inicio">Início</Label>
+                  <Input
+                    id="mod-inicio"
+                    type="date"
+                    className="w-44"
+                    value={formModulo.data_inicio}
+                    onChange={(e) => setFormModulo({ ...formModulo, data_inicio: e.target.value })}
+                  />
+                </div>
+                <div className="flex gap-2 sm:col-span-3">
+                  <Button type="submit" disabled={salvarModulo.isPending}>
+                    Salvar módulo
+                  </Button>
+                  <Button type="button" variant="ghost" onClick={() => setEditandoModulo(false)}>
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            )}
+
             <ul className="divide-y rounded-xl border">
               {aulasDoModulo.map((a) => (
                 <li
                   key={a.id}
                   className="flex flex-wrap items-center gap-3 px-3 py-2.5 sm:flex-nowrap"
                 >
-                  <span className="min-w-40 flex-1 text-sm">
-                    Aula {a.numero} · {a.titulo}
-                  </span>
+                  <span className="text-sm text-muted-foreground">Aula {a.numero}</span>
+                  <Input
+                    defaultValue={a.titulo}
+                    onBlur={(e) => {
+                      if (e.target.value.trim() !== a.titulo)
+                        salvarTituloAula.mutate({ aulaId: a.id, titulo: e.target.value });
+                    }}
+                    className="min-w-40 flex-1"
+                    disabled={!podeEditar}
+                    aria-label={`Título da aula ${a.numero}`}
+                  />
+
                   <Select
                     value={a.professor_id ?? "nenhum"}
                     onValueChange={(v) =>
