@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listarPerfis, listarPapeis, iniciais, type Papel } from "@/lib/api";
-import { criarUsuario } from "@/lib/usuarios.functions";
+import { criarUsuario, editarUsuario } from "@/lib/usuarios.functions";
 import { useSessao } from "@/hooks/useSessao";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,11 +44,20 @@ function Pessoas() {
   const [busca, setBusca] = useState("");
   const [form, setForm] = useState(VAZIO);
   const [aberto, setAberto] = useState(false);
+  const [edicao, setEdicao] = useState<null | {
+    id: string;
+    nome: string;
+    email: string;
+    telefone: string;
+    senha: string;
+  }>(null);
   const sessao = useSessao();
   const ehCoordenador = sessao.data?.papel === "coordenador";
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
   const criar = useServerFn(criarUsuario);
+  const editar = useServerFn(editarUsuario);
+
 
   const cadastrar = useMutation({
     mutationFn: async () => criar({ data: form }),
@@ -58,6 +67,20 @@ function Pessoas() {
       setAberto(false);
       qc.invalidateQueries({ queryKey: ["perfis"] });
       qc.invalidateQueries({ queryKey: ["papeis"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const salvar = useMutation({
+    mutationFn: async () => {
+      if (!edicao) throw new Error("Nada para salvar");
+      return editar({ data: edicao });
+    },
+    onSuccess: () => {
+      toast.success("Dados atualizados");
+      setEdicao(null);
+      qc.invalidateQueries({ queryKey: ["perfis"] });
+      qc.invalidateQueries({ queryKey: ["sessao"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -190,32 +213,116 @@ function Pessoas() {
           {lista.map((p) => {
             const atual =
               ((papeis.data ?? []).find((r) => r.user_id === p.id)?.papel as Papel) ?? "aluno";
+            const editando = edicao?.id === p.id;
             return (
-              <li key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                <span className="grid size-9 place-items-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
-                  {iniciais(p.nome)}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{p.nome}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {p.email ?? "sem e-mail"} · <span className="font-mono">{p.codigo}</span>
+              <li key={p.id} className="px-4 py-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="grid size-9 place-items-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
+                    {iniciais(p.nome)}
                   </span>
-                </span>
-                <Select
-                  value={atual}
-                  onValueChange={(v) => alterar.mutate({ userId: p.id, papel: v as Papel })}
-                >
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PAPEIS.map((r) => (
-                      <SelectItem key={r} value={r} className="capitalize">
-                        {r}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">{p.nome}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {p.email ?? "sem e-mail"} · <span className="font-mono">{p.codigo}</span>
+                      {p.telefone ? ` · ${p.telefone}` : ""}
+                    </span>
+                  </span>
+                  <Select
+                    value={atual}
+                    onValueChange={(v) => alterar.mutate({ userId: p.id, papel: v as Papel })}
+                  >
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAPEIS.map((r) => (
+                        <SelectItem key={r} value={r} className="capitalize">
+                          {r}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {ehCoordenador && (
+                    <Button
+                      variant={editando ? "secondary" : "outline"}
+                      size="sm"
+                      onClick={() =>
+                        setEdicao(
+                          editando
+                            ? null
+                            : {
+                                id: p.id,
+                                nome: p.nome,
+                                email: p.email ?? "",
+                                telefone: p.telefone ?? "",
+                                senha: "",
+                              },
+                        )
+                      }
+                    >
+                      {editando ? "Fechar" : "Editar"}
+                    </Button>
+                  )}
+                </div>
+
+                {ehCoordenador && editando && edicao && (
+                  <form
+                    className="mt-3 grid gap-3 rounded-lg border bg-muted/40 p-3 sm:grid-cols-2"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      salvar.mutate();
+                    }}
+                  >
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`nome-${p.id}`}>Nome completo</Label>
+                      <Input
+                        id={`nome-${p.id}`}
+                        required
+                        maxLength={100}
+                        value={edicao.nome}
+                        onChange={(e) => setEdicao({ ...edicao, nome: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`email-${p.id}`}>E-mail</Label>
+                      <Input
+                        id={`email-${p.id}`}
+                        type="email"
+                        required
+                        maxLength={255}
+                        value={edicao.email}
+                        onChange={(e) => setEdicao({ ...edicao, email: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`tel-${p.id}`}>Telefone</Label>
+                      <Input
+                        id={`tel-${p.id}`}
+                        maxLength={30}
+                        value={edicao.telefone}
+                        onChange={(e) => setEdicao({ ...edicao, telefone: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`senha-${p.id}`}>Nova senha (opcional)</Label>
+                      <Input
+                        id={`senha-${p.id}`}
+                        type="password"
+                        minLength={6}
+                        value={edicao.senha}
+                        onChange={(e) => setEdicao({ ...edicao, senha: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex items-end gap-2 sm:col-span-2">
+                      <Button type="submit" disabled={salvar.isPending}>
+                        {salvar.isPending ? "Salvando..." : "Salvar alterações"}
+                      </Button>
+                      <Button type="button" variant="ghost" onClick={() => setEdicao(null)}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </form>
+                )}
               </li>
             );
           })}
@@ -224,6 +331,7 @@ function Pessoas() {
           )}
         </ul>
       </Card>
+
     </div>
   );
 }
