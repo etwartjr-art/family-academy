@@ -329,6 +329,56 @@ function Acessos() {
           </ul>
         </Card>
       </section>
+
+      <AlertDialog open={!!alvo} onOpenChange={(o) => !o && setAlvo(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Voltar ao padrão do papel?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {alvo && (
+                <>
+                  As exceções de <span className="font-medium">{alvo.nome}</span> serão removidas e
+                  as permissões passarão a seguir o padrão do papel{" "}
+                  <span className="capitalize">{alvo.papel}</span>.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {alvo && (
+            <ul className="divide-y rounded-lg border text-sm">
+              {diffs(alvo.userId, alvo.papel, alvo.chaves).map((d) => (
+                <li key={d.chave} className="flex items-center justify-between gap-3 px-3 py-2">
+                  <span className="min-w-0 flex-1 truncate">{d.rotulo}</span>
+                  {d.muda ? (
+                    <span className="shrink-0 font-mono text-xs">
+                      <span className="text-destructive">{d.atual ? "liberado" : "bloqueado"}</span>
+                      {" → "}
+                      <span className="font-semibold">{d.padrao ? "liberado" : "bloqueado"}</span>
+                    </span>
+                  ) : (
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      sem mudança ({d.padrao ? "liberado" : "bloqueado"})
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={aplicarPadrao.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (alvo) aplicarPadrao.mutate({ userId: alvo.userId, chaves: alvo.chaves });
+              }}
+            >
+              Confirmar sobrescrita
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+
   );
 }
