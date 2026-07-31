@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedChamadaRouteImport } from './routes/_authenticated/chamada'
 import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated/cursos'
+import { Route as AuthenticatedFrequenciaRouteImport } from './routes/_authenticated/frequencia'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as MatriculaConviteRouteImport } from './routes/matricula.$convite'
 import { Route as AuthenticatedSalasIndexRouteImport } from './routes/_authenticated/salas.index'
@@ -25,9 +27,19 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedChamadaRoute = AuthenticatedChamadaRouteImport.update({
+  id: '/chamada',
+  path: '/chamada',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCursosRoute = AuthenticatedCursosRouteImport.update({
   id: '/cursos',
   path: '/cursos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFrequenciaRoute = AuthenticatedFrequenciaRouteImport.update({
+  id: '/frequencia',
+  path: '/frequencia',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
@@ -48,14 +60,18 @@ const AuthenticatedSalasIndexRoute = AuthenticatedSalasIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chamada': typeof AuthenticatedChamadaRoute
   '/cursos': typeof AuthenticatedCursosRoute
+  '/frequencia': typeof AuthenticatedFrequenciaRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/salas/': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chamada': typeof AuthenticatedChamadaRoute
   '/cursos': typeof AuthenticatedCursosRoute
+  '/frequencia': typeof AuthenticatedFrequenciaRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/salas': typeof AuthenticatedSalasIndexRoute
@@ -64,21 +80,39 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/chamada': typeof AuthenticatedChamadaRoute
   '/_authenticated/cursos': typeof AuthenticatedCursosRoute
+  '/_authenticated/frequencia': typeof AuthenticatedFrequenciaRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/_authenticated/salas/': typeof AuthenticatedSalasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cursos' | '/painel' | '/matricula/$convite' | '/salas/'
+  fullPaths:
+    | '/'
+    | '/chamada'
+    | '/cursos'
+    | '/frequencia'
+    | '/painel'
+    | '/matricula/$convite'
+    | '/salas/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cursos' | '/painel' | '/matricula/$convite' | '/salas'
+  to:
+    | '/'
+    | '/chamada'
+    | '/cursos'
+    | '/frequencia'
+    | '/painel'
+    | '/matricula/$convite'
+    | '/salas'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/chamada'
     | '/_authenticated/cursos'
+    | '/_authenticated/frequencia'
     | '/_authenticated/painel'
     | '/matricula/$convite'
     | '/_authenticated/salas/'
@@ -106,11 +140,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/chamada': {
+      id: '/_authenticated/chamada'
+      path: '/chamada'
+      fullPath: '/chamada'
+      preLoaderRoute: typeof AuthenticatedChamadaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/cursos': {
       id: '/_authenticated/cursos'
       path: '/cursos'
       fullPath: '/cursos'
       preLoaderRoute: typeof AuthenticatedCursosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/frequencia': {
+      id: '/_authenticated/frequencia'
+      path: '/frequencia'
+      fullPath: '/frequencia'
+      preLoaderRoute: typeof AuthenticatedFrequenciaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/painel': {
@@ -138,13 +186,17 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedChamadaRoute: typeof AuthenticatedChamadaRoute
   AuthenticatedCursosRoute: typeof AuthenticatedCursosRoute
+  AuthenticatedFrequenciaRoute: typeof AuthenticatedFrequenciaRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedSalasIndexRoute: typeof AuthenticatedSalasIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedChamadaRoute: AuthenticatedChamadaRoute,
   AuthenticatedCursosRoute: AuthenticatedCursosRoute,
+  AuthenticatedFrequenciaRoute: AuthenticatedFrequenciaRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedSalasIndexRoute: AuthenticatedSalasIndexRoute,
 }
