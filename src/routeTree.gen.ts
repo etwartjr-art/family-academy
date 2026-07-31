@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedAlunosRouteImport } from './routes/_authenticated/alunos'
 import { Route as AuthenticatedCarteirinhasRouteImport } from './routes/_authenticated/carteirinhas'
 import { Route as AuthenticatedChamadaRouteImport } from './routes/_authenticated/chamada'
 import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated/cursos'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAlunosRoute = AuthenticatedAlunosRouteImport.update({
+  id: '/alunos',
+  path: '/alunos',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCarteirinhasRoute =
   AuthenticatedCarteirinhasRouteImport.update({
@@ -85,6 +91,7 @@ const AuthenticatedSalasIdRoute = AuthenticatedSalasIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alunos': typeof AuthenticatedAlunosRoute
   '/carteirinhas': typeof AuthenticatedCarteirinhasRoute
   '/chamada': typeof AuthenticatedChamadaRoute
   '/cursos': typeof AuthenticatedCursosRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alunos': typeof AuthenticatedAlunosRoute
   '/carteirinhas': typeof AuthenticatedCarteirinhasRoute
   '/chamada': typeof AuthenticatedChamadaRoute
   '/cursos': typeof AuthenticatedCursosRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/alunos': typeof AuthenticatedAlunosRoute
   '/_authenticated/carteirinhas': typeof AuthenticatedCarteirinhasRoute
   '/_authenticated/chamada': typeof AuthenticatedChamadaRoute
   '/_authenticated/cursos': typeof AuthenticatedCursosRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/alunos'
     | '/carteirinhas'
     | '/chamada'
     | '/cursos'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/alunos'
     | '/carteirinhas'
     | '/chamada'
     | '/cursos'
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/alunos'
     | '/_authenticated/carteirinhas'
     | '/_authenticated/chamada'
     | '/_authenticated/cursos'
@@ -188,6 +200,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/alunos': {
+      id: '/_authenticated/alunos'
+      path: '/alunos'
+      fullPath: '/alunos'
+      preLoaderRoute: typeof AuthenticatedAlunosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/carteirinhas': {
       id: '/_authenticated/carteirinhas'
@@ -263,6 +282,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAlunosRoute: typeof AuthenticatedAlunosRoute
   AuthenticatedCarteirinhasRoute: typeof AuthenticatedCarteirinhasRoute
   AuthenticatedChamadaRoute: typeof AuthenticatedChamadaRoute
   AuthenticatedCursosRoute: typeof AuthenticatedCursosRoute
@@ -275,6 +295,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAlunosRoute: AuthenticatedAlunosRoute,
   AuthenticatedCarteirinhasRoute: AuthenticatedCarteirinhasRoute,
   AuthenticatedChamadaRoute: AuthenticatedChamadaRoute,
   AuthenticatedCursosRoute: AuthenticatedCursosRoute,
