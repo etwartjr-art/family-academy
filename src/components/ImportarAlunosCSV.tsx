@@ -31,6 +31,22 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
   const invalidas = linhas.filter((l) => l.erros.length > 0);
 
   const importar = useServerFn(importarAlunosLote);
+  const mapearIA = useServerFn(mapearAlunosComIA);
+
+  const organizarComIA = useMutation({
+    mutationFn: async () => mapearIA({ data: { conteudo: texto.slice(0, 60000) } }),
+    onSuccess: (r) => {
+      if (r.total === 0) {
+        toast.error("A IA não encontrou alunos nesse conteúdo");
+        return;
+      }
+      setResultados(null);
+      setTexto(r.csv);
+      toast.success(`${r.total} aluno(s) organizados pela IA — revise antes de importar`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const enviar = useMutation({
     mutationFn: async () =>
