@@ -142,9 +142,10 @@ function Salas() {
         </Select>
       </div>
 
-      {coordenador && (
+      {podeCriar && (
         <Card className="gap-3 p-4">
           <h2 className="text-lg">Nova sala</h2>
+
           <form
             className="grid gap-3 md:grid-cols-2"
             onSubmit={(e) => {
