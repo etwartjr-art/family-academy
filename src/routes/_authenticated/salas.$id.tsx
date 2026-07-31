@@ -51,6 +51,7 @@ import {
   ArrowLeft,
   GraduationCap,
   History as HistoryIcon,
+  Library,
   Pencil,
   Search,
   Trash2,
