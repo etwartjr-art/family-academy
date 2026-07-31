@@ -28,9 +28,13 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
   const [soErros, setSoErros] = useState(false);
 
   const linhas: LinhaCSV[] = useMemo(() => analisarCSVAlunos(texto), [texto]);
-  const validas = linhas.filter((l) => l.erros.length === 0);
+  const validas = linhasImportaveis(linhas);
   const invalidas = linhas.filter((l) => l.erros.length > 0);
-  const exibidas = soErros ? invalidas : linhas;
+  const duplicadas = linhas.filter((l) => l.duplicado);
+  const conflitos = duplicadas.filter((l) => l.duplicado === "email");
+  const problemas = linhas.filter((l) => l.erros.length > 0 || l.duplicado);
+  const exibidas = soErros ? problemas : linhas;
+
   const resumoErros = useMemo(() => {
     const contagem = new Map<string, number>();
     for (const l of linhas) for (const e of l.erros) contagem.set(e, (contagem.get(e) ?? 0) + 1);
