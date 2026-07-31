@@ -124,17 +124,86 @@ export function analisarCSVAlunos(texto: string): LinhaCSV[] {
       item.erros.push("Nome do casal é obrigatório quando o tipo é Casal");
     if (item.senha && item.senha.length < 6) item.erros.push("Senha precisa ter 6+ caracteres");
 
-    const chave = item.email.toLowerCase();
-    if (chave && vistos.has(chave)) item.erros.push("E-mail repetido no arquivo");
-    if (chave) vistos.add(chave);
-
-
-
     return item;
   });
+
+  // Duplicados: mesma combinação nome+e-mail = idêntico; mesmo e-mail com nome
+  // diferente = conflito que pode ser mesclado manualmente.
+  const porChave = new Map<string, number>();
+  const porEmail = new Map<string, number>();
+  for (const item of itens) {
+    const email = item.email.toLowerCase();
+    if (!email) continue;
+    const chave = `${normalizar(item.nome)}|${email}`;
+    const iguais = porChave.get(chave);
+    if (iguais !== undefined) {
+      item.duplicado = "identico";
+      item.duplicadoDaLinha = iguais;
+      continue;
+    }
+    porChave.set(chave, item.linha);
+    const mesmoEmail = porEmail.get(email);
+    if (mesmoEmail !== undefined) {
+      item.duplicado = "email";
+      item.duplicadoDaLinha = mesmoEmail;
+    } else porEmail.set(email, item.linha);
+  }
+
+  return itens;
+}
+
+/** Linhas realmente importáveis: sem erros e sem duplicidade */
+export const linhasImportaveis = (linhas: LinhaCSV[]) =>
+  linhas.filter((l) => l.erros.length === 0 && !l.duplicado);
+
+const CAMPOS_CSV = ["nome", "email", "telefone", "tipo", "nome_casal", "senha"] as const;
+
+const escapar = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+
+const paraCSV = (linhas: LinhaCSV[]) =>
+  `${CAMPOS_CSV.join(";")}\n${linhas
+    .map((l) => CAMPOS_CSV.map((c) => escapar(String(l[c] ?? ""))).join(";"))
+    .join("\n")}\n`;
+
+/**
+ * Remove duplicados por nome+e-mail. Com `mesclar`, agrupa por e-mail e
+ * completa campos vazios com os valores das linhas repetidas (mantendo o nome
+ * do primeiro registro); sem `mesclar`, apenas descarta as repetições.
+ */
+export function resolverDuplicados(linhas: LinhaCSV[], mesclar: boolean): string {
+  const chaveDe = (l: LinhaCSV) =>
+    mesclar ? l.email.toLowerCase() : `${normalizar(l.nome)}|${l.email.toLowerCase()}`;
+
+  const grupos = new Map<string, LinhaCSV>();
+  const semEmail: LinhaCSV[] = [];
+
+  for (const l of linhas) {
+    if (!l.email) {
+      semEmail.push(l);
+      continue;
+    }
+    const chave = chaveDe(l);
+    const base = grupos.get(chave);
+    if (!base) {
+      grupos.set(chave, { ...l });
+      continue;
+    }
+    if (!mesclar) continue;
+    for (const campo of ["nome", "telefone", "senha", "nome_casal"] as const) {
+      if (!base[campo] && l[campo]) base[campo] = l[campo];
+    }
+    if (base.tipo === "individual" && l.tipo === "casal") {
+      base.tipo = "casal";
+      if (!base.nome_casal && l.nome_casal) base.nome_casal = l.nome_casal;
+    }
+  }
+
+  const ordenadas = [...grupos.values(), ...semEmail].sort((a, b) => a.linha - b.linha);
+  return paraCSV(ordenadas);
 }
 
 export const MODELO_CSV =
   "nome;email;telefone;tipo;nome_casal;senha\n" +
   "Maria Silva;maria@exemplo.com;62999990000;individual;;\n" +
   "João e Ana Souza;joao@exemplo.com;62988880000;casal;João e Ana Souza;\n";
+
