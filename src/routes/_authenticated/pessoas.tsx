@@ -37,6 +37,12 @@ export const Route = createFileRoute("/_authenticated/pessoas")({
 
 const PAPEIS: Papel[] = ["coordenador", "professor", "aluno"];
 
+const LABEL_GRUPO: Record<Papel, string> = {
+  coordenador: "Coordenadores",
+  professor: "Professores",
+  aluno: "Alunos",
+};
+
 const VAZIO = { nome: "", email: "", senha: "", telefone: "", papel: "aluno" as Papel };
 
 function Pessoas() {
@@ -106,6 +112,10 @@ function Pessoas() {
   const lista = (perfis.data ?? []).filter((p) =>
     `${p.nome} ${p.email ?? ""} ${p.codigo}`.toLowerCase().includes(busca.toLowerCase()),
   );
+
+  const papelDe = (id: string): Papel =>
+    ((papeis.data ?? []).find((r) => r.user_id === id)?.papel as Papel) ?? "aluno";
+
 
   return (
     <div className="space-y-6">
@@ -208,129 +218,146 @@ function Pessoas() {
       />
 
 
-      <Card className="gap-0 p-0">
-        <ul className="divide-y">
-          {lista.map((p) => {
-            const atual =
-              ((papeis.data ?? []).find((r) => r.user_id === p.id)?.papel as Papel) ?? "aluno";
-            const editando = edicao?.id === p.id;
-            return (
-              <li key={p.id} className="px-4 py-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="grid size-9 place-items-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
-                    {iniciais(p.nome)}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">{p.nome}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {p.email ?? "sem e-mail"} · <span className="font-mono">{p.codigo}</span>
-                      {p.telefone ? ` · ${p.telefone}` : ""}
-                    </span>
-                  </span>
-                  <Select
-                    value={atual}
-                    onValueChange={(v) => alterar.mutate({ userId: p.id, papel: v as Papel })}
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PAPEIS.map((r) => (
-                        <SelectItem key={r} value={r} className="capitalize">
-                          {r}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {ehCoordenador && (
-                    <Button
-                      variant={editando ? "secondary" : "outline"}
-                      size="sm"
-                      onClick={() =>
-                        setEdicao(
-                          editando
-                            ? null
-                            : {
-                                id: p.id,
-                                nome: p.nome,
-                                email: p.email ?? "",
-                                telefone: p.telefone ?? "",
-                                senha: "",
-                              },
-                        )
-                      }
-                    >
-                      {editando ? "Fechar" : "Editar"}
-                    </Button>
-                  )}
-                </div>
+      {PAPEIS.map((grupo) => {
+        const doGrupo = lista.filter((p) => papelDe(p.id) === grupo);
+        return (
+          <section key={grupo} className="space-y-2">
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wide">
+                {LABEL_GRUPO[grupo]}
+              </h2>
+              <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-bold text-secondary-foreground">
+                {doGrupo.length}
+              </span>
+            </div>
+            <Card className="gap-0 p-0">
+              <ul className="divide-y">
+                {doGrupo.map((p) => {
+                  const atual = papelDe(p.id);
+                  const editando = edicao?.id === p.id;
+                  return (
+                    <li key={p.id} className="px-4 py-3">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="grid size-9 place-items-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground">
+                          {iniciais(p.nome)}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium">{p.nome}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {p.email ?? "sem e-mail"} · <span className="font-mono">{p.codigo}</span>
+                            {p.telefone ? ` · ${p.telefone}` : ""}
+                          </span>
+                        </span>
+                        <Select
+                          value={atual}
+                          onValueChange={(v) => alterar.mutate({ userId: p.id, papel: v as Papel })}
+                        >
+                          <SelectTrigger className="w-40">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PAPEIS.map((r) => (
+                              <SelectItem key={r} value={r} className="capitalize">
+                                {r}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {ehCoordenador && (
+                          <Button
+                            variant={editando ? "secondary" : "outline"}
+                            size="sm"
+                            onClick={() =>
+                              setEdicao(
+                                editando
+                                  ? null
+                                  : {
+                                      id: p.id,
+                                      nome: p.nome,
+                                      email: p.email ?? "",
+                                      telefone: p.telefone ?? "",
+                                      senha: "",
+                                    },
+                              )
+                            }
+                          >
+                            {editando ? "Fechar" : "Editar"}
+                          </Button>
+                        )}
+                      </div>
 
-                {ehCoordenador && editando && edicao && (
-                  <form
-                    className="mt-3 grid gap-3 rounded-lg border bg-muted/40 p-3 sm:grid-cols-2"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      salvar.mutate();
-                    }}
-                  >
-                    <div className="space-y-1.5">
-                      <Label htmlFor={`nome-${p.id}`}>Nome completo</Label>
-                      <Input
-                        id={`nome-${p.id}`}
-                        required
-                        maxLength={100}
-                        value={edicao.nome}
-                        onChange={(e) => setEdicao({ ...edicao, nome: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor={`email-${p.id}`}>E-mail</Label>
-                      <Input
-                        id={`email-${p.id}`}
-                        type="email"
-                        required
-                        maxLength={255}
-                        value={edicao.email}
-                        onChange={(e) => setEdicao({ ...edicao, email: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor={`tel-${p.id}`}>Telefone</Label>
-                      <Input
-                        id={`tel-${p.id}`}
-                        maxLength={30}
-                        value={edicao.telefone}
-                        onChange={(e) => setEdicao({ ...edicao, telefone: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor={`senha-${p.id}`}>Nova senha (opcional)</Label>
-                      <Input
-                        id={`senha-${p.id}`}
-                        type="password"
-                        minLength={6}
-                        value={edicao.senha}
-                        onChange={(e) => setEdicao({ ...edicao, senha: e.target.value })}
-                      />
-                    </div>
-                    <div className="flex items-end gap-2 sm:col-span-2">
-                      <Button type="submit" disabled={salvar.isPending}>
-                        {salvar.isPending ? "Salvando..." : "Salvar alterações"}
-                      </Button>
-                      <Button type="button" variant="ghost" onClick={() => setEdicao(null)}>
-                        Cancelar
-                      </Button>
-                    </div>
-                  </form>
+                      {ehCoordenador && editando && edicao && (
+                        <form
+                          className="mt-3 grid gap-3 rounded-lg border bg-muted/40 p-3 sm:grid-cols-2"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            salvar.mutate();
+                          }}
+                        >
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`nome-${p.id}`}>Nome completo</Label>
+                            <Input
+                              id={`nome-${p.id}`}
+                              required
+                              maxLength={100}
+                              value={edicao.nome}
+                              onChange={(e) => setEdicao({ ...edicao, nome: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`email-${p.id}`}>E-mail</Label>
+                            <Input
+                              id={`email-${p.id}`}
+                              type="email"
+                              required
+                              maxLength={255}
+                              value={edicao.email}
+                              onChange={(e) => setEdicao({ ...edicao, email: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`tel-${p.id}`}>Telefone</Label>
+                            <Input
+                              id={`tel-${p.id}`}
+                              maxLength={30}
+                              value={edicao.telefone}
+                              onChange={(e) => setEdicao({ ...edicao, telefone: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`senha-${p.id}`}>Nova senha (opcional)</Label>
+                            <Input
+                              id={`senha-${p.id}`}
+                              type="password"
+                              minLength={6}
+                              value={edicao.senha}
+                              onChange={(e) => setEdicao({ ...edicao, senha: e.target.value })}
+                            />
+                          </div>
+                          <div className="flex items-end gap-2 sm:col-span-2">
+                            <Button type="submit" disabled={salvar.isPending}>
+                              {salvar.isPending ? "Salvando..." : "Salvar alterações"}
+                            </Button>
+                            <Button type="button" variant="ghost" onClick={() => setEdicao(null)}>
+                              Cancelar
+                            </Button>
+                          </div>
+                        </form>
+                      )}
+                    </li>
+                  );
+                })}
+                {doGrupo.length === 0 && (
+                  <li className="px-4 py-3 text-sm text-muted-foreground">
+                    Ninguém neste grupo.
+                  </li>
                 )}
-              </li>
-            );
-          })}
-          {lista.length === 0 && (
-            <li className="px-4 py-3 text-sm text-muted-foreground">Ninguém encontrado.</li>
-          )}
-        </ul>
-      </Card>
+              </ul>
+            </Card>
+          </section>
+        );
+      })}
+
 
     </div>
   );
