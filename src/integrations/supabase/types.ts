@@ -255,6 +255,50 @@ export type Database = {
         }
         Relationships: []
       }
+      permissoes_papel: {
+        Row: {
+          chave: string
+          papel: Database["public"]["Enums"]["papel_app"]
+          permitido: boolean
+        }
+        Insert: {
+          chave: string
+          papel: Database["public"]["Enums"]["papel_app"]
+          permitido?: boolean
+        }
+        Update: {
+          chave?: string
+          papel?: Database["public"]["Enums"]["papel_app"]
+          permitido?: boolean
+        }
+        Relationships: []
+      }
+      permissoes_usuario: {
+        Row: {
+          chave: string
+          permitido: boolean
+          user_id: string
+        }
+        Insert: {
+          chave: string
+          permitido: boolean
+          user_id: string
+        }
+        Update: {
+          chave?: string
+          permitido?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permissoes_usuario_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       presencas: {
         Row: {
           aluno_id: string
@@ -418,6 +462,7 @@ export type Database = {
       esta_matriculado: { Args: { _sala_id: string }; Returns: boolean }
       gerar_codigo: { Args: { _tamanho: number }; Returns: string }
       matricular_por_convite: { Args: { _convite: string }; Returns: string }
+      pode: { Args: { _chave: string; _user_id: string }; Returns: boolean }
       registrar_presenca: {
         Args: {
           _aluno_id?: string
