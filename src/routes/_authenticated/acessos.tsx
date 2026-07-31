@@ -98,6 +98,48 @@ function Acessos() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [alvo, setAlvo] = useState<AlvoPadrao | null>(null);
+
+  const aplicarPadrao = useMutation({
+    mutationFn: async ({ userId, chaves }: { userId: string; chaves: string[] }) => {
+      for (const chave of chaves) await salvarPermissaoUsuario(userId, chave, null);
+    },
+    onSuccess: (_d, v) => {
+      toast.success(
+        v.chaves.length === 1
+          ? "Exceção removida — voltou ao padrão do papel"
+          : `${v.chaves.length} exceções removidas — voltaram ao padrão do papel`,
+      );
+      setAlvo(null);
+      invalidar();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  /** Diferenças entre a exceção do usuário e o padrão do papel. */
+  const diffs = (userId: string, papel: Papel, chaves: string[]) =>
+    chaves.map((chave) => {
+      const item = CATALOGO.find((c) => c.chave === chave);
+      const excecao = (porUsuario.data ?? []).find(
+        (x) => x.user_id === userId && x.chave === chave,
+      );
+      const padrao =
+        (porPapel.data ?? []).find((x) => x.papel === papel && x.chave === chave)?.permitido ??
+        false;
+      return {
+        chave,
+        rotulo: item?.rotulo ?? chave,
+        atual: excecao?.permitido ?? padrao,
+        padrao,
+        muda: (excecao?.permitido ?? padrao) !== padrao,
+      };
+    });
+
+  const excecoesDe = (userId: string) =>
+    (porUsuario.data ?? []).filter((x) => x.user_id === userId).map((x) => x.chave);
+
+
+
   const papelDe = (id: string): Papel =>
     ((papeis.data ?? []).find((r) => r.user_id === id)?.papel as Papel) ?? "aluno";
 
