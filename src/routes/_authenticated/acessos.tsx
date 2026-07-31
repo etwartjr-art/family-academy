@@ -304,12 +304,18 @@ function Acessos() {
                               size="sm"
                               className="h-6 px-1.5 text-[11px]"
                               onClick={() =>
-                                mudarUsuario.mutate({ userId: p.id, chave: c.chave, valor: null })
+                                setAlvo({
+                                  userId: p.id,
+                                  nome: p.nome,
+                                  papel,
+                                  chaves: [c.chave],
+                                })
                               }
                             >
                               usar padrão
                             </Button>
                           )}
+
                         </div>
                       );
                     })}
