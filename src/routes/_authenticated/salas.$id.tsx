@@ -115,6 +115,8 @@ function SalaDetalhe() {
   });
 
   const [editando, setEditando] = useState(false);
+  const [editandoModulo, setEditandoModulo] = useState(false);
+  const [formModulo, setFormModulo] = useState({ nome: "", ordem: 0, data_inicio: "" });
   const [adicionando, setAdicionando] = useState(false);
   const [novo, setNovo] = useState({
     nome: "",
