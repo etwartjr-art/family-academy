@@ -20,8 +20,9 @@ export function FundoMarca({ tom = "claro" }: { tom?: "claro" | "escuro" }) {
           backgroundSize: "cover",
           filter: escuro
             ? "blur(48px) brightness(0.55) saturate(1.1)"
-            : "blur(48px) brightness(1.15) saturate(1.1)",
-          opacity: escuro ? 0.22 : 0.08,
+            : "blur(48px) brightness(1.05) saturate(1.05)",
+          opacity: escuro ? 0.22 : 0.12,
+
         }}
       />
     </div>
