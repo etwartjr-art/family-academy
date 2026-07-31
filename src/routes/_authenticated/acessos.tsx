@@ -345,6 +345,43 @@ function Acessos() {
                 );
               })}
             </ul>
+            <div className="border-t bg-muted/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide">
+              Ações na turma
+            </div>
+            <ul className="divide-y">
+              {ACOES.map((c) => {
+                const excecao = (porUsuario.data ?? []).find(
+                  (x) => x.user_id === verComoPerfil.id && x.chave === c.chave,
+                );
+                const liberado = calcular(
+                  c.chave,
+                  papelDe(verComoPerfil.id),
+                  verComoPerfil.id,
+                  porPapel.data ?? [],
+                  porUsuario.data ?? [],
+                );
+                return (
+                  <li key={c.chave} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{c.rotulo}</span>
+                      <span className="text-xs text-muted-foreground">{c.descricao}</span>
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {excecao ? "exceção do usuário" : "padrão do papel"}
+                    </span>
+                    <span
+                      className={
+                        liberado
+                          ? "shrink-0 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
+                          : "shrink-0 rounded-full border px-2 py-0.5 text-xs text-muted-foreground"
+                      }
+                    >
+                      {liberado ? "Pode" : "Bloqueado"}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
           </Card>
         )}
       </section>
