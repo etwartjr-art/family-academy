@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { GraduationCap } from "lucide-react";
 import { FundoMarca } from "@/components/FundoMarca";
+import logoAsset from "@/assets/logo-family-academy.png.asset.json";
 
 
 export const Route = createFileRoute("/")({
@@ -77,17 +78,17 @@ function Entrada() {
       <FundoMarca tom="escuro" />
 
       <div className="relative z-10 w-full max-w-sm">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="grid size-11 place-items-center rounded-xl bg-sidebar-primary font-display text-lg font-extrabold text-sidebar-primary-foreground">
-            FA
-          </div>
-          <div className="leading-tight">
-            <h1 className="text-xl text-white">Family Academy</h1>
-            <p className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
-              Escola de Finanças
-            </p>
-          </div>
+        <div className="mb-6 flex flex-col items-center gap-2 text-center">
+          <img
+            src={logoAsset.url}
+            alt="Family Academy — Escola de Finanças"
+            className="h-24 w-auto invert"
+          />
+          <p className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
+            Escola de Finanças
+          </p>
         </div>
+
 
         <div className="rounded-2xl bg-card p-5 shadow-diario">
           {modo === "login" ? (
