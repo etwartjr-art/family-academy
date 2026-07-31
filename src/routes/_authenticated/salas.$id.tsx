@@ -654,36 +654,149 @@ function SalaDetalhe() {
 
 
 
-      <section className="space-y-3">
-        <h2 className="text-lg">Módulos e aulas</h2>
-        {(modulos.data ?? []).map((m) => (
-          <Card key={m.id} className="gap-3 p-4">
-            <h3 className="text-base font-semibold">{m.nome}</h3>
-            <ul className="divide-y rounded-xl border">
-              {(aulas.data ?? [])
-                .filter((a) => a.modulo_id === m.id)
-                .map((a) => (
-                  <li key={a.id} className="flex items-center gap-3 px-3 py-2.5">
-                    <span className="flex-1 text-sm">
-                      Aula {a.numero} · {a.titulo}
-                    </span>
-                    <Input
-                      type="date"
-                      defaultValue={a.data?.slice(0, 10) ?? ""}
-                      onBlur={(e) => salvarData.mutate({ aulaId: a.id, data: e.target.value })}
-                      className="w-40"
-                    />
-                  </li>
+      <Card className="gap-3 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg">Professores da turma</h2>
+            <p className="text-sm text-muted-foreground">
+              Vários professores podem atuar na mesma turma; a aula define quem ministra.
+            </p>
+          </div>
+          {podeDefinirProfessor && professoresDisponiveis.length > 0 && (
+            <Select value="" onValueChange={(v) => adicionarProfessor.mutate(v)}>
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Adicionar professor" />
+              </SelectTrigger>
+              <SelectContent>
+                {professoresDisponiveis.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.nome}
+                  </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+        {equipePerfis.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum professor vinculado a esta turma.</p>
+        ) : (
+          <ul className="divide-y rounded-xl border">
+            {equipePerfis.map((p) => (
+              <li key={p.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
+                <span className="grid size-8 place-items-center rounded-full bg-secondary text-[11px] font-bold text-secondary-foreground">
+                  {iniciais(p.nome)}
+                </span>
+                <span className="flex-1">
+                  <span className="block font-medium">{p.nome}</span>
+                  <span className="text-xs text-muted-foreground">{p.email ?? "—"}</span>
+                </span>
+                {sala.professor_id === p.id && (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs">Responsável</span>
+                )}
+                {podeDefinirProfessor && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => removerProfessor.mutate(p.id)}
+                  >
+                    <Trash2 className="size-4" /> Remover
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-lg">Módulo em andamento</h2>
+            <p className="text-sm text-muted-foreground">
+              A turma trabalha um módulo por vez — troque quando avançar na ementa.
+            </p>
+          </div>
+          {listaModulos.length > 0 && (
+            <div className="space-y-1.5">
+              <Label>Módulo da turma</Label>
+              <Select
+                value={moduloAtivo?.id ?? ""}
+                onValueChange={(v) => definirModuloAtivo.mutate(v)}
+                disabled={!podeEditar}
+              >
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Selecionar módulo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {listaModulos.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+
+        {moduloAtivo ? (
+          <Card className="gap-3 p-4">
+            <h3 className="text-base font-semibold">{moduloAtivo.nome}</h3>
+            <ul className="divide-y rounded-xl border">
+              {aulasDoModulo.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex flex-wrap items-center gap-3 px-3 py-2.5 sm:flex-nowrap"
+                >
+                  <span className="min-w-40 flex-1 text-sm">
+                    Aula {a.numero} · {a.titulo}
+                  </span>
+                  <Select
+                    value={a.professor_id ?? "nenhum"}
+                    onValueChange={(v) =>
+                      definirProfessorAula.mutate({
+                        aulaId: a.id,
+                        professorId: v === "nenhum" ? null : v,
+                      })
+                    }
+                    disabled={!podeDefinirProfessor}
+                  >
+                    <SelectTrigger className="h-9 w-48">
+                      <SelectValue placeholder="Professor da aula" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="nenhum">Sem professor definido</SelectItem>
+                      {(equipePerfis.length > 0 ? equipePerfis : professores).map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    type="date"
+                    defaultValue={a.data?.slice(0, 10) ?? ""}
+                    onBlur={(e) => salvarData.mutate({ aulaId: a.id, data: e.target.value })}
+                    className="w-40"
+                    disabled={!podeEditar}
+                  />
+                </li>
+              ))}
+              {aulasDoModulo.length === 0 && (
+                <li className="px-3 py-2.5 text-sm text-muted-foreground">
+                  Nenhuma aula cadastrada neste módulo.
+                </li>
+              )}
             </ul>
           </Card>
-        ))}
-        {(modulos.data ?? []).length === 0 && (
+        ) : (
           <p className="text-sm text-muted-foreground">
             Esta sala não tem módulos — cadastre a ementa do curso e crie a sala novamente.
           </p>
         )}
       </section>
+
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
