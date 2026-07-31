@@ -1,23 +1,31 @@
 import logoAsset from "@/assets/logo-escola-financas-academy.jpg.asset.json";
 
 /**
- * Marca d'água fixa da Escola de Finanças Academy usada como fundo do sistema
- * e da tela inicial. Puramente decorativa.
+ * Imagem de fundo da Escola de Finanças Academy usada no sistema
+ * e na tela inicial. Puramente decorativa.
  */
 export function FundoMarca({ tom = "claro" }: { tom?: "claro" | "escuro" }) {
   const escuro = tom === "escuro";
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 select-none"
-      style={{
-        backgroundImage: `url(${logoAsset.url})`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-        backgroundSize: "min(70vw, 640px) auto",
-        opacity: escuro ? 0.12 : 0.06,
-      }}
-    />
+      className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden"
+    >
+      <div
+        className="absolute -inset-[10%]"
+        style={{
+          backgroundImage: `url(${logoAsset.url})`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          filter: escuro
+            ? "blur(48px) brightness(0.55) saturate(1.1)"
+            : "blur(48px) brightness(1.15) saturate(1.1)",
+          opacity: escuro ? 0.22 : 0.08,
+        }}
+      />
+    </div>
   );
 }
+
 
