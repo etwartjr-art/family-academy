@@ -29,13 +29,13 @@ import { ArrowLeft, GraduationCap } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/salas/$id_/professores-aulas")({
   head: () => ({
     meta: [
-      { title: "Professores por aula — Family Academy" },
+      { title: "Professores por aula — Escola de Finanças Academy" },
       {
         name: "description",
         content:
-          "Defina qual professor da turma ensinará cada aula do módulo em andamento na Family Academy.",
+          "Defina qual professor da turma ensinará cada aula do módulo em andamento na Escola de Finanças Academy.",
       },
-      { property: "og:title", content: "Professores por aula — Family Academy" },
+      { property: "og:title", content: "Professores por aula — Escola de Finanças Academy" },
       {
         property: "og:description",
         content: "Distribua as aulas do módulo em andamento entre os professores da turma.",

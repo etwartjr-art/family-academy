@@ -83,12 +83,12 @@ function mensagemMatricula(erro: { code?: string; message: string }) {
 export const Route = createFileRoute("/_authenticated/salas/$id")({
   head: () => ({
     meta: [
-      { title: "Sala — Family Academy" },
+      { title: "Sala — Escola de Finanças Academy" },
       {
         name: "description",
         content: "Módulos, aulas e alunos inscritos da turma, com controle de datas e inscrições.",
       },
-      { property: "og:title", content: "Sala — Family Academy" },
+      { property: "og:title", content: "Sala — Escola de Finanças Academy" },
       { property: "og:description", content: "Módulos, aulas e inscrições da turma." },
     ],
   }),

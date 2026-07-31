@@ -14,16 +14,16 @@ import logoAsset from "@/assets/logo-escola-financas-academy.jpg.asset.json";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Entrar — Family Academy" },
+      { title: "Entrar — Escola de Finanças Academy" },
       {
         name: "description",
         content:
-          "Acesse a plataforma de aulas da Family Academy: chamada por QR code, turmas e frequência.",
+          "Acesse a plataforma de aulas da Escola de Finanças Academy: chamada por QR code, turmas e frequência.",
       },
-      { property: "og:title", content: "Entrar — Family Academy" },
+      { property: "og:title", content: "Entrar — Escola de Finanças Academy" },
       {
         property: "og:description",
-        content: "Plataforma de aulas da Family Academy com chamada por QR code.",
+        content: "Plataforma de aulas da Escola de Finanças Academy com chamada por QR code.",
       },
     ],
   }),
@@ -85,10 +85,10 @@ function Entrada() {
             className="h-32 w-auto rounded-2xl shadow-lg"
           />
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-sidebar-foreground">
-            Family Academy
+            Escola de Finanças
           </h1>
           <p className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
-            Escola de Finanças
+            Academy
           </p>
         </div>
 

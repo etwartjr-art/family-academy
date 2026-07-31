@@ -18,12 +18,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/alunos")({
   head: () => ({
     meta: [
-      { title: "Alunos por turma — Family Academy" },
+      { title: "Alunos por turma — Escola de Finanças Academy" },
       {
         name: "description",
-        content: "Lista de alunos da Family Academy organizada por curso, turma e sala.",
+        content: "Lista de alunos da Escola de Finanças Academy organizada por curso, turma e sala.",
       },
-      { property: "og:title", content: "Alunos por turma — Family Academy" },
+      { property: "og:title", content: "Alunos por turma — Escola de Finanças Academy" },
       { property: "og:description", content: "Alunos agrupados por curso, turma e sala." },
     ],
   }),
