@@ -382,11 +382,38 @@ function SalaDetalhe() {
             {(perfis.data ?? []).find((p) => p.id === sala.professor_id)?.nome ?? "—"}
           </p>
           <p className="mt-1 font-mono text-sm">{sala.convite}</p>
-          {podeEditar && !editando && (
-            <Button variant="outline" size="sm" className="mt-3" onClick={abrirEdicao}>
-              <Pencil className="size-4" /> Editar turma
-            </Button>
-          )}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {podeEditar && !editando && (
+              <Button variant="outline" size="sm" onClick={abrirEdicao}>
+                <Pencil className="size-4" /> Editar turma
+              </Button>
+            )}
+            {podeEditar && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" disabled={excluirTurma.isPending}>
+                    <Trash2 className="size-4" /> Excluir turma
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir {sala.nome}?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Remove a turma com seus módulos, aulas, matrículas e presenças. Não é
+                      possível desfazer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => excluirTurma.mutate()}>
+                      Excluir definitivamente
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
+
         </div>
         <QRCodeBox valor={`${origem}/matricula/${sala.convite}`} tamanho={104} />
       </div>
