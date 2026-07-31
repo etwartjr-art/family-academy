@@ -93,6 +93,7 @@ function SalaDetalhe() {
   const professores = (perfis.data ?? []).filter((p) =>
     (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
   );
+  const coordenador = sessao?.papel === "coordenador";
   const podeEditar =
     sessao?.papel === "coordenador" ||
     (!!sala?.professor_id && sala.professor_id === sessao?.user.id);
