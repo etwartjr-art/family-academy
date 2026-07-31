@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from "react";
+import { FundoMarca } from "@/components/FundoMarca";
+
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
