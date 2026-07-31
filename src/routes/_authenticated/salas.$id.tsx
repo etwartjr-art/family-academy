@@ -83,6 +83,15 @@ function SalaDetalhe() {
     tipo: "individual" as "individual" | "casal",
     nome_casal: "",
   });
+  const [buscaExistente, setBuscaExistente] = useState("");
+  const [existente, setExistente] = useState({
+    aluno_id: "",
+    tipo: "individual" as "individual" | "casal",
+    nome_casal: "",
+  });
+  const [buscaMatriculados, setBuscaMatriculados] = useState("");
+  const [removendo, setRemovendo] = useState<{ id: string; nome: string } | null>(null);
+
   const [form, setForm] = useState({
     nome: "",
     professor_id: "",
