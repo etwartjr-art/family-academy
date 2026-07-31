@@ -191,6 +191,62 @@ function SalaDetalhe() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const matricularExistente = useMutation({
+    mutationFn: async () => {
+      const { data: matricula, error } = await supabase
+        .from("matriculas")
+        .insert({
+          aluno_id: existente.aluno_id,
+          sala_id: id,
+          status: "ativa",
+          tipo: existente.tipo,
+          nome_casal:
+            existente.tipo === "casal" ? existente.nome_casal.trim() || null : null,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+
+      if (idsModulos.length > 0) {
+        const { error: erroMod } = await supabase
+          .from("matricula_modulos")
+          .insert(
+            idsModulos.map((moduloId) => ({ matricula_id: matricula.id, modulo_id: moduloId })),
+          );
+        if (erroMod) throw erroMod;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Aluno matriculado na turma");
+      setExistente({ aluno_id: "", tipo: "individual", nome_casal: "" });
+      setBuscaExistente("");
+      qc.invalidateQueries({ queryKey: ["matriculas"] });
+      qc.invalidateQueries({ queryKey: ["inscricoes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removerMatricula = useMutation({
+    mutationFn: async (matriculaId: string) => {
+      const { error: erroMod } = await supabase
+        .from("matricula_modulos")
+        .delete()
+        .eq("matricula_id", matriculaId);
+      if (erroMod) throw erroMod;
+      const { error } = await supabase.from("matriculas").delete().eq("id", matriculaId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Inscrição removida da turma");
+      setRemovendo(null);
+      qc.invalidateQueries({ queryKey: ["matriculas"] });
+      qc.invalidateQueries({ queryKey: ["inscricoes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
+
   const salvarTipo = useMutation({
     mutationFn: async ({
       matriculaId,
