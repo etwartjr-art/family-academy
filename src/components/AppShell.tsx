@@ -36,7 +36,9 @@ const MENU: Item[] = [
   { para: "/meu-painel", rotulo: "Minha carteirinha", icone: IdCard, papeis: ["aluno"] },
   { para: "/cursos", rotulo: "Cursos", icone: BookOpen, papeis: ["coordenador"] },
   { para: "/salas", rotulo: "Salas", icone: School, papeis: ["coordenador", "professor"] },
+  { para: "/alunos", rotulo: "Alunos", icone: GraduationCap, papeis: ["coordenador", "professor"] },
   { para: "/chamada", rotulo: "Chamada", icone: ScanLine, papeis: ["coordenador", "professor"] },
+
   {
     para: "/frequencia",
     rotulo: "Frequência",
