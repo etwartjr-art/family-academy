@@ -1,0 +1,53 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+const esquema = z.object({
+  nome: z.string().trim().min(2).max(100),
+  email: z.string().trim().email().max(255),
+  senha: z.string().min(6).max(72),
+  telefone: z.string().trim().max(30).optional().or(z.literal("")),
+  papel: z.enum(["coordenador", "professor", "aluno"]),
+});
+
+export const criarUsuario = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => esquema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: ehCoordenador, error: erroPapel } = await context.supabase.rpc("tem_papel", {
+      _user_id: context.userId,
+      _papel: "coordenador",
+    });
+    if (erroPapel) throw new Error(erroPapel.message);
+    if (!ehCoordenador) throw new Error("Apenas coordenadores podem cadastrar usuários");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: criado, error } = await supabaseAdmin.auth.admin.createUser({
+      email: data.email,
+      password: data.senha,
+      email_confirm: true,
+      user_metadata: {
+        nome: data.nome,
+        telefone: data.telefone || null,
+        papel: data.papel,
+      },
+    });
+    if (error) throw new Error(error.message);
+    const novoId = criado.user?.id;
+    if (!novoId) throw new Error("Não foi possível criar o usuário");
+
+    // O gatilho cria o perfil e um papel padrão; aqui garantimos o papel escolhido.
+    await supabaseAdmin.from("papeis_usuario").delete().eq("user_id", novoId);
+    const { error: erroInsert } = await supabaseAdmin
+      .from("papeis_usuario")
+      .insert({ user_id: novoId, papel: data.papel });
+    if (erroInsert) throw new Error(erroInsert.message);
+
+    await supabaseAdmin
+      .from("perfis")
+      .update({ nome: data.nome, telefone: data.telefone || null })
+      .eq("id", novoId);
+
+    return { id: novoId };
+  });
