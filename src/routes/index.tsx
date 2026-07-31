@@ -71,7 +71,9 @@ function Entrada() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-sidebar px-4 py-10">
+    <div className="relative flex min-h-screen items-center justify-center bg-sidebar px-4 py-10">
+      <FundoMarca />
+
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center gap-3">
           <div className="grid size-11 place-items-center rounded-xl bg-sidebar-primary font-display text-lg font-extrabold text-sidebar-primary-foreground">
