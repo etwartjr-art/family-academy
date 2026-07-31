@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,16 +9,28 @@ import {
   listarAulas,
   listarMatriculas,
   listarPerfis,
+  listarPapeis,
   listarInscricoes,
   dataBR,
   iniciais,
 } from "@/lib/api";
+import { useSessao } from "@/hooks/useSessao";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/salas/$id")({
   head: () => ({
@@ -37,6 +50,7 @@ export const Route = createFileRoute("/_authenticated/salas/$id")({
 function SalaDetalhe() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  const { data: sessao } = useSessao();
 
   const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });
   const cursos = useQuery({ queryKey: ["cursos"], queryFn: listarCursos });
@@ -44,6 +58,16 @@ function SalaDetalhe() {
   const matriculas = useQuery({ queryKey: ["matriculas", id], queryFn: () => listarMatriculas(id) });
   const inscricoes = useQuery({ queryKey: ["inscricoes"], queryFn: listarInscricoes });
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
+  const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
+
+  const [editando, setEditando] = useState(false);
+  const [form, setForm] = useState({
+    nome: "",
+    professor_id: "",
+    turno: "",
+    data_inicio: "",
+  });
+
 
   const idsModulos = (modulos.data ?? []).map((m) => m.id);
   const aulas = useQuery({
@@ -55,6 +79,45 @@ function SalaDetalhe() {
   const sala = (salas.data ?? []).find((s) => s.id === id);
   const curso = (cursos.data ?? []).find((c) => c.id === sala?.curso_id);
   const origem = typeof window !== "undefined" ? window.location.origin : "";
+  const professores = (perfis.data ?? []).filter((p) =>
+    (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
+  );
+  const podeEditar =
+    sessao?.papel === "coordenador" ||
+    (!!sala?.professor_id && sala.professor_id === sessao?.user.id);
+
+  const salvarSala = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("salas")
+        .update({
+          nome: form.nome.trim(),
+          professor_id: form.professor_id || null,
+          turno: form.turno.trim() || null,
+          data_inicio: form.data_inicio,
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Turma atualizada");
+      setEditando(false);
+      qc.invalidateQueries({ queryKey: ["salas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function abrirEdicao() {
+    if (!sala) return;
+    setForm({
+      nome: sala.nome,
+      professor_id: sala.professor_id ?? "",
+      turno: sala.turno ?? "",
+      data_inicio: sala.data_inicio.slice(0, 10),
+    });
+    setEditando(true);
+  }
+
 
   const salvarData = useMutation({
     mutationFn: async ({ aulaId, data }: { aulaId: string; data: string }) => {
@@ -115,10 +178,85 @@ function SalaDetalhe() {
           <p className="text-sm text-muted-foreground">
             {curso?.nome} · {sala.turno ?? "—"} · início {dataBR(sala.data_inicio)}
           </p>
+          <p className="text-sm text-muted-foreground">
+            Professor:{" "}
+            {(perfis.data ?? []).find((p) => p.id === sala.professor_id)?.nome ?? "—"}
+          </p>
           <p className="mt-1 font-mono text-sm">{sala.convite}</p>
+          {podeEditar && !editando && (
+            <Button variant="outline" size="sm" className="mt-3" onClick={abrirEdicao}>
+              <Pencil className="size-4" /> Editar turma
+            </Button>
+          )}
         </div>
         <QRCodeBox valor={`${origem}/matricula/${sala.convite}`} tamanho={104} />
       </div>
+
+      {podeEditar && editando && (
+        <Card className="gap-4 p-4">
+          <h2 className="text-lg">Editar turma</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="nome-sala">Nome da turma</Label>
+              <Input
+                id="nome-sala"
+                value={form.nome}
+                onChange={(e) => setForm({ ...form, nome: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Professor</Label>
+              <Select
+                value={form.professor_id || "nenhum"}
+                onValueChange={(v) =>
+                  setForm({ ...form, professor_id: v === "nenhum" ? "" : v })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sem professor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="nenhum">Sem professor</SelectItem>
+                  {professores.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="turno-sala">Turno</Label>
+              <Input
+                id="turno-sala"
+                value={form.turno}
+                onChange={(e) => setForm({ ...form, turno: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="inicio-sala">Início</Label>
+              <Input
+                id="inicio-sala"
+                type="date"
+                value={form.data_inicio}
+                onChange={(e) => setForm({ ...form, data_inicio: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => salvarSala.mutate()}
+              disabled={!form.nome.trim() || salvarSala.isPending}
+            >
+              {salvarSala.isPending ? "Salvando…" : "Salvar"}
+            </Button>
+            <Button variant="ghost" onClick={() => setEditando(false)}>
+              Cancelar
+            </Button>
+          </div>
+        </Card>
+      )}
+
 
       <section className="space-y-3">
         <h2 className="text-lg">Módulos e aulas</h2>
