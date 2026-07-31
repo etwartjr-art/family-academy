@@ -37,6 +37,12 @@ export const Route = createFileRoute("/_authenticated/pessoas")({
 
 const PAPEIS: Papel[] = ["coordenador", "professor", "aluno"];
 
+const LABEL_GRUPO: Record<Papel, string> = {
+  coordenador: "Coordenadores",
+  professor: "Professores",
+  aluno: "Alunos",
+};
+
 const VAZIO = { nome: "", email: "", senha: "", telefone: "", papel: "aluno" as Papel };
 
 function Pessoas() {
