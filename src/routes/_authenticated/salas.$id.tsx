@@ -227,6 +227,16 @@ function SalaDetalhe() {
 
   const adicionarAluno = useMutation({
     mutationFn: async () => {
+      const emailNovo = novo.email.trim().toLowerCase();
+      const jaExiste = (perfis.data ?? []).find(
+        (p) => (p.email ?? "").toLowerCase() === emailNovo,
+      );
+      if (jaExiste && (matriculas.data ?? []).some((m) => m.aluno_id === jaExiste.id)) {
+        throw new Error(
+          `${jaExiste.nome} já está matriculado nesta turma — use a busca de alunos existentes para revisar a inscrição.`,
+        );
+      }
+
       const { id: alunoId } = await criar({
         data: {
           nome: novo.nome.trim(),
