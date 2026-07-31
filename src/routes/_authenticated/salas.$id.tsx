@@ -470,6 +470,7 @@ function SalaDetalhe() {
                 onValueChange={(v) =>
                   setForm({ ...form, professor_id: v === "nenhum" ? "" : v })
                 }
+                disabled={!podeDefinirProfessor}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Sem professor" />
@@ -483,7 +484,13 @@ function SalaDetalhe() {
                   ))}
                 </SelectContent>
               </Select>
+              {!podeDefinirProfessor && (
+                <p className="text-xs text-muted-foreground">
+                  Você não tem permissão para definir o professor responsável.
+                </p>
+              )}
             </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="turno-sala">Turno</Label>
               <Input
