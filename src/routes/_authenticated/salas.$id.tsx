@@ -179,7 +179,6 @@ function SalaDetalhe() {
   const idsMatriculados = new Set((matriculas.data ?? []).map((m) => m.aluno_id));
   const termoExistente = buscaExistente.trim().toLowerCase();
   const candidatos = (perfis.data ?? [])
-    .filter((p) => !idsMatriculados.has(p.id))
     .filter((p) =>
       termoExistente.length === 0
         ? false
@@ -187,7 +186,10 @@ function SalaDetalhe() {
             v.toLowerCase().includes(termoExistente),
           ),
     )
+    .map((p) => ({ ...p, jaMatriculado: idsMatriculados.has(p.id) }))
     .slice(0, 8);
+  const alunoSelecionadoJaMatriculado =
+    !!existente.aluno_id && idsMatriculados.has(existente.aluno_id);
 
   const termoMatriculados = buscaMatriculados.trim().toLowerCase();
   const matriculasVisiveis = (matriculas.data ?? []).filter((mat) => {
