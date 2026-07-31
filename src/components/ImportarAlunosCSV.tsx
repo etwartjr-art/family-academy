@@ -3,14 +3,20 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { importarAlunosLote, type ResultadoImportacao } from "@/lib/importacao.functions";
 import { mapearAlunosComIA } from "@/lib/importacao-ia.functions";
-import { analisarCSVAlunos, MODELO_CSV, type LinhaCSV } from "@/lib/csv-alunos";
+import {
+  analisarCSVAlunos,
+  linhasImportaveis,
+  resolverDuplicados,
+  MODELO_CSV,
+  type LinhaCSV,
+} from "@/lib/csv-alunos";
 import { arquivoParaTexto, ACEITA_ARQUIVOS, baixarModeloXLSX } from "@/lib/planilha-alunos";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { AlertTriangle, Download, Sparkles, Upload } from "lucide-react";
+import { AlertTriangle, Copy, Download, Merge, Sparkles, Upload } from "lucide-react";
 
 
 const ROTULO_STATUS: Record<ResultadoImportacao["status"], string> = {
@@ -28,9 +34,13 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
   const [soErros, setSoErros] = useState(false);
 
   const linhas: LinhaCSV[] = useMemo(() => analisarCSVAlunos(texto), [texto]);
-  const validas = linhas.filter((l) => l.erros.length === 0);
+  const validas = linhasImportaveis(linhas);
   const invalidas = linhas.filter((l) => l.erros.length > 0);
-  const exibidas = soErros ? invalidas : linhas;
+  const duplicadas = linhas.filter((l) => l.duplicado);
+  const conflitos = duplicadas.filter((l) => l.duplicado === "email");
+  const problemas = linhas.filter((l) => l.erros.length > 0 || l.duplicado);
+  const exibidas = soErros ? problemas : linhas;
+
   const resumoErros = useMemo(() => {
     const contagem = new Map<string, number>();
     for (const l of linhas) for (const e of l.erros) contagem.set(e, (contagem.get(e) ?? 0) + 1);
@@ -82,6 +92,18 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  function aplicarDuplicados(mesclar: boolean) {
+    const antes = linhas.length;
+    setResultados(null);
+    setTexto(resolverDuplicados(linhas, mesclar));
+    const removidas = antes - (mesclar ? new Set(linhas.map((l) => l.email.toLowerCase())).size : 0);
+    toast.success(
+      mesclar
+        ? "Duplicados mesclados — revise os dados antes de importar"
+        : `${removidas > 0 ? removidas : duplicadas.length} linha(s) duplicada(s) removida(s)`,
+    );
+  }
 
   function baixarModelo() {
     const url = URL.createObjectURL(new Blob([MODELO_CSV], { type: "text/csv;charset=utf-8" }));
@@ -170,8 +192,16 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
                   <span className="text-destructive">{invalidas.length} com problema</span>
                 </>
               )}
+              {duplicadas.length > 0 && (
+                <>
+                  {" · "}
+                  <span className="text-amber-600 dark:text-amber-500">
+                    {duplicadas.length} duplicada(s)
+                  </span>
+                </>
+              )}
             </p>
-            {invalidas.length > 0 && (
+            {problemas.length > 0 && (
               <Button size="sm" variant="ghost" onClick={() => setSoErros((v) => !v)}>
                 {soErros ? "Mostrar todas" : "Ver só as com problema"}
               </Button>
@@ -196,6 +226,35 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
             </div>
           )}
 
+          {duplicadas.length > 0 && (
+            <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3">
+              <p className="flex items-center gap-1.5 text-sm font-medium text-amber-700 dark:text-amber-500">
+                <Copy className="size-4" /> {duplicadas.length} aluno(s) duplicado(s) por
+                nome+e-mail
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {duplicadas.length - conflitos.length} repetição(ões) idêntica(s)
+                {conflitos.length > 0 && (
+                  <> · {conflitos.length} com o mesmo e-mail e nome diferente</>
+                )}
+                . As linhas duplicadas ficam de fora da importação.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => aplicarDuplicados(false)}>
+                  Remover duplicados
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => aplicarDuplicados(true)}>
+                  <Merge className="size-4" /> Mesclar duplicados
+                </Button>
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Mesclar agrupa pelo e-mail e completa os campos vazios (telefone, senha, casal) com
+                os dados das linhas repetidas.
+              </p>
+            </div>
+          )}
+
+
           <div className="max-h-64 overflow-auto rounded-md border">
             <table className="w-full min-w-[640px] text-sm">
               <thead className="bg-muted/50 text-left">
@@ -210,7 +269,14 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
               </thead>
               <tbody className="divide-y">
                 {exibidas.map((l) => (
-                  <tr key={l.linha} className={l.erros.length ? "bg-destructive/5" : undefined}>
+                  <tr key={l.linha} className={
+                      l.erros.length
+                        ? "bg-destructive/5"
+                        : l.duplicado
+                          ? "bg-amber-500/5"
+                          : undefined
+                    }
+                  >
                     <td className="px-3 py-2 text-muted-foreground">{l.linha}</td>
                     <td className="px-3 py-2">{l.nome || "—"}</td>
                     <td className="px-3 py-2">{l.email || "—"}</td>
@@ -221,6 +287,12 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
                     <td className="px-3 py-2">
                       {l.erros.length ? (
                         <span className="text-destructive">{l.erros.join("; ")}</span>
+                      ) : l.duplicado ? (
+                        <span className="text-amber-600 dark:text-amber-500">
+                          {l.duplicado === "identico"
+                            ? `Duplicado da linha ${l.duplicadoDaLinha}`
+                            : `Mesmo e-mail da linha ${l.duplicadoDaLinha} (nome diferente)`}
+                        </span>
                       ) : (
                         <span className="text-muted-foreground">OK</span>
                       )}
