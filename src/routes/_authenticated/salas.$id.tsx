@@ -73,6 +73,19 @@ function SalaDetalhe() {
   const inscricoes = useQuery({ queryKey: ["inscricoes"], queryFn: listarInscricoes });
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
+  const auditoria = useQuery({
+    queryKey: ["salas-auditoria", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salas_auditoria")
+        .select("id, campo, valor_antigo, valor_novo, alterado_por, criado_em")
+        .eq("sala_id", id)
+        .order("criado_em", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
   const [editando, setEditando] = useState(false);
   const [adicionando, setAdicionando] = useState(false);
