@@ -87,9 +87,6 @@ function Entrada() {
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-sidebar-foreground">
             Escola de Finanças
           </h1>
-          <p className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
-            {" "}
-          </p>
         </div>
 
 
