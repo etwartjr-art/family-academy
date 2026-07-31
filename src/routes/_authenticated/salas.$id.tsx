@@ -178,10 +178,85 @@ function SalaDetalhe() {
           <p className="text-sm text-muted-foreground">
             {curso?.nome} · {sala.turno ?? "—"} · início {dataBR(sala.data_inicio)}
           </p>
+          <p className="text-sm text-muted-foreground">
+            Professor:{" "}
+            {(perfis.data ?? []).find((p) => p.id === sala.professor_id)?.nome ?? "—"}
+          </p>
           <p className="mt-1 font-mono text-sm">{sala.convite}</p>
+          {podeEditar && !editando && (
+            <Button variant="outline" size="sm" className="mt-3" onClick={abrirEdicao}>
+              <Pencil className="size-4" /> Editar turma
+            </Button>
+          )}
         </div>
         <QRCodeBox valor={`${origem}/matricula/${sala.convite}`} tamanho={104} />
       </div>
+
+      {podeEditar && editando && (
+        <Card className="gap-4 p-4">
+          <h2 className="text-lg">Editar turma</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="nome-sala">Nome da turma</Label>
+              <Input
+                id="nome-sala"
+                value={form.nome}
+                onChange={(e) => setForm({ ...form, nome: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Professor</Label>
+              <Select
+                value={form.professor_id || "nenhum"}
+                onValueChange={(v) =>
+                  setForm({ ...form, professor_id: v === "nenhum" ? "" : v })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sem professor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="nenhum">Sem professor</SelectItem>
+                  {professores.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="turno-sala">Turno</Label>
+              <Input
+                id="turno-sala"
+                value={form.turno}
+                onChange={(e) => setForm({ ...form, turno: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="inicio-sala">Início</Label>
+              <Input
+                id="inicio-sala"
+                type="date"
+                value={form.data_inicio}
+                onChange={(e) => setForm({ ...form, data_inicio: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => salvarSala.mutate()}
+              disabled={!form.nome.trim() || salvarSala.isPending}
+            >
+              {salvarSala.isPending ? "Salvando…" : "Salvar"}
+            </Button>
+            <Button variant="ghost" onClick={() => setEditando(false)}>
+              Cancelar
+            </Button>
+          </div>
+        </Card>
+      )}
+
 
       <section className="space-y-3">
         <h2 className="text-lg">Módulos e aulas</h2>
