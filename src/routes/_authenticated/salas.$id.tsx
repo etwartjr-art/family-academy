@@ -895,7 +895,7 @@ function SalaDetalhe() {
 
             <div className="mb-3">
               <Button asChild variant="outline" size="sm">
-                <Link to="/salas/$id_/professores-aulas" params={{ id }}>
+                <Link to="/salas/$id/professores-aulas" params={{ id }}>
                   <GraduationCap className="size-4" /> Professores por aula
                 </Link>
               </Button>
