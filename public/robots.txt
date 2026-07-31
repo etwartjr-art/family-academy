@@ -12,3 +12,16 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /painel
+Disallow: /meu-painel
+Disallow: /pessoas
+Disallow: /alunos
+Disallow: /acessos
+Disallow: /cursos
+Disallow: /salas
+Disallow: /chamada
+Disallow: /frequencia
+Disallow: /carteirinhas
+Disallow: /matricula/
+
+Sitemap: https://family-academy.lovable.app/sitemap.xml
