@@ -173,6 +173,7 @@ function SalaDetalhe() {
       toast.success("Turma atualizada");
       setEditando(false);
       qc.invalidateQueries({ queryKey: ["salas"] });
+      qc.invalidateQueries({ queryKey: ["salas-auditoria", id] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
