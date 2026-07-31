@@ -69,9 +69,11 @@ function Salas() {
   const [turno, setTurno] = useState("Noite");
   const [inicio, setInicio] = useState(new Date().toISOString().slice(0, 10));
 
+  const { pode } = usePermissoes();
   const coordenador = sessao?.papel === "coordenador";
   const professor = sessao?.papel === "professor";
   const podeCriar = coordenador || professor;
+  const podeDefinirProfessor = pode("turma_definir_professor");
   const professores = (perfis.data ?? []).filter((p) =>
     (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
   );
