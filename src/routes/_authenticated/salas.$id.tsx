@@ -59,6 +59,12 @@ function formatarValor(campo: string, valor: string | null) {
   return valor;
 }
 
+function mensagemMatricula(erro: { code?: string; message: string }) {
+  if (erro.code === "23505" || /duplicate key|matriculas_aluno_sala_unico/i.test(erro.message)) {
+    return "Este aluno já está matriculado nesta turma.";
+  }
+  return erro.message;
+}
 
 
 export const Route = createFileRoute("/_authenticated/salas/$id")({
@@ -179,7 +185,6 @@ function SalaDetalhe() {
   const idsMatriculados = new Set((matriculas.data ?? []).map((m) => m.aluno_id));
   const termoExistente = buscaExistente.trim().toLowerCase();
   const candidatos = (perfis.data ?? [])
-    .filter((p) => !idsMatriculados.has(p.id))
     .filter((p) =>
       termoExistente.length === 0
         ? false
@@ -187,7 +192,10 @@ function SalaDetalhe() {
             v.toLowerCase().includes(termoExistente),
           ),
     )
+    .map((p) => ({ ...p, jaMatriculado: idsMatriculados.has(p.id) }))
     .slice(0, 8);
+  const alunoSelecionadoJaMatriculado =
+    !!existente.aluno_id && idsMatriculados.has(existente.aluno_id);
 
   const termoMatriculados = buscaMatriculados.trim().toLowerCase();
   const matriculasVisiveis = (matriculas.data ?? []).filter((mat) => {
@@ -225,6 +233,16 @@ function SalaDetalhe() {
 
   const adicionarAluno = useMutation({
     mutationFn: async () => {
+      const emailNovo = novo.email.trim().toLowerCase();
+      const jaExiste = (perfis.data ?? []).find(
+        (p) => (p.email ?? "").toLowerCase() === emailNovo,
+      );
+      if (jaExiste && (matriculas.data ?? []).some((m) => m.aluno_id === jaExiste.id)) {
+        throw new Error(
+          `${jaExiste.nome} já está matriculado nesta turma — use a busca de alunos existentes para revisar a inscrição.`,
+        );
+      }
+
       const { id: alunoId } = await criar({
         data: {
           nome: novo.nome.trim(),
@@ -246,7 +264,7 @@ function SalaDetalhe() {
         })
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) throw new Error(mensagemMatricula(error));
 
       if (idsModulos.length > 0) {
         const { error: erroMod } = await supabase
@@ -275,10 +293,16 @@ function SalaDetalhe() {
 
   const matricularExistente = useMutation({
     mutationFn: async () => {
+      const alunoId = existente.aluno_id;
+      if ((matriculas.data ?? []).some((m) => m.aluno_id === alunoId)) {
+        const nome = (perfis.data ?? []).find((p) => p.id === alunoId)?.nome ?? "Este aluno";
+        throw new Error(`${nome} já está matriculado nesta turma.`);
+      }
+
       const { data: matricula, error } = await supabase
         .from("matriculas")
         .insert({
-          aluno_id: existente.aluno_id,
+          aluno_id: alunoId,
           sala_id: id,
           status: "ativa",
           tipo: existente.tipo,
@@ -287,7 +311,7 @@ function SalaDetalhe() {
         })
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) throw new Error(mensagemMatricula(error));
 
       if (idsModulos.length > 0) {
         const { error: erroMod } = await supabase
@@ -1080,8 +1104,9 @@ function SalaDetalhe() {
                   <li key={p.id}>
                     <button
                       type="button"
+                      disabled={p.jaMatriculado}
                       onClick={() => setExistente((v) => ({ ...v, aluno_id: p.id }))}
-                      className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-muted ${
+                      className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent ${
                         existente.aluno_id === p.id ? "bg-muted" : ""
                       }`}
                     >
@@ -1089,30 +1114,43 @@ function SalaDetalhe() {
                         <span className="block font-medium">{p.nome}</span>
                         <span className="text-xs text-muted-foreground">{p.email ?? "—"}</span>
                       </span>
-                      <span className="font-mono text-xs text-muted-foreground">{p.codigo}</span>
+                      {p.jaMatriculado ? (
+                        <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+                          Já matriculado nesta turma
+                        </span>
+                      ) : (
+                        <span className="font-mono text-xs text-muted-foreground">{p.codigo}</span>
+                      )}
                     </button>
                   </li>
                 ))}
                 {candidatos.length === 0 && (
                   <li className="px-3 py-2 text-sm text-muted-foreground">
-                    Nenhum aluno disponível para esta busca (já matriculados não aparecem).
+                    Nenhum aluno encontrado para esta busca.
                   </li>
                 )}
               </ul>
             )}
 
-            <div>
+            <div className="space-y-2">
+              {alunoSelecionadoJaMatriculado && (
+                <p className="text-sm text-destructive">
+                  Este aluno já está matriculado nesta turma — não é possível matricular novamente.
+                </p>
+              )}
               <Button
                 onClick={() => matricularExistente.mutate()}
                 disabled={
                   matricularExistente.isPending ||
                   !existente.aluno_id ||
+                  alunoSelecionadoJaMatriculado ||
                   (existente.tipo === "casal" && existente.nome_casal.trim().length < 3)
                 }
               >
                 {matricularExistente.isPending ? "Matriculando…" : "Matricular na turma"}
               </Button>
             </div>
+
           </Card>
         )}
 
