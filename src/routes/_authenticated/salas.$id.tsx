@@ -498,6 +498,47 @@ function SalaDetalhe() {
         </Card>
       )}
 
+      {podeEditar && (
+        <Card className="gap-3 p-4">
+          <div className="flex items-center gap-2">
+            <History className="size-4 text-muted-foreground" />
+            <h2 className="text-lg">Histórico de alterações</h2>
+          </div>
+          {auditoria.isLoading ? (
+            <p className="text-sm text-muted-foreground">Carregando…</p>
+          ) : (auditoria.data ?? []).length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhuma alteração registrada nesta turma ainda.
+            </p>
+          ) : (
+            <ul className="divide-y rounded-xl border">
+              {(auditoria.data ?? []).map((log) => {
+                const autor = (perfis.data ?? []).find((p) => p.id === log.alterado_por);
+                return (
+                  <li key={log.id} className="space-y-1 px-3 py-2.5 text-sm">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold">{ROTULOS_CAMPO[log.campo] ?? log.campo}</span>
+                      <span className="text-muted-foreground">
+                        {formatarValor(log.campo, log.valor_antigo)} →{" "}
+                        <span className="text-foreground">
+                          {formatarValor(log.campo, log.valor_novo)}
+                        </span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(log.criado_em).toLocaleString("pt-BR")} ·{" "}
+                      {autor?.nome ?? "Usuário removido"}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Card>
+      )}
+
+
+
 
       <section className="space-y-3">
         <h2 className="text-lg">Módulos e aulas</h2>
