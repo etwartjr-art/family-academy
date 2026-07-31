@@ -107,6 +107,7 @@ function SalaDetalhe() {
     enabled: idsModulos.length > 0,
   });
 
+  const navigate = useNavigate();
   const sala = (salas.data ?? []).find((s) => s.id === id);
   const curso = (cursos.data ?? []).find((c) => c.id === sala?.curso_id);
   const origem = typeof window !== "undefined" ? window.location.origin : "";
