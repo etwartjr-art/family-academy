@@ -62,7 +62,7 @@ function Marca() {
       <div className="leading-tight">
         <div className="font-display text-[15px] font-extrabold text-white">Escola de Finanças</div>
         <div className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
-          Academy
+          {" "}
         </div>
       </div>
     </div>
