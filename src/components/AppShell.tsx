@@ -43,6 +43,8 @@ export const MENU: Item[] = [
   { para: "/alunos", rotulo: "Alunos", icone: GraduationCap, chave: "alunos" },
   { para: "/chamada", rotulo: "Chamada", icone: ScanLine, chave: "chamada" },
   { para: "/frequencia", rotulo: "Frequência", icone: ClipboardCheck, chave: "frequencia" },
+  { para: "/materiais", rotulo: "Materiais", icone: Library, chave: "salas" },
+  { para: "/meus-materiais", rotulo: "Meus materiais", icone: Library, chave: "meu_painel" },
   { para: "/carteirinhas", rotulo: "Carteirinhas", icone: IdCard, chave: "carteirinhas" },
   { para: "/pessoas", rotulo: "Pessoas", icone: Users, chave: "pessoas" },
   { para: "/acessos", rotulo: "Níveis de acesso", icone: ShieldCheck, chave: "acessos" },
