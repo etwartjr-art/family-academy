@@ -218,48 +218,55 @@ function Acessos() {
         </p>
       </div>
 
-      <section className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide">Padrão por papel</h2>
-        <Card className="gap-0 overflow-x-auto p-0">
-          <table className="w-full min-w-[560px] text-sm">
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th className="px-4 py-2 font-medium">Área</th>
-                {PAPEIS.map((p) => (
-                  <th key={p} className="px-4 py-2 font-medium capitalize">
-                    {p}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {CATALOGO.map((c) => (
-                <tr key={c.chave}>
-                  <td className="px-4 py-3">
-                    <div className="font-medium">{c.rotulo}</div>
-                    <div className="text-xs text-muted-foreground">{c.descricao}</div>
-                  </td>
-                  {PAPEIS.map((papel) => {
-                    const atual =
-                      (porPapel.data ?? []).find((x) => x.papel === papel && x.chave === c.chave)
-                        ?.permitido ?? false;
-                    return (
-                      <td key={papel} className="px-4 py-3">
-                        <Switch
-                          checked={atual}
-                          onCheckedChange={(v) =>
-                            mudarPapel.mutate({ papel, chave: c.chave, permitido: v })
-                          }
-                        />
-                      </td>
-                    );
-                  })}
+      {(
+        [
+          { titulo: "Padrão por papel — áreas", coluna: "Área", itens: AREAS },
+          { titulo: "Padrão por papel — ações", coluna: "Ação", itens: ACOES },
+        ] as const
+      ).map((grupo) => (
+        <section key={grupo.titulo} className="space-y-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wide">{grupo.titulo}</h2>
+          <Card className="gap-0 overflow-x-auto p-0">
+            <table className="w-full min-w-[560px] text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="px-4 py-2 font-medium">{grupo.coluna}</th>
+                  {PAPEIS.map((p) => (
+                    <th key={p} className="px-4 py-2 font-medium capitalize">
+                      {p}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      </section>
+              </thead>
+              <tbody className="divide-y">
+                {grupo.itens.map((c) => (
+                  <tr key={c.chave}>
+                    <td className="px-4 py-3">
+                      <div className="font-medium">{c.rotulo}</div>
+                      <div className="text-xs text-muted-foreground">{c.descricao}</div>
+                    </td>
+                    {PAPEIS.map((papel) => {
+                      const atual =
+                        (porPapel.data ?? []).find((x) => x.papel === papel && x.chave === c.chave)
+                          ?.permitido ?? false;
+                      return (
+                        <td key={papel} className="px-4 py-3">
+                          <Switch
+                            checked={atual}
+                            onCheckedChange={(v) =>
+                              mudarPapel.mutate({ papel, chave: c.chave, permitido: v })
+                            }
+                          />
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        </section>
+      ))}
 
       <section className="space-y-2">
         <h2 className="text-sm font-semibold uppercase tracking-wide">Ver como</h2>
