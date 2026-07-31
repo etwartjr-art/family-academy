@@ -118,6 +118,29 @@ function SalaDetalhe() {
     sessao?.papel === "coordenador" ||
     (!!sala?.professor_id && sala.professor_id === sessao?.user.id);
 
+  const idsMatriculados = new Set((matriculas.data ?? []).map((m) => m.aluno_id));
+  const termoExistente = buscaExistente.trim().toLowerCase();
+  const candidatos = (perfis.data ?? [])
+    .filter((p) => !idsMatriculados.has(p.id))
+    .filter((p) =>
+      termoExistente.length === 0
+        ? false
+        : [p.nome, p.email ?? "", p.codigo].some((v) =>
+            v.toLowerCase().includes(termoExistente),
+          ),
+    )
+    .slice(0, 8);
+
+  const termoMatriculados = buscaMatriculados.trim().toLowerCase();
+  const matriculasVisiveis = (matriculas.data ?? []).filter((mat) => {
+    if (!termoMatriculados) return true;
+    const perfil = (perfis.data ?? []).find((p) => p.id === mat.aluno_id);
+    return [perfil?.nome ?? "", perfil?.email ?? "", perfil?.codigo ?? "", mat.nome_casal ?? ""]
+      .some((v) => v.toLowerCase().includes(termoMatriculados));
+  });
+
+
+
   const salvarSala = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
