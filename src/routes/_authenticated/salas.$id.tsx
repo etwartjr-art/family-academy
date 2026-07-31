@@ -14,6 +14,7 @@ import {
   dataBR,
   iniciais,
 } from "@/lib/api";
+import { listarMateriais } from "@/lib/materiais";
 import { useSessao } from "@/hooks/useSessao";
 import { usePermissoes } from "@/hooks/usePermissoes";
 import { useServerFn } from "@tanstack/react-start";
@@ -50,6 +51,7 @@ import {
   ArrowLeft,
   GraduationCap,
   History as HistoryIcon,
+  Library,
   Pencil,
   Search,
   Trash2,
@@ -165,6 +167,12 @@ function SalaDetalhe() {
     queryKey: ["aulas", idsModulos],
     queryFn: () => listarAulas(idsModulos),
     enabled: idsModulos.length > 0,
+  });
+  const idsAulas = (aulas.data ?? []).map((a) => a.id);
+  const materiais = useQuery({
+    queryKey: ["materiais", idsAulas],
+    queryFn: () => listarMateriais(idsAulas),
+    enabled: idsAulas.length > 0,
   });
 
   const navigate = useNavigate();
@@ -949,6 +957,12 @@ function SalaDetalhe() {
                     className="w-40"
                     disabled={!podeEditar}
                   />
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/materiais/$aulaId" params={{ aulaId: a.id }}>
+                      <Library className="size-4" /> Material ·{" "}
+                      {(materiais.data ?? []).filter((m) => m.aula_id === a.id).length}
+                    </Link>
+                  </Button>
                 </li>
               ))}
               {aulasDoModulo.length === 0 && (
