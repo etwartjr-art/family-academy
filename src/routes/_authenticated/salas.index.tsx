@@ -70,17 +70,24 @@ function Salas() {
   const [inicio, setInicio] = useState(new Date().toISOString().slice(0, 10));
 
   const coordenador = sessao?.papel === "coordenador";
+  const professor = sessao?.papel === "professor";
+  const podeCriar = coordenador || professor;
   const professores = (perfis.data ?? []).filter((p) =>
     (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
   );
 
+  const podeExcluir = (sala: { professor_id: string | null }) =>
+    coordenador || (professor && sala.professor_id === sessao?.user.id);
+
   const criar = useMutation({
     mutationFn: async () => {
       if (!nome.trim() || !cursoId) throw new Error("Informe nome e curso");
+      // professor só cria turmas em que ele é o responsável (regra também aplicada no banco)
+      const responsavel = coordenador ? professorId || null : (sessao?.user.id ?? null);
       const { error } = await supabase.from("salas").insert({
         nome: nome.trim(),
         curso_id: cursoId,
-        professor_id: professorId || null,
+        professor_id: responsavel,
         turno,
         data_inicio: inicio,
       });
@@ -94,8 +101,22 @@ function Salas() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const excluir = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("salas").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Turma excluída");
+      qc.invalidateQueries();
+    },
+    onError: (e: Error) =>
+      toast.error(e.message || "Não foi possível excluir. Verifique suas permissões."),
+  });
+
   const visiveis = (salas.data ?? []).filter((s) => filtro === "todos" || s.curso_id === filtro);
   const origem = typeof window !== "undefined" ? window.location.origin : "";
+
 
   return (
     <div className="space-y-6">
