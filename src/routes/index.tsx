@@ -78,12 +78,15 @@ function Entrada() {
       <FundoMarca tom="escuro" />
 
       <div className="relative z-10 w-full max-w-sm">
-        <div className="mb-6 flex flex-col items-center gap-2 text-center">
+        <div className="mb-8 flex flex-col items-center gap-3 text-center">
           <img
             src={logoAsset.url}
             alt="Family Academy — Escola de Finanças"
-            className="h-24 w-auto invert"
+            className="h-28 w-auto invert"
           />
+          <h1 className="text-2xl font-semibold tracking-tight text-sidebar-foreground">
+            Family Academy
+          </h1>
           <p className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
             Escola de Finanças
           </p>
