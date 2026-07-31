@@ -15,6 +15,8 @@ import {
   iniciais,
 } from "@/lib/api";
 import { useSessao } from "@/hooks/useSessao";
+import { useServerFn } from "@tanstack/react-start";
+import { criarUsuario } from "@/lib/usuarios.functions";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +31,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { toast } from "sonner";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil, UserPlus } from "lucide-react";
 
 
 export const Route = createFileRoute("/_authenticated/salas/$id")({
@@ -61,6 +63,15 @@ function SalaDetalhe() {
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
 
   const [editando, setEditando] = useState(false);
+  const [adicionando, setAdicionando] = useState(false);
+  const [novo, setNovo] = useState({
+    nome: "",
+    email: "",
+    telefone: "",
+    senha: "",
+    tipo: "individual" as "individual" | "casal",
+    nome_casal: "",
+  });
   const [form, setForm] = useState({
     nome: "",
     professor_id: "",
@@ -104,6 +115,78 @@ function SalaDetalhe() {
       setEditando(false);
       qc.invalidateQueries({ queryKey: ["salas"] });
     },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const criar = useServerFn(criarUsuario);
+
+  const adicionarAluno = useMutation({
+    mutationFn: async () => {
+      const { id: alunoId } = await criar({
+        data: {
+          nome: novo.nome.trim(),
+          email: novo.email.trim(),
+          senha: novo.senha,
+          telefone: novo.telefone.trim(),
+          papel: "aluno",
+        },
+      });
+
+      const { data: matricula, error } = await supabase
+        .from("matriculas")
+        .insert({
+          aluno_id: alunoId,
+          sala_id: id,
+          status: "ativa",
+          tipo: novo.tipo,
+          nome_casal: novo.tipo === "casal" ? novo.nome_casal.trim() || null : null,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+
+      if (idsModulos.length > 0) {
+        const { error: erroMod } = await supabase
+          .from("matricula_modulos")
+          .insert(idsModulos.map((moduloId) => ({ matricula_id: matricula.id, modulo_id: moduloId })));
+        if (erroMod) throw erroMod;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Aluno adicionado à turma");
+      setNovo({
+        nome: "",
+        email: "",
+        telefone: "",
+        senha: "",
+        tipo: "individual",
+        nome_casal: "",
+      });
+      setAdicionando(false);
+      qc.invalidateQueries({ queryKey: ["matriculas"] });
+      qc.invalidateQueries({ queryKey: ["perfis"] });
+      qc.invalidateQueries({ queryKey: ["inscricoes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const salvarTipo = useMutation({
+    mutationFn: async ({
+      matriculaId,
+      tipo,
+      nomeCasal,
+    }: {
+      matriculaId: string;
+      tipo: "individual" | "casal";
+      nomeCasal: string | null;
+    }) => {
+      const { error } = await supabase
+        .from("matriculas")
+        .update({ tipo, nome_casal: tipo === "casal" ? nomeCasal : null })
+        .eq("id", matriculaId);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["matriculas"] }),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -290,12 +373,105 @@ function SalaDetalhe() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg">Alunos e inscrição por módulo</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg">Alunos e inscrição por módulo</h2>
+          {coordenador && (
+            <Button size="sm" onClick={() => setAdicionando((v) => !v)}>
+              <UserPlus className="size-4" /> Adicionar aluno
+            </Button>
+          )}
+        </div>
+
+        {coordenador && adicionando && (
+          <Card className="gap-4 p-4">
+            <h3 className="text-base font-semibold">Novo aluno na turma</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Tipo de matrícula</Label>
+                <Select
+                  value={novo.tipo}
+                  onValueChange={(v) => setNovo({ ...novo, tipo: v as "individual" | "casal" })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="casal">Casal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {novo.tipo === "casal" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="novo-casal">Nome do casal</Label>
+                  <Input
+                    id="novo-casal"
+                    value={novo.nome_casal}
+                    onChange={(e) => setNovo({ ...novo, nome_casal: e.target.value })}
+                    placeholder="Ex.: João e Maria Silva"
+                  />
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <Label htmlFor="novo-nome">Nome do aluno</Label>
+                <Input
+                  id="novo-nome"
+                  value={novo.nome}
+                  onChange={(e) => setNovo({ ...novo, nome: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="novo-email">E-mail</Label>
+                <Input
+                  id="novo-email"
+                  type="email"
+                  value={novo.email}
+                  onChange={(e) => setNovo({ ...novo, email: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="novo-tel">Telefone</Label>
+                <Input
+                  id="novo-tel"
+                  value={novo.telefone}
+                  onChange={(e) => setNovo({ ...novo, telefone: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="novo-senha">Senha provisória</Label>
+                <Input
+                  id="novo-senha"
+                  value={novo.senha}
+                  onChange={(e) => setNovo({ ...novo, senha: e.target.value })}
+                  placeholder="mínimo 6 caracteres"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => adicionarAluno.mutate()}
+                disabled={
+                  adicionarAluno.isPending ||
+                  novo.nome.trim().length < 2 ||
+                  !novo.email.trim() ||
+                  novo.senha.length < 6 ||
+                  (novo.tipo === "casal" && novo.nome_casal.trim().length < 3)
+                }
+              >
+                {adicionarAluno.isPending ? "Adicionando…" : "Adicionar à turma"}
+              </Button>
+              <Button variant="ghost" onClick={() => setAdicionando(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </Card>
+        )}
         <Card className="overflow-x-auto p-4">
           <table className="w-full min-w-[520px] text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="py-2 pr-3 font-medium">Aluno</th>
+                <th className="px-2 py-2 font-medium">Matrícula</th>
                 {(modulos.data ?? []).map((m) => (
                   <th key={m.id} className="px-2 py-2 text-center font-medium">
                     {m.ordem}
@@ -320,6 +496,48 @@ function SalaDetalhe() {
                           </span>
                         </span>
                       </span>
+                    </td>
+                    <td className="px-2 py-2">
+                      {podeEditar ? (
+                        <div className="flex flex-col gap-1.5">
+                          <Select
+                            value={mat.tipo}
+                            onValueChange={(v) =>
+                              salvarTipo.mutate({
+                                matriculaId: mat.id,
+                                tipo: v as "individual" | "casal",
+                                nomeCasal: mat.nome_casal,
+                              })
+                            }
+                          >
+                            <SelectTrigger className="h-8 w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="individual">Individual</SelectItem>
+                              <SelectItem value="casal">Casal</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {mat.tipo === "casal" && (
+                            <Input
+                              className="h-8 w-40"
+                              placeholder="Nome do casal"
+                              defaultValue={mat.nome_casal ?? ""}
+                              onBlur={(e) =>
+                                salvarTipo.mutate({
+                                  matriculaId: mat.id,
+                                  tipo: "casal",
+                                  nomeCasal: e.target.value.trim() || null,
+                                })
+                              }
+                            />
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs">
+                          {mat.tipo === "casal" ? `Casal · ${mat.nome_casal ?? "—"}` : "Individual"}
+                        </span>
+                      )}
                     </td>
                     {(modulos.data ?? []).map((m) => {
                       const inscrito = (inscricoes.data ?? []).some(
@@ -347,7 +565,7 @@ function SalaDetalhe() {
               {(matriculas.data ?? []).length === 0 && (
                 <tr>
                   <td
-                    colSpan={(modulos.data ?? []).length + 1}
+                    colSpan={(modulos.data ?? []).length + 2}
                     className="py-3 text-muted-foreground"
                   >
                     Nenhum aluno matriculado. Compartilhe o QR de convite.
