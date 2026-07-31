@@ -79,6 +79,45 @@ function SalaDetalhe() {
   const sala = (salas.data ?? []).find((s) => s.id === id);
   const curso = (cursos.data ?? []).find((c) => c.id === sala?.curso_id);
   const origem = typeof window !== "undefined" ? window.location.origin : "";
+  const professores = (perfis.data ?? []).filter((p) =>
+    (papeis.data ?? []).some((r) => r.user_id === p.id && r.papel === "professor"),
+  );
+  const podeEditar =
+    sessao?.papel === "coordenador" ||
+    (!!sala?.professor_id && sala.professor_id === sessao?.user.id);
+
+  const salvarSala = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("salas")
+        .update({
+          nome: form.nome.trim(),
+          professor_id: form.professor_id || null,
+          turno: form.turno.trim() || null,
+          data_inicio: form.data_inicio,
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Turma atualizada");
+      setEditando(false);
+      qc.invalidateQueries({ queryKey: ["salas"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function abrirEdicao() {
+    if (!sala) return;
+    setForm({
+      nome: sala.nome,
+      professor_id: sala.professor_id ?? "",
+      turno: sala.turno ?? "",
+      data_inicio: sala.data_inicio.slice(0, 10),
+    });
+    setEditando(true);
+  }
+
 
   const salvarData = useMutation({
     mutationFn: async ({ aulaId, data }: { aulaId: string; data: string }) => {
