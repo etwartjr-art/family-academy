@@ -88,10 +88,10 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
     <Card className="gap-4 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold">Importar alunos por CSV</h3>
+          <h3 className="text-base font-semibold">Importar alunos (CSV, Excel ou IA)</h3>
           <p className="text-sm text-muted-foreground">
-            Colunas: nome, email, telefone, tipo (individual/casal), nome_casal, senha (opcional).
-            Para casal, o nome do casal é obrigatório.
+            Envie um arquivo .csv ou .xlsx, ou cole qualquer lista e use a IA para organizar as
+            colunas (nome, e-mail, telefone, tipo individual/casal e nome do casal).
           </p>
         </div>
         <Button size="sm" variant="outline" onClick={baixarModelo}>
@@ -100,18 +100,22 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="arquivo-csv">Arquivo CSV</Label>
+        <Label htmlFor="arquivo-csv">Arquivo (.csv ou .xlsx)</Label>
         <input
           id="arquivo-csv"
           ref={arquivoRef}
           type="file"
-          accept=".csv,text/csv,text/plain"
+          accept={ACEITA_ARQUIVOS}
           className="block w-full text-sm"
           onChange={async (e) => {
             const f = e.target.files?.[0];
             if (!f) return;
             setResultados(null);
-            setTexto(await f.text());
+            try {
+              setTexto(await arquivoParaTexto(f));
+            } catch {
+              toast.error("Não foi possível ler este arquivo");
+            }
           }}
         />
       </div>
@@ -129,7 +133,17 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
             setTexto(e.target.value);
           }}
         />
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => organizarComIA.mutate()}
+          disabled={organizarComIA.isPending || texto.trim().length < 3}
+        >
+          <Sparkles className="size-4" />
+          {organizarComIA.isPending ? "Organizando com IA…" : "Organizar com IA"}
+        </Button>
       </div>
+
 
       {linhas.length > 0 && (
         <div className="space-y-2">
