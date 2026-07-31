@@ -94,9 +94,15 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
             colunas (nome, e-mail, telefone, tipo individual/casal e nome do casal).
           </p>
         </div>
-        <Button size="sm" variant="outline" onClick={baixarModelo}>
-          <Download className="size-4" /> Modelo CSV
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={baixarModelo}>
+            <Download className="size-4" /> Modelo CSV
+          </Button>
+          <Button size="sm" variant="outline" onClick={baixarModeloXLSX}>
+            <Download className="size-4" /> Modelo XLSX
+          </Button>
+        </div>
+
       </div>
 
       <div className="space-y-1.5">
