@@ -180,8 +180,16 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
                   <span className="text-destructive">{invalidas.length} com problema</span>
                 </>
               )}
+              {duplicadas.length > 0 && (
+                <>
+                  {" · "}
+                  <span className="text-amber-600 dark:text-amber-500">
+                    {duplicadas.length} duplicada(s)
+                  </span>
+                </>
+              )}
             </p>
-            {invalidas.length > 0 && (
+            {problemas.length > 0 && (
               <Button size="sm" variant="ghost" onClick={() => setSoErros((v) => !v)}>
                 {soErros ? "Mostrar todas" : "Ver só as com problema"}
               </Button>
@@ -205,6 +213,35 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
               </p>
             </div>
           )}
+
+          {duplicadas.length > 0 && (
+            <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3">
+              <p className="flex items-center gap-1.5 text-sm font-medium text-amber-700 dark:text-amber-500">
+                <Copy className="size-4" /> {duplicadas.length} aluno(s) duplicado(s) por
+                nome+e-mail
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {duplicadas.length - conflitos.length} repetição(ões) idêntica(s)
+                {conflitos.length > 0 && (
+                  <> · {conflitos.length} com o mesmo e-mail e nome diferente</>
+                )}
+                . As linhas duplicadas ficam de fora da importação.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => aplicarDuplicados(false)}>
+                  Remover duplicados
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => aplicarDuplicados(true)}>
+                  <Merge className="size-4" /> Mesclar duplicados
+                </Button>
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Mesclar agrupa pelo e-mail e completa os campos vazios (telefone, senha, casal) com
+                os dados das linhas repetidas.
+              </p>
+            </div>
+          )}
+
 
           <div className="max-h-64 overflow-auto rounded-md border">
             <table className="w-full min-w-[640px] text-sm">
