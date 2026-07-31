@@ -258,7 +258,7 @@ function SalaDetalhe() {
         })
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) throw new Error(mensagemMatricula(error));
 
       if (idsModulos.length > 0) {
         const { error: erroMod } = await supabase
