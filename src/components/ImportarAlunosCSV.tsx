@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { importarAlunosLote, type ResultadoImportacao } from "@/lib/importacao.functions";
 import { mapearAlunosComIA } from "@/lib/importacao-ia.functions";
 import { analisarCSVAlunos, MODELO_CSV, type LinhaCSV } from "@/lib/csv-alunos";
-import { arquivoParaTexto, ACEITA_ARQUIVOS } from "@/lib/planilha-alunos";
+import { arquivoParaTexto, ACEITA_ARQUIVOS, baixarModeloXLSX } from "@/lib/planilha-alunos";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -94,9 +94,15 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
             colunas (nome, e-mail, telefone, tipo individual/casal e nome do casal).
           </p>
         </div>
-        <Button size="sm" variant="outline" onClick={baixarModelo}>
-          <Download className="size-4" /> Modelo CSV
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={baixarModelo}>
+            <Download className="size-4" /> Modelo CSV
+          </Button>
+          <Button size="sm" variant="outline" onClick={baixarModeloXLSX}>
+            <Download className="size-4" /> Modelo XLSX
+          </Button>
+        </div>
+
       </div>
 
       <div className="space-y-1.5">

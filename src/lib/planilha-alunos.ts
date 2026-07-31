@@ -22,3 +22,29 @@ export async function arquivoParaTexto(arquivo: File): Promise<string> {
 
 export const ACEITA_ARQUIVOS =
   ".csv,.txt,.xlsx,.xls,text/csv,text/plain,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+const CABECALHO_MODELO = ["nome", "email", "telefone", "tipo", "nome_casal", "senha"];
+
+const EXEMPLOS_MODELO = [
+  ["Maria Silva", "maria@exemplo.com", "62999990000", "individual", "", ""],
+  ["João e Ana Souza", "joao@exemplo.com", "62988880000", "casal", "João e Ana Souza", ""],
+];
+
+/** Gera e baixa um template .xlsx com as colunas esperadas na importação */
+export function baixarModeloXLSX() {
+  const planilha = XLSX.utils.aoa_to_sheet([
+    CABECALHO_MODELO,
+    ...EXEMPLOS_MODELO,
+    [],
+    ["Instruções:"],
+    ["nome e email são obrigatórios"],
+    ["tipo: individual ou casal"],
+    ["nome_casal: obrigatório quando tipo for casal"],
+    ["senha: opcional (mínimo 6 caracteres); em branco, o sistema gera uma"],
+    ["Apague as linhas de exemplo e de instruções antes de importar"],
+  ]);
+  planilha["!cols"] = [{ wch: 28 }, { wch: 28 }, { wch: 16 }, { wch: 12 }, { wch: 28 }, { wch: 14 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, planilha, "Alunos");
+  XLSX.writeFile(wb, "modelo-alunos.xlsx");
+}
