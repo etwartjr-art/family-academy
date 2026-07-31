@@ -179,7 +179,7 @@ function Salas() {
             </div>
             <div className="space-y-1.5">
               <Label>Professor responsável</Label>
-              {coordenador ? (
+              {coordenador && podeDefinirProfessor ? (
                 <Select value={professorId} onValueChange={setProfessorId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sem professor" />
@@ -192,6 +192,8 @@ function Salas() {
                     ))}
                   </SelectContent>
                 </Select>
+              ) : coordenador ? (
+                <Input value="Sem permissão para definir professor" readOnly disabled />
               ) : (
                 <Input value={sessao?.perfil?.nome ?? "Você"} readOnly disabled />
               )}
