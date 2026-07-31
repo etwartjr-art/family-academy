@@ -29,9 +29,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { toast } from "sonner";
-import { ArrowLeft, Pencil, UserPlus } from "lucide-react";
+import { ArrowLeft, Pencil, Search, Trash2, UserPlus } from "lucide-react";
+
 
 
 export const Route = createFileRoute("/_authenticated/salas/$id")({
@@ -72,6 +83,15 @@ function SalaDetalhe() {
     tipo: "individual" as "individual" | "casal",
     nome_casal: "",
   });
+  const [buscaExistente, setBuscaExistente] = useState("");
+  const [existente, setExistente] = useState({
+    aluno_id: "",
+    tipo: "individual" as "individual" | "casal",
+    nome_casal: "",
+  });
+  const [buscaMatriculados, setBuscaMatriculados] = useState("");
+  const [removendo, setRemovendo] = useState<{ id: string; nome: string } | null>(null);
+
   const [form, setForm] = useState({
     nome: "",
     professor_id: "",
@@ -97,6 +117,29 @@ function SalaDetalhe() {
   const podeEditar =
     sessao?.papel === "coordenador" ||
     (!!sala?.professor_id && sala.professor_id === sessao?.user.id);
+
+  const idsMatriculados = new Set((matriculas.data ?? []).map((m) => m.aluno_id));
+  const termoExistente = buscaExistente.trim().toLowerCase();
+  const candidatos = (perfis.data ?? [])
+    .filter((p) => !idsMatriculados.has(p.id))
+    .filter((p) =>
+      termoExistente.length === 0
+        ? false
+        : [p.nome, p.email ?? "", p.codigo].some((v) =>
+            v.toLowerCase().includes(termoExistente),
+          ),
+    )
+    .slice(0, 8);
+
+  const termoMatriculados = buscaMatriculados.trim().toLowerCase();
+  const matriculasVisiveis = (matriculas.data ?? []).filter((mat) => {
+    if (!termoMatriculados) return true;
+    const perfil = (perfis.data ?? []).find((p) => p.id === mat.aluno_id);
+    return [perfil?.nome ?? "", perfil?.email ?? "", perfil?.codigo ?? "", mat.nome_casal ?? ""]
+      .some((v) => v.toLowerCase().includes(termoMatriculados));
+  });
+
+
 
   const salvarSala = useMutation({
     mutationFn: async () => {
@@ -170,6 +213,62 @@ function SalaDetalhe() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const matricularExistente = useMutation({
+    mutationFn: async () => {
+      const { data: matricula, error } = await supabase
+        .from("matriculas")
+        .insert({
+          aluno_id: existente.aluno_id,
+          sala_id: id,
+          status: "ativa",
+          tipo: existente.tipo,
+          nome_casal:
+            existente.tipo === "casal" ? existente.nome_casal.trim() || null : null,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+
+      if (idsModulos.length > 0) {
+        const { error: erroMod } = await supabase
+          .from("matricula_modulos")
+          .insert(
+            idsModulos.map((moduloId) => ({ matricula_id: matricula.id, modulo_id: moduloId })),
+          );
+        if (erroMod) throw erroMod;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Aluno matriculado na turma");
+      setExistente({ aluno_id: "", tipo: "individual", nome_casal: "" });
+      setBuscaExistente("");
+      qc.invalidateQueries({ queryKey: ["matriculas"] });
+      qc.invalidateQueries({ queryKey: ["inscricoes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removerMatricula = useMutation({
+    mutationFn: async (matriculaId: string) => {
+      const { error: erroMod } = await supabase
+        .from("matricula_modulos")
+        .delete()
+        .eq("matricula_id", matriculaId);
+      if (erroMod) throw erroMod;
+      const { error } = await supabase.from("matriculas").delete().eq("id", matriculaId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Inscrição removida da turma");
+      setRemovendo(null);
+      qc.invalidateQueries({ queryKey: ["matriculas"] });
+      qc.invalidateQueries({ queryKey: ["inscricoes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
 
   const salvarTipo = useMutation({
     mutationFn: async ({
@@ -467,21 +566,133 @@ function SalaDetalhe() {
             </div>
           </Card>
         )}
+
+        {coordenador && (
+          <Card className="gap-4 p-4">
+            <div>
+              <h3 className="text-base font-semibold">Matricular aluno já cadastrado</h3>
+              <p className="text-sm text-muted-foreground">
+                Busque por nome, e-mail ou código e matricule direto nesta turma.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="busca-existente">Buscar aluno</Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="busca-existente"
+                    className="pl-9"
+                    value={buscaExistente}
+                    onChange={(e) => {
+                      setBuscaExistente(e.target.value);
+                      setExistente((v) => ({ ...v, aluno_id: "" }));
+                    }}
+                    placeholder="Nome, e-mail ou código"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Tipo de matrícula</Label>
+                <Select
+                  value={existente.tipo}
+                  onValueChange={(v) =>
+                    setExistente({ ...existente, tipo: v as "individual" | "casal" })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="casal">Casal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {existente.tipo === "casal" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="existente-casal">Nome do casal</Label>
+                  <Input
+                    id="existente-casal"
+                    value={existente.nome_casal}
+                    onChange={(e) => setExistente({ ...existente, nome_casal: e.target.value })}
+                    placeholder="Ex.: João e Maria Silva"
+                  />
+                </div>
+              )}
+            </div>
+
+            {buscaExistente.trim().length > 0 && (
+              <ul className="divide-y rounded-md border">
+                {candidatos.map((p) => (
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      onClick={() => setExistente((v) => ({ ...v, aluno_id: p.id }))}
+                      className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-muted ${
+                        existente.aluno_id === p.id ? "bg-muted" : ""
+                      }`}
+                    >
+                      <span>
+                        <span className="block font-medium">{p.nome}</span>
+                        <span className="text-xs text-muted-foreground">{p.email ?? "—"}</span>
+                      </span>
+                      <span className="font-mono text-xs text-muted-foreground">{p.codigo}</span>
+                    </button>
+                  </li>
+                ))}
+                {candidatos.length === 0 && (
+                  <li className="px-3 py-2 text-sm text-muted-foreground">
+                    Nenhum aluno disponível para esta busca (já matriculados não aparecem).
+                  </li>
+                )}
+              </ul>
+            )}
+
+            <div>
+              <Button
+                onClick={() => matricularExistente.mutate()}
+                disabled={
+                  matricularExistente.isPending ||
+                  !existente.aluno_id ||
+                  (existente.tipo === "casal" && existente.nome_casal.trim().length < 3)
+                }
+              >
+                {matricularExistente.isPending ? "Matriculando…" : "Matricular na turma"}
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            value={buscaMatriculados}
+            onChange={(e) => setBuscaMatriculados(e.target.value)}
+            placeholder="Buscar aluno matriculado"
+            aria-label="Buscar aluno matriculado"
+          />
+        </div>
+
         <Card className="overflow-x-auto p-4">
           <table className="w-full min-w-[520px] text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="py-2 pr-3 font-medium">Aluno</th>
                 <th className="px-2 py-2 font-medium">Matrícula</th>
+
                 {(modulos.data ?? []).map((m) => (
                   <th key={m.id} className="px-2 py-2 text-center font-medium">
                     {m.ordem}
                   </th>
                 ))}
+                {podeEditar && <th className="px-2 py-2 text-right font-medium">Ações</th>}
               </tr>
             </thead>
             <tbody className="divide-y">
-              {(matriculas.data ?? []).map((mat) => {
+              {matriculasVisiveis.map((mat) => {
+
                 const perfil = (perfis.data ?? []).find((p) => p.id === mat.aluno_id);
                 return (
                   <tr key={mat.id}>
@@ -560,23 +771,64 @@ function SalaDetalhe() {
                         </td>
                       );
                     })}
+                    {podeEditar && (
+                      <td className="px-2 py-2 text-right">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() =>
+                            setRemovendo({ id: mat.id, nome: perfil?.nome ?? "este aluno" })
+                          }
+                        >
+                          <Trash2 className="size-4" /> Remover
+                        </Button>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
-              {(matriculas.data ?? []).length === 0 && (
+              {matriculasVisiveis.length === 0 && (
                 <tr>
                   <td
-                    colSpan={(modulos.data ?? []).length + 2}
+                    colSpan={(modulos.data ?? []).length + (podeEditar ? 3 : 2)}
                     className="py-3 text-muted-foreground"
                   >
-                    Nenhum aluno matriculado. Compartilhe o QR de convite.
+                    {(matriculas.data ?? []).length === 0
+                      ? "Nenhum aluno matriculado. Compartilhe o QR de convite."
+                      : "Nenhum aluno encontrado para esta busca."}
                   </td>
                 </tr>
               )}
             </tbody>
+
           </table>
         </Card>
+
+        <AlertDialog open={!!removendo} onOpenChange={(o) => !o && setRemovendo(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remover inscrição</AlertDialogTitle>
+              <AlertDialogDescription>
+                {removendo?.nome} será removido desta turma, junto com as inscrições nos módulos. As
+                presenças já registradas permanecem no histórico.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (removendo) removerMatricula.mutate(removendo.id);
+                }}
+              >
+                {removerMatricula.isPending ? "Removendo…" : "Remover"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </section>
+
     </div>
   );
 }
