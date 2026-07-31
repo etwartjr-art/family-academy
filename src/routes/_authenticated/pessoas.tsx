@@ -107,6 +107,10 @@ function Pessoas() {
     `${p.nome} ${p.email ?? ""} ${p.codigo}`.toLowerCase().includes(busca.toLowerCase()),
   );
 
+  const papelDe = (id: string): Papel =>
+    ((papeis.data ?? []).find((r) => r.user_id === id)?.papel as Papel) ?? "aluno";
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
