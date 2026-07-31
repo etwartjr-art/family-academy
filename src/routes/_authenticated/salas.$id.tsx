@@ -1082,8 +1082,9 @@ function SalaDetalhe() {
                   <li key={p.id}>
                     <button
                       type="button"
+                      disabled={p.jaMatriculado}
                       onClick={() => setExistente((v) => ({ ...v, aluno_id: p.id }))}
-                      className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-muted ${
+                      className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent ${
                         existente.aluno_id === p.id ? "bg-muted" : ""
                       }`}
                     >
@@ -1091,30 +1092,43 @@ function SalaDetalhe() {
                         <span className="block font-medium">{p.nome}</span>
                         <span className="text-xs text-muted-foreground">{p.email ?? "—"}</span>
                       </span>
-                      <span className="font-mono text-xs text-muted-foreground">{p.codigo}</span>
+                      {p.jaMatriculado ? (
+                        <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+                          Já matriculado nesta turma
+                        </span>
+                      ) : (
+                        <span className="font-mono text-xs text-muted-foreground">{p.codigo}</span>
+                      )}
                     </button>
                   </li>
                 ))}
                 {candidatos.length === 0 && (
                   <li className="px-3 py-2 text-sm text-muted-foreground">
-                    Nenhum aluno disponível para esta busca (já matriculados não aparecem).
+                    Nenhum aluno encontrado para esta busca.
                   </li>
                 )}
               </ul>
             )}
 
-            <div>
+            <div className="space-y-2">
+              {alunoSelecionadoJaMatriculado && (
+                <p className="text-sm text-destructive">
+                  Este aluno já está matriculado nesta turma — não é possível matricular novamente.
+                </p>
+              )}
               <Button
                 onClick={() => matricularExistente.mutate()}
                 disabled={
                   matricularExistente.isPending ||
                   !existente.aluno_id ||
+                  alunoSelecionadoJaMatriculado ||
                   (existente.tipo === "casal" && existente.nome_casal.trim().length < 3)
                 }
               >
                 {matricularExistente.isPending ? "Matriculando…" : "Matricular na turma"}
               </Button>
             </div>
+
           </Card>
         )}
 
