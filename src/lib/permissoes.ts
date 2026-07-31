@@ -57,12 +57,39 @@ export function calcular(
   return padrao?.permitido ?? false;
 }
 
+/**
+ * Salva o padrão do papel e, em seguida, remove as exceções individuais que
+ * ficaram redundantes (mesmo valor do novo padrão) dos usuários desse papel.
+ * Assim essas pessoas voltam a herdar automaticamente futuras mudanças.
+ * Retorna quantas exceções foram removidas.
+ */
 export async function salvarPermissaoPapel(papel: Papel, chave: string, permitido: boolean) {
   const { error } = await supabase
     .from("permissoes_papel")
     .upsert({ papel, chave, permitido }, { onConflict: "papel,chave" });
   if (error) throw error;
+
+  const { data: usuariosDoPapel, error: erroPapeis } = await supabase
+    .from("papeis_usuario")
+    .select("user_id")
+    .eq("papel", papel);
+  if (erroPapeis) throw erroPapeis;
+
+  const ids = (usuariosDoPapel ?? []).map((p) => p.user_id);
+  if (ids.length === 0) return 0;
+
+  const { data: removidas, error: erroLimpeza } = await supabase
+    .from("permissoes_usuario")
+    .delete()
+    .eq("chave", chave)
+    .eq("permitido", permitido)
+    .in("user_id", ids)
+    .select("user_id");
+  if (erroLimpeza) throw erroLimpeza;
+
+  return removidas?.length ?? 0;
 }
+
 
 export async function salvarPermissaoUsuario(
   userId: string,
