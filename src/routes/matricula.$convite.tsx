@@ -107,10 +107,10 @@ function Matricula() {
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center gap-3">
           <div className="grid size-11 place-items-center rounded-xl bg-sidebar-primary font-display text-lg font-extrabold text-sidebar-primary-foreground">
-            FA
+            EF
           </div>
           <div className="leading-tight">
-            <h1 className="text-xl text-white">Escola de Finanças Academy</h1>
+            <h1 className="text-xl text-white">Escola de Finanças</h1>
             <p className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
               Matrícula
             </p>

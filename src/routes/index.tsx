@@ -85,10 +85,10 @@ function Entrada() {
             className="h-32 w-auto rounded-2xl shadow-lg"
           />
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-sidebar-foreground">
-            Escola de Finanças Academy
+            Escola de Finanças
           </h1>
           <p className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
-            Escola de Finanças
+            Academy
           </p>
         </div>
 
