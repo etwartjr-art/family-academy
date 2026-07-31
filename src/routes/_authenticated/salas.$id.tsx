@@ -451,7 +451,7 @@ function SalaDetalhe() {
         .update({
           nome: dados.nome.trim(),
           ordem: dados.ordem,
-          data_inicio: dados.data_inicio || null,
+          ...(dados.data_inicio ? { data_inicio: dados.data_inicio } : {}),
         })
         .eq("id", dados.moduloId);
       if (error) throw error;
