@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listarPerfis, listarPapeis, iniciais, type Papel } from "@/lib/api";
 import {
+  ACOES,
+  AREAS,
   CATALOGO,
   PAPEIS,
   calcular,
