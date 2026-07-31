@@ -37,11 +37,30 @@ export const Route = createFileRoute("/_authenticated/pessoas")({
 
 const PAPEIS: Papel[] = ["coordenador", "professor", "aluno"];
 
+const VAZIO = { nome: "", email: "", senha: "", telefone: "", papel: "aluno" as Papel };
+
 function Pessoas() {
   const qc = useQueryClient();
   const [busca, setBusca] = useState("");
+  const [form, setForm] = useState(VAZIO);
+  const [aberto, setAberto] = useState(false);
+  const sessao = useSessao();
+  const ehCoordenador = sessao.data?.papel === "coordenador";
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
+  const criar = useServerFn(criarUsuario);
+
+  const cadastrar = useMutation({
+    mutationFn: async () => criar({ data: form }),
+    onSuccess: () => {
+      toast.success("Usuário cadastrado");
+      setForm(VAZIO);
+      setAberto(false);
+      qc.invalidateQueries({ queryKey: ["perfis"] });
+      qc.invalidateQueries({ queryKey: ["papeis"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const alterar = useMutation({
     mutationFn: async ({ userId, papel }: { userId: string; papel: Papel }) => {
@@ -67,12 +86,96 @@ function Pessoas() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl">Pessoas</h1>
-        <p className="text-sm text-muted-foreground">
-          Defina quem é coordenador, professor ou aluno.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl">Pessoas</h1>
+          <p className="text-sm text-muted-foreground">
+            Defina quem é coordenador, professor ou aluno.
+          </p>
+        </div>
+        {ehCoordenador && (
+          <Button onClick={() => setAberto((v) => !v)} variant={aberto ? "secondary" : "default"}>
+            {aberto ? "Cancelar" : "Incluir usuário"}
+          </Button>
+        )}
       </div>
+
+      {ehCoordenador && aberto && (
+        <Card className="p-4">
+          <form
+            className="grid gap-3 sm:grid-cols-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              cadastrar.mutate();
+            }}
+          >
+            <div className="space-y-1.5">
+              <Label htmlFor="nome">Nome completo</Label>
+              <Input
+                id="nome"
+                required
+                maxLength={100}
+                value={form.nome}
+                onChange={(e) => setForm({ ...form, nome: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                required
+                maxLength={255}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="senha">Senha provisória</Label>
+              <Input
+                id="senha"
+                type="password"
+                required
+                minLength={6}
+                value={form.senha}
+                onChange={(e) => setForm({ ...form, senha: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="telefone">Telefone (opcional)</Label>
+              <Input
+                id="telefone"
+                maxLength={30}
+                value={form.telefone}
+                onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Papel</Label>
+              <Select
+                value={form.papel}
+                onValueChange={(v) => setForm({ ...form, papel: v as Papel })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAPEIS.map((r) => (
+                    <SelectItem key={r} value={r} className="capitalize">
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-end">
+              <Button type="submit" disabled={cadastrar.isPending} className="w-full">
+                {cadastrar.isPending ? "Cadastrando..." : "Cadastrar"}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
 
       <Input
         value={busca}
@@ -80,6 +183,7 @@ function Pessoas() {
         placeholder="Buscar por nome, e-mail ou código"
         className="max-w-sm"
       />
+
 
       <Card className="gap-0 p-0">
         <ul className="divide-y">
