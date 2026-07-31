@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listarPerfis, listarPapeis, iniciais, type Papel } from "@/lib/api";
+import { criarUsuario } from "@/lib/usuarios.functions";
+import { useSessao } from "@/hooks/useSessao";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -13,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/pessoas")({
   head: () => ({
