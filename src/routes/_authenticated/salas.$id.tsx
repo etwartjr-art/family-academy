@@ -566,12 +566,122 @@ function SalaDetalhe() {
             </div>
           </Card>
         )}
+
+        {coordenador && (
+          <Card className="gap-4 p-4">
+            <div>
+              <h3 className="text-base font-semibold">Matricular aluno já cadastrado</h3>
+              <p className="text-sm text-muted-foreground">
+                Busque por nome, e-mail ou código e matricule direto nesta turma.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="busca-existente">Buscar aluno</Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="busca-existente"
+                    className="pl-9"
+                    value={buscaExistente}
+                    onChange={(e) => {
+                      setBuscaExistente(e.target.value);
+                      setExistente((v) => ({ ...v, aluno_id: "" }));
+                    }}
+                    placeholder="Nome, e-mail ou código"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Tipo de matrícula</Label>
+                <Select
+                  value={existente.tipo}
+                  onValueChange={(v) =>
+                    setExistente({ ...existente, tipo: v as "individual" | "casal" })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="casal">Casal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {existente.tipo === "casal" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="existente-casal">Nome do casal</Label>
+                  <Input
+                    id="existente-casal"
+                    value={existente.nome_casal}
+                    onChange={(e) => setExistente({ ...existente, nome_casal: e.target.value })}
+                    placeholder="Ex.: João e Maria Silva"
+                  />
+                </div>
+              )}
+            </div>
+
+            {buscaExistente.trim().length > 0 && (
+              <ul className="divide-y rounded-md border">
+                {candidatos.map((p) => (
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      onClick={() => setExistente((v) => ({ ...v, aluno_id: p.id }))}
+                      className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-muted ${
+                        existente.aluno_id === p.id ? "bg-muted" : ""
+                      }`}
+                    >
+                      <span>
+                        <span className="block font-medium">{p.nome}</span>
+                        <span className="text-xs text-muted-foreground">{p.email ?? "—"}</span>
+                      </span>
+                      <span className="font-mono text-xs text-muted-foreground">{p.codigo}</span>
+                    </button>
+                  </li>
+                ))}
+                {candidatos.length === 0 && (
+                  <li className="px-3 py-2 text-sm text-muted-foreground">
+                    Nenhum aluno disponível para esta busca (já matriculados não aparecem).
+                  </li>
+                )}
+              </ul>
+            )}
+
+            <div>
+              <Button
+                onClick={() => matricularExistente.mutate()}
+                disabled={
+                  matricularExistente.isPending ||
+                  !existente.aluno_id ||
+                  (existente.tipo === "casal" && existente.nome_casal.trim().length < 3)
+                }
+              >
+                {matricularExistente.isPending ? "Matriculando…" : "Matricular na turma"}
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            value={buscaMatriculados}
+            onChange={(e) => setBuscaMatriculados(e.target.value)}
+            placeholder="Buscar aluno matriculado"
+            aria-label="Buscar aluno matriculado"
+          />
+        </div>
+
         <Card className="overflow-x-auto p-4">
           <table className="w-full min-w-[520px] text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="py-2 pr-3 font-medium">Aluno</th>
                 <th className="px-2 py-2 font-medium">Matrícula</th>
+
                 {(modulos.data ?? []).map((m) => (
                   <th key={m.id} className="px-2 py-2 text-center font-medium">
                     {m.ordem}
