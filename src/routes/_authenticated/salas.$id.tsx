@@ -1182,7 +1182,7 @@ function SalaDetalhe() {
                     {moduloAtivo.nome}
                   </th>
                 )}
-                {podeMatricular && <th className="px-2 py-2 text-right font-medium">Ações</th>}
+                <th className="px-2 py-2 text-right font-medium">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y">
