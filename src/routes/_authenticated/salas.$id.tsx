@@ -1011,11 +1011,11 @@ function SalaDetalhe() {
                 <th className="py-2 pr-3 font-medium">Aluno</th>
                 <th className="px-2 py-2 font-medium">Matrícula</th>
 
-                {(modulos.data ?? []).map((m) => (
-                  <th key={m.id} className="px-2 py-2 text-center font-medium">
-                    {m.ordem}
+                {moduloAtivo && (
+                  <th className="px-2 py-2 text-center font-medium">
+                    {moduloAtivo.nome}
                   </th>
-                ))}
+                )}
                 {podeMatricular && <th className="px-2 py-2 text-right font-medium">Ações</th>}
               </tr>
             </thead>
