@@ -31,6 +31,8 @@ const esquema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
   telefone: z.string().trim().max(30).optional(),
   senha: z.string().min(6, "A senha precisa de ao menos 6 caracteres").max(72),
+  tipo: z.enum(["individual", "casal"]),
+  nomeCasal: z.string().trim().max(160).optional(),
 });
 
 function Matricula() {
@@ -40,6 +42,8 @@ function Matricula() {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
+  const [tipo, setTipo] = useState<"individual" | "casal">("individual");
+  const [nomeCasal, setNomeCasal] = useState("");
   const [carregando, setCarregando] = useState(false);
 
   const { data: sala, isLoading } = useQuery({
@@ -53,9 +57,13 @@ function Matricula() {
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
-    const r = esquema.safeParse({ nome, email, telefone, senha });
+    const r = esquema.safeParse({ nome, email, telefone, senha, tipo, nomeCasal });
     if (!r.success) {
       toast.error(r.error.issues[0].message);
+      return;
+    }
+    if (r.data.tipo === "casal" && (r.data.nomeCasal ?? "").length < 3) {
+      toast.error("Informe o nome do casal");
       return;
     }
     setCarregando(true);
@@ -80,7 +88,11 @@ function Matricula() {
       }
     }
 
-    const { error } = await supabase.rpc("matricular_por_convite", { _convite: convite });
+    const { error } = await supabase.rpc("matricular_por_convite", {
+      _convite: convite,
+      _tipo: r.data.tipo,
+      _nome_casal: r.data.tipo === "casal" ? (r.data.nomeCasal ?? null) : null,
+    });
     setCarregando(false);
     if (error) {
       toast.error(error.message);
@@ -131,6 +143,37 @@ function Matricula() {
                 <Label htmlFor="nome">Nome completo</Label>
                 <Input id="nome" value={nome} onChange={(e) => setNome(e.target.value)} />
               </div>
+              <div className="space-y-1.5">
+                <Label>Tipo de matrícula</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["individual", "casal"] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTipo(t)}
+                      aria-pressed={tipo === t}
+                      className={`rounded-xl border px-3 py-2 text-sm font-medium capitalize transition ${
+                        tipo === t
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-input bg-background hover:bg-accent"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {tipo === "casal" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="nome-casal">Nome do casal</Label>
+                  <Input
+                    id="nome-casal"
+                    value={nomeCasal}
+                    onChange={(e) => setNomeCasal(e.target.value)}
+                    placeholder="Ex.: João e Maria Silva"
+                  />
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label htmlFor="email">E-mail</Label>
                 <Input
