@@ -83,10 +83,15 @@ function Acessos() {
   const mudarPapel = useMutation({
     mutationFn: ({ papel, chave, permitido }: { papel: Papel; chave: string; permitido: boolean }) =>
       salvarPermissaoPapel(papel, chave, permitido),
-    onSuccess: () => {
-      toast.success("Permissão do papel atualizada");
+    onSuccess: (removidas) => {
+      toast.success(
+        removidas
+          ? `Permissão do papel atualizada — ${removidas} exceção${removidas > 1 ? "ões" : ""} individual${removidas > 1 ? "is" : ""} redundante${removidas > 1 ? "s" : ""} removida${removidas > 1 ? "s" : ""} e voltou a herdar o padrão`
+          : "Permissão do papel atualizada",
+      );
       invalidar();
     },
+
     onError: (e: Error) => toast.error(e.message),
   });
 
