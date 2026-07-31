@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { AlertTriangle, Download, Sparkles, Upload } from "lucide-react";
+import { AlertTriangle, Copy, Download, Merge, Sparkles, Upload } from "lucide-react";
 
 
 const ROTULO_STATUS: Record<ResultadoImportacao["status"], string> = {
@@ -92,6 +92,18 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  function aplicarDuplicados(mesclar: boolean) {
+    const antes = linhas.length;
+    setResultados(null);
+    setTexto(resolverDuplicados(linhas, mesclar));
+    const removidas = antes - (mesclar ? new Set(linhas.map((l) => l.email.toLowerCase())).size : 0);
+    toast.success(
+      mesclar
+        ? "Duplicados mesclados — revise os dados antes de importar"
+        : `${removidas > 0 ? removidas : duplicadas.length} linha(s) duplicada(s) removida(s)`,
+    );
+  }
 
   function baixarModelo() {
     const url = URL.createObjectURL(new Blob([MODELO_CSV], { type: "text/csv;charset=utf-8" }));
@@ -257,7 +269,14 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
               </thead>
               <tbody className="divide-y">
                 {exibidas.map((l) => (
-                  <tr key={l.linha} className={l.erros.length ? "bg-destructive/5" : undefined}>
+                  <tr key={l.linha} className={
+                      l.erros.length
+                        ? "bg-destructive/5"
+                        : l.duplicado
+                          ? "bg-amber-500/5"
+                          : undefined
+                    }
+                  >
                     <td className="px-3 py-2 text-muted-foreground">{l.linha}</td>
                     <td className="px-3 py-2">{l.nome || "—"}</td>
                     <td className="px-3 py-2">{l.email || "—"}</td>
@@ -268,6 +287,12 @@ export function ImportarAlunosCSV({ salaId }: { salaId: string }) {
                     <td className="px-3 py-2">
                       {l.erros.length ? (
                         <span className="text-destructive">{l.erros.join("; ")}</span>
+                      ) : l.duplicado ? (
+                        <span className="text-amber-600 dark:text-amber-500">
+                          {l.duplicado === "identico"
+                            ? `Duplicado da linha ${l.duplicadoDaLinha}`
+                            : `Mesmo e-mail da linha ${l.duplicadoDaLinha} (nome diferente)`}
+                        </span>
                       ) : (
                         <span className="text-muted-foreground">OK</span>
                       )}
