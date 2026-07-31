@@ -109,6 +109,63 @@ export type Database = {
         }
         Relationships: []
       }
+      materiais: {
+        Row: {
+          atualizado_em: string
+          aula_id: string
+          criado_em: string
+          id: string
+          nome_arquivo: string | null
+          publicado_por: string | null
+          storage_path: string | null
+          tamanho: number | null
+          tipo: Database["public"]["Enums"]["tipo_material"]
+          titulo: string
+          url: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          aula_id: string
+          criado_em?: string
+          id?: string
+          nome_arquivo?: string | null
+          publicado_por?: string | null
+          storage_path?: string | null
+          tamanho?: number | null
+          tipo?: Database["public"]["Enums"]["tipo_material"]
+          titulo: string
+          url?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          aula_id?: string
+          criado_em?: string
+          id?: string
+          nome_arquivo?: string | null
+          publicado_por?: string | null
+          storage_path?: string | null
+          tamanho?: number | null
+          tipo?: Database["public"]["Enums"]["tipo_material"]
+          titulo?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiais_aula_id_fkey"
+            columns: ["aula_id"]
+            isOneToOne: false
+            referencedRelation: "aulas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiais_publicado_por_fkey"
+            columns: ["publicado_por"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matricula_modulos: {
         Row: {
           matricula_id: string
@@ -601,6 +658,13 @@ export type Database = {
       metodo_presenca: "qr" | "codigo" | "manual"
       papel_app: "coordenador" | "professor" | "aluno"
       status_matricula: "ativa" | "pendente" | "cancelada"
+      tipo_material:
+        | "ebook"
+        | "apostila"
+        | "planilha"
+        | "slides"
+        | "video"
+        | "link"
       tipo_matricula: "individual" | "casal"
     }
     CompositeTypes: {
@@ -732,6 +796,14 @@ export const Constants = {
       metodo_presenca: ["qr", "codigo", "manual"],
       papel_app: ["coordenador", "professor", "aluno"],
       status_matricula: ["ativa", "pendente", "cancelada"],
+      tipo_material: [
+        "ebook",
+        "apostila",
+        "planilha",
+        "slides",
+        "video",
+        "link",
+      ],
       tipo_matricula: ["individual", "casal"],
     },
   },
