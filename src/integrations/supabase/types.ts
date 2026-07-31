@@ -412,6 +412,51 @@ export type Database = {
           },
         ]
       }
+      salas_auditoria: {
+        Row: {
+          alterado_por: string | null
+          campo: string
+          criado_em: string
+          id: string
+          sala_id: string
+          valor_antigo: string | null
+          valor_novo: string | null
+        }
+        Insert: {
+          alterado_por?: string | null
+          campo: string
+          criado_em?: string
+          id?: string
+          sala_id: string
+          valor_antigo?: string | null
+          valor_novo?: string | null
+        }
+        Update: {
+          alterado_por?: string | null
+          campo?: string
+          criado_em?: string
+          id?: string
+          sala_id?: string
+          valor_antigo?: string | null
+          valor_novo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salas_auditoria_alterado_por_fkey"
+            columns: ["alterado_por"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salas_auditoria_sala_id_fkey"
+            columns: ["sala_id"]
+            isOneToOne: false
+            referencedRelation: "salas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sessoes_chamada: {
         Row: {
           aberta: boolean

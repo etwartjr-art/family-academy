@@ -42,7 +42,20 @@ import {
 } from "@/components/ui/alert-dialog";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { toast } from "sonner";
-import { ArrowLeft, Pencil, Search, Trash2, UserPlus } from "lucide-react";
+import { ArrowLeft, History as HistoryIcon, Pencil, Search, Trash2, UserPlus } from "lucide-react";
+
+const ROTULOS_CAMPO: Record<string, string> = {
+  nome: "Nome da turma",
+  professor: "Professor",
+  turno: "Turno",
+  data_inicio: "Data de início",
+};
+
+function formatarValor(campo: string, valor: string | null) {
+  if (!valor) return "—";
+  if (campo === "data_inicio") return new Date(`${valor}T00:00:00`).toLocaleDateString("pt-BR");
+  return valor;
+}
 
 
 
@@ -73,6 +86,19 @@ function SalaDetalhe() {
   const inscricoes = useQuery({ queryKey: ["inscricoes"], queryFn: listarInscricoes });
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
+  const auditoria = useQuery({
+    queryKey: ["salas-auditoria", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salas_auditoria")
+        .select("id, campo, valor_antigo, valor_novo, alterado_por, criado_em")
+        .eq("sala_id", id)
+        .order("criado_em", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
   const [editando, setEditando] = useState(false);
   const [adicionando, setAdicionando] = useState(false);
@@ -160,6 +186,7 @@ function SalaDetalhe() {
       toast.success("Turma atualizada");
       setEditando(false);
       qc.invalidateQueries({ queryKey: ["salas"] });
+      qc.invalidateQueries({ queryKey: ["salas-auditoria", id] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -483,6 +510,47 @@ function SalaDetalhe() {
           </div>
         </Card>
       )}
+
+      {podeEditar && (
+        <Card className="gap-3 p-4">
+          <div className="flex items-center gap-2">
+            <HistoryIcon className="size-4 text-muted-foreground" />
+            <h2 className="text-lg">Histórico de alterações</h2>
+          </div>
+          {auditoria.isLoading ? (
+            <p className="text-sm text-muted-foreground">Carregando…</p>
+          ) : (auditoria.data ?? []).length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhuma alteração registrada nesta turma ainda.
+            </p>
+          ) : (
+            <ul className="divide-y rounded-xl border">
+              {(auditoria.data ?? []).map((log) => {
+                const autor = (perfis.data ?? []).find((p) => p.id === log.alterado_por);
+                return (
+                  <li key={log.id} className="space-y-1 px-3 py-2.5 text-sm">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold">{ROTULOS_CAMPO[log.campo] ?? log.campo}</span>
+                      <span className="text-muted-foreground">
+                        {formatarValor(log.campo, log.valor_antigo)} →{" "}
+                        <span className="text-foreground">
+                          {formatarValor(log.campo, log.valor_novo)}
+                        </span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(log.criado_em).toLocaleString("pt-BR")} ·{" "}
+                      {autor?.nome ?? "Usuário removido"}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Card>
+      )}
+
+
 
 
       <section className="space-y-3">
