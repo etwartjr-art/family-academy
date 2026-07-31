@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
-import { GraduationCap } from "lucide-react";
 import { FundoMarca } from "@/components/FundoMarca";
+import logoAsset from "@/assets/logo-family-academy.png.asset.json";
 
 
 export const Route = createFileRoute("/")({
