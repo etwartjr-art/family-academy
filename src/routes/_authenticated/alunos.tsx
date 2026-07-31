@@ -76,7 +76,18 @@ function Alunos() {
 
   function exportar() {
     const linhas: (string | number)[][] = [
-      ["Curso", "Turma/Sala", "Turno", "Aluno", "Código", "E-mail", "Telefone", "Status"],
+      [
+        "Curso",
+        "Turma/Sala",
+        "Turno",
+        "Aluno",
+        "Código",
+        "E-mail",
+        "Telefone",
+        "Tipo",
+        "Nome do casal",
+        "Status",
+      ],
     ];
     for (const g of grupos) {
       for (const t of g.turmas) {
@@ -89,6 +100,8 @@ function Alunos() {
             a.perfil!.codigo,
             a.perfil!.email ?? "",
             a.perfil!.telefone ?? "",
+            a.matricula.tipo,
+            a.matricula.nome_casal ?? "",
             a.matricula.status,
           ]);
         }
@@ -187,6 +200,9 @@ function Alunos() {
                                     <span className="block truncate text-xs text-muted-foreground">
                                       {perfil!.email ?? "sem e-mail"}
                                       {perfil!.telefone ? ` · ${perfil!.telefone}` : ""}
+                                      {matricula.tipo === "casal"
+                                        ? ` · Casal: ${matricula.nome_casal ?? "—"}`
+                                        : ""}
                                     </span>
                                   </span>
                                   <span className="shrink-0 font-mono text-xs text-muted-foreground">
