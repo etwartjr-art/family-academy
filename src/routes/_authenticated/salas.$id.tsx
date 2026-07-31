@@ -800,7 +800,9 @@ function SalaDetalhe() {
 
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg">Alunos e inscrição por módulo</h2>
+          <h2 className="text-lg">
+            Alunos {moduloAtivo ? `· inscrição em ${moduloAtivo.nome}` : ""}
+          </h2>
           {podeMatricular && (
             <Button size="sm" onClick={() => setAdicionando((v) => !v)}>
               <UserPlus className="size-4" /> Adicionar aluno
