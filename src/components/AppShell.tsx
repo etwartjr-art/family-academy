@@ -24,6 +24,8 @@ import { usePermissoes } from "@/hooks/usePermissoes";
 import type { ChaveAcesso } from "@/lib/permissoes";
 import { iniciais } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import logoAsset from "@/assets/logo-escola-financas-academy.jpg.asset.json";
+
 
 export type Item = {
   para: string;
@@ -49,9 +51,11 @@ export const MENU: Item[] = [
 function Marca() {
   return (
     <div className="flex items-center gap-2.5 px-2 pb-4 pt-1">
-      <div className="grid size-9 place-items-center rounded-[10px] bg-sidebar-primary font-display text-[15px] font-extrabold text-sidebar-primary-foreground">
-        FA
-      </div>
+      <img
+        src={logoAsset.url}
+        alt="Escola de Finanças Academy"
+        className="size-9 shrink-0 rounded-[10px] object-cover"
+      />
       <div className="leading-tight">
         <div className="font-display text-[15px] font-extrabold text-white">Family Academy</div>
         <div className="text-[11px] uppercase tracking-[0.08em] text-sidebar-foreground/70">
@@ -61,6 +65,7 @@ function Marca() {
     </div>
   );
 }
+
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: sessao } = useSessao();
