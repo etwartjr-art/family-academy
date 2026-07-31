@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedAcessosRouteImport } from './routes/_authenticated/acessos'
 import { Route as AuthenticatedAlunosRouteImport } from './routes/_authenticated/alunos'
 import { Route as AuthenticatedCarteirinhasRouteImport } from './routes/_authenticated/carteirinhas'
 import { Route as AuthenticatedChamadaRouteImport } from './routes/_authenticated/chamada'
@@ -31,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAcessosRoute = AuthenticatedAcessosRouteImport.update({
+  id: '/acessos',
+  path: '/acessos',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAlunosRoute = AuthenticatedAlunosRouteImport.update({
   id: '/alunos',
@@ -91,6 +97,7 @@ const AuthenticatedSalasIdRoute = AuthenticatedSalasIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acessos': typeof AuthenticatedAcessosRoute
   '/alunos': typeof AuthenticatedAlunosRoute
   '/carteirinhas': typeof AuthenticatedCarteirinhasRoute
   '/chamada': typeof AuthenticatedChamadaRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acessos': typeof AuthenticatedAcessosRoute
   '/alunos': typeof AuthenticatedAlunosRoute
   '/carteirinhas': typeof AuthenticatedCarteirinhasRoute
   '/chamada': typeof AuthenticatedChamadaRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/acessos': typeof AuthenticatedAcessosRoute
   '/_authenticated/alunos': typeof AuthenticatedAlunosRoute
   '/_authenticated/carteirinhas': typeof AuthenticatedCarteirinhasRoute
   '/_authenticated/chamada': typeof AuthenticatedChamadaRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/acessos'
     | '/alunos'
     | '/carteirinhas'
     | '/chamada'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/acessos'
     | '/alunos'
     | '/carteirinhas'
     | '/chamada'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/acessos'
     | '/_authenticated/alunos'
     | '/_authenticated/carteirinhas'
     | '/_authenticated/chamada'
@@ -200,6 +212,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/acessos': {
+      id: '/_authenticated/acessos'
+      path: '/acessos'
+      fullPath: '/acessos'
+      preLoaderRoute: typeof AuthenticatedAcessosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/alunos': {
       id: '/_authenticated/alunos'
@@ -282,6 +301,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAcessosRoute: typeof AuthenticatedAcessosRoute
   AuthenticatedAlunosRoute: typeof AuthenticatedAlunosRoute
   AuthenticatedCarteirinhasRoute: typeof AuthenticatedCarteirinhasRoute
   AuthenticatedChamadaRoute: typeof AuthenticatedChamadaRoute
@@ -295,6 +315,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAcessosRoute: AuthenticatedAcessosRoute,
   AuthenticatedAlunosRoute: AuthenticatedAlunosRoute,
   AuthenticatedCarteirinhasRoute: AuthenticatedCarteirinhasRoute,
   AuthenticatedChamadaRoute: AuthenticatedChamadaRoute,
