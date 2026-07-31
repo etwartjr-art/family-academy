@@ -49,6 +49,7 @@ export const Route = createFileRoute("/_authenticated/salas/$id")({
 function SalaDetalhe() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  const { data: sessao } = useSessao();
 
   const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });
   const cursos = useQuery({ queryKey: ["cursos"], queryFn: listarCursos });
@@ -56,6 +57,16 @@ function SalaDetalhe() {
   const matriculas = useQuery({ queryKey: ["matriculas", id], queryFn: () => listarMatriculas(id) });
   const inscricoes = useQuery({ queryKey: ["inscricoes"], queryFn: listarInscricoes });
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
+  const papeis = useQuery({ queryKey: ["papeis"], queryFn: listarPapeis });
+
+  const [editando, setEditando] = useState(false);
+  const [form, setForm] = useState({
+    nome: "",
+    professor_id: "",
+    turno: "",
+    data_inicio: "",
+  });
+
 
   const idsModulos = (modulos.data ?? []).map((m) => m.id);
   const aulas = useQuery({
