@@ -218,7 +218,10 @@ function Chamada() {
               <LeitorQR
                 aoLer={(texto) => {
                   const p = lerPayloadQR(texto);
-                  if (p.tipo !== "aluno") return toast.error("QR não é de carteirinha de aluno");
+                  if (p.tipo !== "aluno") {
+                    somErro();
+                    return toast.error("QR não é de carteirinha de aluno");
+                  }
                   registrar({ codigoAluno: p.valor, metodo: "qr" });
                 }}
               />
