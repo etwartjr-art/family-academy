@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LeitorQR } from "@/components/LeitorQR";
+import { somSucesso, somErro } from "@/lib/som";
 import { toast } from "sonner";
 import { Check, X } from "lucide-react";
 
@@ -96,15 +97,23 @@ function Chamada() {
     metodo: "qr" | "codigo" | "manual";
   }) {
     if (!aulaId) return toast.error("Escolha a aula primeiro");
+    const comSom = args.metodo !== "manual";
     const { data, error } = await supabase.rpc("registrar_presenca", {
       _aula_id: aulaId,
       _aluno_id: args.alunoId,
       _codigo_aluno: args.codigoAluno,
       _metodo: args.metodo,
     });
-    if (error) return toast.error(error.message);
+    if (error) {
+      if (comSom) somErro();
+      return toast.error(error.message);
+    }
     const r = data as { ok?: boolean; mensagem?: string; aluno?: string } | null;
-    if (r && r.ok === false) return toast.error(r.mensagem ?? "Não foi possível registrar");
+    if (r && r.ok === false) {
+      if (comSom) somErro();
+      return toast.error(r.mensagem ?? "Não foi possível registrar");
+    }
+    if (comSom) somSucesso();
     toast.success(r?.aluno ? `Presença de ${r.aluno}` : "Presença registrada");
     qc.invalidateQueries({ queryKey: ["presencas-aula", aulaId] });
     qc.invalidateQueries({ queryKey: ["presencas"] });
@@ -209,7 +218,10 @@ function Chamada() {
               <LeitorQR
                 aoLer={(texto) => {
                   const p = lerPayloadQR(texto);
-                  if (p.tipo !== "aluno") return toast.error("QR não é de carteirinha de aluno");
+                  if (p.tipo !== "aluno") {
+                    somErro();
+                    return toast.error("QR não é de carteirinha de aluno");
+                  }
                   registrar({ codigoAluno: p.valor, metodo: "qr" });
                 }}
               />
