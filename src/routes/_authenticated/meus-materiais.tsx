@@ -11,7 +11,8 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Download } from "lucide-react";
+import { Download, Eye } from "lucide-react";
+import { usePermissoes } from "@/hooks/usePermissoes";
 
 export const Route = createFileRoute("/_authenticated/meus-materiais")({
   head: () => ({
@@ -33,8 +34,13 @@ function MeusMateriais() {
   const aulas = useQuery({ queryKey: ["aulas-todas"], queryFn: () => listarAulas() });
   const modulos = useQuery({ queryKey: ["modulos"], queryFn: () => listarModulos() });
 
-  const baixar = useMutation({
-    mutationFn: (m: Material) => abrirMaterial(m),
+  const { pode, carregando } = usePermissoes();
+  const podeBaixar = pode("material_baixar");
+  const podeVisualizar = pode("material_visualizar");
+
+  const abrir = useMutation({
+    mutationFn: ({ m, modo }: { m: Material; modo: "baixar" | "visualizar" }) =>
+      abrirMaterial(m, modo),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -85,9 +91,31 @@ function MeusMateriais() {
                               : " · link externo"}
                           </div>
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => baixar.mutate(m)}>
-                          <Download className="size-4" /> Baixar
-                        </Button>
+                        <div className="flex gap-2">
+                          {podeVisualizar && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => abrir.mutate({ m, modo: "visualizar" })}
+                            >
+                              <Eye className="size-4" /> Visualizar
+                            </Button>
+                          )}
+                          {podeBaixar && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => abrir.mutate({ m, modo: "baixar" })}
+                            >
+                              <Download className="size-4" /> Baixar
+                            </Button>
+                          )}
+                          {!podeVisualizar && !podeBaixar && !carregando && (
+                            <span className="text-xs text-muted-foreground">
+                              Sem permissão de acesso
+                            </span>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>
