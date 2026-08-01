@@ -105,13 +105,15 @@ export async function excluirMaterial(material: Material) {
 }
 
 /** Abre o material: link externo direto ou URL assinada de curta duração (5 min). */
-export async function abrirMaterial(material: Material) {
+export async function abrirMaterial(material: Material, modo: "baixar" | "visualizar" = "baixar") {
   if (material.storage_path) {
     const { data, error } = await supabase.storage
       .from(BUCKET_MATERIAIS)
-      .createSignedUrl(material.storage_path, 300, {
-        download: material.nome_arquivo ?? true,
-      });
+      .createSignedUrl(
+        material.storage_path,
+        300,
+        modo === "baixar" ? { download: material.nome_arquivo ?? true } : {},
+      );
     if (error) throw error;
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
     return;
