@@ -14,6 +14,9 @@ export type ChaveAcesso =
   | "carteirinhas"
   | "pessoas"
   | "acessos"
+  | "meus_materiais"
+  | "material_visualizar"
+  | "material_baixar"
   | "turma_editar"
   | "turma_matricular"
   | "turma_definir_professor";
@@ -36,6 +39,24 @@ export const CATALOGO: ItemCatalogo[] = [
   { chave: "carteirinhas", rotulo: "Carteirinhas", descricao: "Gerar carteirinhas para impressão", grupo: "area" },
   { chave: "pessoas", rotulo: "Pessoas", descricao: "Cadastrar, editar e definir papéis", grupo: "area" },
   { chave: "acessos", rotulo: "Níveis de acesso", descricao: "Configurar permissões de papéis e usuários", grupo: "area" },
+  {
+    chave: "meus_materiais",
+    rotulo: "Meus materiais",
+    descricao: "Ver a lista de materiais de apoio dos módulos inscritos",
+    grupo: "area",
+  },
+  {
+    chave: "material_visualizar",
+    rotulo: "Visualizar material",
+    descricao: "Abrir o material de apoio para leitura, sem salvar o arquivo",
+    grupo: "acao",
+  },
+  {
+    chave: "material_baixar",
+    rotulo: "Baixar material",
+    descricao: "Baixar os arquivos de material de apoio disponíveis",
+    grupo: "acao",
+  },
   {
     chave: "turma_editar",
     rotulo: "Editar turma",
