@@ -251,17 +251,27 @@ function Alunos() {
                                     {iniciais(perfil!.nome)}
                                   </span>
                                   <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-sm font-medium">
-                                      {perfil!.nome}
+                                    <span className="flex items-center gap-2">
+                                      <span className="truncate text-sm font-medium">
+                                        {perfil!.nome}
+                                      </span>
+                                      {matricula.tipo === "casal" && (
+                                        <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                                          Casal
+                                        </span>
+                                      )}
                                     </span>
+                                    {matricula.tipo === "casal" && (
+                                      <span className="block truncate text-xs font-medium">
+                                        {matricula.nome_casal ?? "Nome do casal não informado"}
+                                      </span>
+                                    )}
                                     <span className="block truncate text-xs text-muted-foreground">
                                       {perfil!.email ?? "sem e-mail"}
                                       {perfil!.telefone ? ` · ${perfil!.telefone}` : ""}
-                                      {matricula.tipo === "casal"
-                                        ? ` · Casal: ${matricula.nome_casal ?? "—"}`
-                                        : ""}
                                     </span>
                                   </span>
+
                                   <span className="shrink-0 font-mono text-xs text-muted-foreground">
                                     {perfil!.codigo}
                                   </span>
