@@ -110,6 +110,57 @@ function Alunos() {
     baixarCSV("alunos-por-turma.csv", linhas);
   }
 
+  async function exportarPDF() {
+    const [{ jsPDF }, autoTableMod] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
+    const autoTable = autoTableMod.default;
+    const doc = new jsPDF({ orientation: "landscape" });
+    let y = 14;
+    doc.setFontSize(14);
+    doc.text("Alunos por turma — Escola de Finanças", 14, y);
+    doc.setFontSize(9);
+    y += 6;
+    doc.text(`${total} aluno(s) · gerado em ${new Date().toLocaleDateString("pt-BR")}`, 14, y);
+    y += 4;
+
+    for (const g of grupos) {
+      for (const t of g.turmas) {
+        if (t.alunos.length === 0) continue;
+        autoTable(doc, {
+          startY: y + 6,
+          head: [["Aluno", "Código", "E-mail", "Telefone", "Tipo", "Nome do casal"]],
+          body: t.alunos.map((a) => [
+            a.perfil!.nome,
+            a.perfil!.codigo,
+            a.perfil!.email ?? "",
+            a.perfil!.telefone ?? "",
+            a.matricula.tipo === "casal" ? "Casal" : "Individual",
+            a.matricula.tipo === "casal" ? (a.matricula.nome_casal ?? "—") : "—",
+          ]),
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: [10, 42, 102] },
+          margin: { left: 14, right: 14 },
+          didDrawPage: () => {
+            doc.setFontSize(10);
+            doc.text(
+              `${g.curso.nome} · ${t.sala.nome}${t.sala.turno ? ` · ${t.sala.turno}` : ""}`,
+              14,
+              y + 2,
+            );
+          },
+        });
+        y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 6;
+        if (y > 170) {
+          doc.addPage();
+          y = 14;
+        }
+      }
+    }
+    doc.save("alunos-por-turma.pdf");
+  }
+
   return (
     <div className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
@@ -119,10 +170,16 @@ function Alunos() {
             {total} aluno(s) organizados por curso, turma e sala.
           </p>
         </div>
-        <Button variant="outline" onClick={exportar} disabled={total === 0}>
-          Exportar CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportar} disabled={total === 0}>
+            Exportar CSV
+          </Button>
+          <Button variant="outline" onClick={exportarPDF} disabled={total === 0}>
+            Exportar PDF
+          </Button>
+        </div>
       </header>
+
 
       <Input
         value={busca}
