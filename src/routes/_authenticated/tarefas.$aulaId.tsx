@@ -281,6 +281,23 @@ function TarefasDaAula() {
         </Button>
       </Card>
 
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold">Tarefas publicadas</h2>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Ordenar alunos por</span>
+          <Select value={ordemAlunos} onValueChange={(v) => setOrdemAlunos(v as typeof ordemAlunos)}>
+            <SelectTrigger className="w-[11rem]">
+              <SelectValue placeholder="Ordenar por" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="nome">Nome</SelectItem>
+              <SelectItem value="conclusao-recente">Conclusão: mais recente</SelectItem>
+              <SelectItem value="conclusao-antiga">Conclusão: mais antiga</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="space-y-3">
         {lista.map((t, i) => {
           const total = alunos.length;
