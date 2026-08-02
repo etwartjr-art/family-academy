@@ -79,6 +79,13 @@ function Frequencia() {
   }, [modulo, aulasModulo, inscricoes.data, matriculas.data, perfis.data, presencas.data]);
 
   const abaixo = linhas.filter((l) => l.pct < FREQUENCIA_MINIMA);
+
+  const totaisAulas = aulasModulo.map((_, i) => {
+    const presentes = linhas.filter((l) => l.marcas[i]).length;
+    const pct = linhas.length ? Math.round((presentes / linhas.length) * 100) : 0;
+    return { presentes, pct };
+  });
+
   const modulosDaSala = (modulos.data ?? []).filter((m) => !salaId || m.sala_id === salaId);
 
   function exportar() {
@@ -89,7 +96,19 @@ function Frequencia() {
       ...l.marcas.map((m) => (m ? "P" : "F")),
       `${l.pct}%`,
     ]);
-    baixarCSV(`frequencia-${modulo?.nome ?? "modulo"}.csv`, [cabecalho, ...corpo]);
+    const rodapePresentes = [
+      "Presentes",
+      `${linhas.length} inscritos`,
+      ...totaisAulas.map((t) => String(t.presentes)),
+      "",
+    ];
+    const rodapePct = ["% por aula", "", ...totaisAulas.map((t) => `${t.pct}%`), ""];
+    baixarCSV(`frequencia-${modulo?.nome ?? "modulo"}.csv`, [
+      cabecalho,
+      ...corpo,
+      rodapePresentes,
+      rodapePct,
+    ]);
   }
 
   return (
