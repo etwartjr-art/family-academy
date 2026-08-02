@@ -398,7 +398,7 @@ function TarefasDaAula() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <ul className="mt-2 divide-y rounded-xl border">
-                    {alunos.map((a) => {
+                    {ordenarAlunos(alunos, t.id).map((a) => {
                       const marcado = concluiu(t.id, a.id);
                       const registro = feitas.find(
                         (c) => c.tarefa_id === t.id && c.aluno_id === a.id,
