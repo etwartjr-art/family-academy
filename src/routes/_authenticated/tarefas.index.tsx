@@ -164,11 +164,24 @@ function IndiceTarefas() {
             Escolha a aula para publicar tarefas e ver quem já concluiu.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={moduloFiltro} onValueChange={setModuloFiltro}>
+            <SelectTrigger className="w-56" aria-label="Filtrar módulo do relatório">
+              <SelectValue placeholder="Módulo do relatório" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os módulos</SelectItem>
+              {nomesModulos.map((nome) => (
+                <SelectItem key={nome} value={nome}>
+                  {nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             variant="outline"
             disabled={linhasRelatorio.length === 0}
-            onClick={() => exportarRelatorioCSV(linhasRelatorio)}
+            onClick={() => exportarRelatorioCSV(linhasRelatorio, moduloFiltro)}
           >
             <FileDown className="size-4" />
             Relatório CSV
@@ -176,12 +189,13 @@ function IndiceTarefas() {
           <Button
             variant="outline"
             disabled={linhasRelatorio.length === 0}
-            onClick={() => void exportarRelatorioPDF(linhasRelatorio)}
+            onClick={() => void exportarRelatorioPDF(linhasRelatorio, moduloFiltro)}
           >
             <FileDown className="size-4" />
             Relatório PDF
           </Button>
         </div>
+
       </div>
 
 
