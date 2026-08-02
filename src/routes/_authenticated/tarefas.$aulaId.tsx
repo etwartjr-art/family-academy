@@ -121,13 +121,8 @@ function TarefasDaAula() {
     "nome" | "conclusao-recente" | "conclusao-antiga"
   >("nome");
 
-  const ordenarAlunos = (
-    alunos: NonNullable<ReturnType<typeof listarPerfis>> extends Promise<infer R>
-      ? R
-      : never,
-    tarefaId: string,
-  ) => {
-    const copia = [...alunos];
+  const ordenarAlunos = (listaAlunos: typeof alunos, tarefaId: string) => {
+    const copia = [...listaAlunos];
     if (ordemAlunos === "nome") {
       return copia.sort((a, b) => a.nome.localeCompare(b.nome));
     }
