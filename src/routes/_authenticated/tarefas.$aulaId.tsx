@@ -117,6 +117,33 @@ function TarefasDaAula() {
   const [instrucoes, setInstrucoes] = useState("");
   const [link, setLink] = useState("");
   const [rotuloLink, setRotuloLink] = useState("");
+  const [ordemAlunos, setOrdemAlunos] = useState<
+    "nome" | "conclusao-recente" | "conclusao-antiga"
+  >("nome");
+
+  const ordenarAlunos = (
+    alunos: NonNullable<ReturnType<typeof listarPerfis>> extends Promise<infer R>
+      ? R
+      : never,
+    tarefaId: string,
+  ) => {
+    const copia = [...alunos];
+    if (ordemAlunos === "nome") {
+      return copia.sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+    return copia.sort((a, b) => {
+      const ra = feitas.find((c) => c.tarefa_id === tarefaId && c.aluno_id === a.id);
+      const rb = feitas.find((c) => c.tarefa_id === tarefaId && c.aluno_id === b.id);
+      if (ra && rb) {
+        const ta = new Date(ra.em).getTime();
+        const tb = new Date(rb.em).getTime();
+        return ordemAlunos === "conclusao-recente" ? tb - ta : ta - tb;
+      }
+      if (ra) return -1;
+      if (rb) return 1;
+      return a.nome.localeCompare(b.nome);
+    });
+  };
 
   const invalidar = () => {
     qc.invalidateQueries({ queryKey: ["tarefas"] });
