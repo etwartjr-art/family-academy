@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   dataBR,
+  dataHoraBR,
+
   listarCursos,
   listarInscricoes,
   listarMatriculas,
@@ -366,13 +368,19 @@ function TarefasDaAula() {
                             }
                           />
                           <span className="min-w-0 flex-1 truncate">{a.nome}</span>
-                          {registro && (
-                            <span className="text-xs text-muted-foreground">
-                              {registro.por === "professor" ? "professor" : "aluno"} ·{" "}
-                              {dataBR(registro.em)}
+                          {registro ? (
+                            <span className="shrink-0 text-right text-xs text-muted-foreground">
+                              Concluída em {dataHoraBR(registro.em)}
+                              <br />
+                              marcada pelo {registro.por === "professor" ? "professor" : "aluno"}
+                            </span>
+                          ) : (
+                            <span className="shrink-0 text-xs text-muted-foreground">
+                              Pendente
                             </span>
                           )}
                         </li>
+
                       );
                     })}
                     {alunos.length === 0 && (

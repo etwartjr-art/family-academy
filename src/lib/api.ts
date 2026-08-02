@@ -156,6 +156,19 @@ export function dataBR(iso?: string | null) {
   return `${d}/${m}/${a}`;
 }
 
+/** Data e hora local, para registros com horário (ex.: conclusão de tarefa). */
+export function dataHoraBR(iso?: string | null) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+
 export function iniciais(nome: string) {
   return nome
     .trim()
