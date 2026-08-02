@@ -213,23 +213,29 @@ function SalaDetalhe() {
     listaModulos.find((m) => m.id === sala?.modulo_ativo_id) ?? listaModulos[0] ?? null;
   const aulasDoModulo = (aulas.data ?? []).filter((a) => a.modulo_id === moduloAtivo?.id);
 
-  const inscritosModulo = (() => {
-    if (!moduloAtivo) return 0;
+  // Inscritos de um módulo qualquer (não só o ativo).
+  const inscritosDoModulo = (moduloId?: string | null) => {
+    if (!moduloId) return 0;
     const mats = new Set(
       (inscricoes.data ?? [])
-        .filter((i) => i.modulo_id === moduloAtivo.id)
+        .filter((i) => i.modulo_id === moduloId)
         .map((i) => i.matricula_id),
     );
     return (matriculas.data ?? []).filter((m) => mats.has(m.id)).length;
-  })();
+  };
+
+  const inscritosModulo = inscritosDoModulo(moduloAtivo?.id);
 
   function presencaAula(aulaId: string) {
+    const aulaObj = (aulas.data ?? []).find((a) => a.id === aulaId);
+    const inscritos = inscritosDoModulo(aulaObj?.modulo_id ?? moduloAtivo?.id);
     const presentes = new Set(
       (presencasSala.data ?? []).filter((p) => p.aula_id === aulaId).map((p) => p.aluno_id),
     ).size;
-    const pct = inscritosModulo ? Math.round((presentes / inscritosModulo) * 100) : 0;
-    return { presentes, pct };
+    const pct = inscritos ? Math.round((presentes / inscritos) * 100) : 0;
+    return { presentes, inscritos, pct };
   }
+
 
   const equipePerfis = equipe
     .map((pid) => (perfis.data ?? []).find((p) => p.id === pid))
