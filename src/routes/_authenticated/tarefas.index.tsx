@@ -151,7 +151,9 @@ function IndiceTarefas() {
     tarefas.data,
     conclusoes.data,
     perfis.data,
+    moduloFiltro,
   ]);
+
 
   return (
     <div className="space-y-6">
