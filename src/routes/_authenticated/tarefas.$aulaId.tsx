@@ -33,6 +33,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -110,6 +117,28 @@ function TarefasDaAula() {
   const [instrucoes, setInstrucoes] = useState("");
   const [link, setLink] = useState("");
   const [rotuloLink, setRotuloLink] = useState("");
+  const [ordemAlunos, setOrdemAlunos] = useState<
+    "nome" | "conclusao-recente" | "conclusao-antiga"
+  >("nome");
+
+  const ordenarAlunos = (listaAlunos: typeof alunos, tarefaId: string) => {
+    const copia = [...listaAlunos];
+    if (ordemAlunos === "nome") {
+      return copia.sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+    return copia.sort((a, b) => {
+      const ra = feitas.find((c) => c.tarefa_id === tarefaId && c.aluno_id === a.id);
+      const rb = feitas.find((c) => c.tarefa_id === tarefaId && c.aluno_id === b.id);
+      if (ra && rb) {
+        const ta = new Date(ra.em).getTime();
+        const tb = new Date(rb.em).getTime();
+        return ordemAlunos === "conclusao-recente" ? tb - ta : ta - tb;
+      }
+      if (ra) return -1;
+      if (rb) return 1;
+      return a.nome.localeCompare(b.nome);
+    });
+  };
 
   const invalidar = () => {
     qc.invalidateQueries({ queryKey: ["tarefas"] });
@@ -252,6 +281,23 @@ function TarefasDaAula() {
         </Button>
       </Card>
 
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold">Tarefas publicadas</h2>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Ordenar alunos por</span>
+          <Select value={ordemAlunos} onValueChange={(v) => setOrdemAlunos(v as typeof ordemAlunos)}>
+            <SelectTrigger className="w-[11rem]">
+              <SelectValue placeholder="Ordenar por" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="nome">Nome</SelectItem>
+              <SelectItem value="conclusao-recente">Conclusão: mais recente</SelectItem>
+              <SelectItem value="conclusao-antiga">Conclusão: mais antiga</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="space-y-3">
         {lista.map((t, i) => {
           const total = alunos.length;
@@ -352,7 +398,7 @@ function TarefasDaAula() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <ul className="mt-2 divide-y rounded-xl border">
-                    {alunos.map((a) => {
+                    {ordenarAlunos(alunos, t.id).map((a) => {
                       const marcado = concluiu(t.id, a.id);
                       const registro = feitas.find(
                         (c) => c.tarefa_id === t.id && c.aluno_id === a.id,
