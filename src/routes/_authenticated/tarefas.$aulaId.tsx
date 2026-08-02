@@ -483,6 +483,8 @@ function TarefasDaAula() {
                   </ul>
                 </CollapsibleContent>
               </Collapsible>
+              );
+              })()}
             </Card>
           );
         })}
