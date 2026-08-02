@@ -6,14 +6,20 @@ import {
   listarCursos,
   listarMatriculas,
   listarModulos,
+  listarPerfis,
   listarSalas,
 } from "@/lib/api";
 import { listarConclusoes, listarTarefas, progresso } from "@/lib/tarefas";
+import {
+  exportarRelatorioCSV,
+  exportarRelatorioPDF,
+  type LinhaRelatorio,
+} from "@/lib/relatorio-tarefas";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { ListChecks, ChevronRight } from "lucide-react";
+import { ListChecks, ChevronRight, FileDown } from "lucide-react";
 
 
 export const Route = createFileRoute("/_authenticated/tarefas/")({
