@@ -123,6 +123,7 @@ function TarefasDaAula() {
   const [filtroAlunos, setFiltroAlunos] = useState<
     "todos" | "concluidos" | "pendentes"
   >("todos");
+  const [abertos, setAbertos] = useState<Record<string, boolean>>({});
 
   const ordenarAlunos = (listaAlunos: typeof alunos, tarefaId: string) => {
     const copia = [...listaAlunos];
