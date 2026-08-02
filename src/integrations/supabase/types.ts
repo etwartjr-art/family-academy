@@ -322,6 +322,64 @@ export type Database = {
           },
         ]
       }
+      notificacoes: {
+        Row: {
+          aula_id: string | null
+          criado_em: string
+          id: string
+          lida_em: string | null
+          mensagem: string | null
+          tarefa_id: string | null
+          tipo: Database["public"]["Enums"]["tipo_notificacao"]
+          titulo: string
+          usuario_id: string
+        }
+        Insert: {
+          aula_id?: string | null
+          criado_em?: string
+          id?: string
+          lida_em?: string | null
+          mensagem?: string | null
+          tarefa_id?: string | null
+          tipo: Database["public"]["Enums"]["tipo_notificacao"]
+          titulo: string
+          usuario_id: string
+        }
+        Update: {
+          aula_id?: string | null
+          criado_em?: string
+          id?: string
+          lida_em?: string | null
+          mensagem?: string | null
+          tarefa_id?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_notificacao"]
+          titulo?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_aula_id_fkey"
+            columns: ["aula_id"]
+            isOneToOne: false
+            referencedRelation: "aulas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificacoes_tarefa_id_fkey"
+            columns: ["tarefa_id"]
+            isOneToOne: false
+            referencedRelation: "tarefas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificacoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       papeis_usuario: {
         Row: {
           id: string
@@ -756,6 +814,7 @@ export type Database = {
         | "video"
         | "link"
       tipo_matricula: "individual" | "casal"
+      tipo_notificacao: "tarefa_publicada" | "tarefa_atualizada"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -895,6 +954,7 @@ export const Constants = {
         "link",
       ],
       tipo_matricula: ["individual", "casal"],
+      tipo_notificacao: ["tarefa_publicada", "tarefa_atualizada"],
     },
   },
 } as const

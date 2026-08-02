@@ -25,6 +25,7 @@ import { useSessao } from "@/hooks/useSessao";
 import { usePermissoes } from "@/hooks/usePermissoes";
 import type { ChaveAcesso } from "@/lib/permissoes";
 import { iniciais } from "@/lib/api";
+import { SinoNotificacoes } from "@/components/SinoNotificacoes";
 import { cn } from "@/lib/utils";
 import logoAsset from "@/assets/logo-escola-financas-academy.jpg.asset.json";
 
@@ -117,9 +118,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* barra lateral — desktop */}
       <aside className="sem-impressao sticky top-0 z-10 hidden h-screen w-[236px] shrink-0 flex-col justify-between bg-sidebar p-4 md:flex">
         <div>
-          <Marca />
+          <div className="flex items-start justify-between">
+            <Marca />
+            <SinoNotificacoes />
+          </div>
           {navegacao}
         </div>
+
         <button
           onClick={sair}
           className="flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-white"
@@ -132,14 +137,18 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <header className="sem-impressao sticky top-0 z-30 flex items-center justify-between bg-sidebar px-3 py-2 md:hidden">
           <Marca />
-          <button
-            aria-label="Abrir menu"
-            onClick={() => setAberto((v) => !v)}
-            className="rounded-lg p-2 text-white"
-          >
-            {aberto ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+          <div className="flex items-center gap-1">
+            <SinoNotificacoes />
+            <button
+              aria-label="Abrir menu"
+              onClick={() => setAberto((v) => !v)}
+              className="rounded-lg p-2 text-white"
+            >
+              {aberto ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+          </div>
         </header>
+
 
         {aberto && (
           <div className="sem-impressao sticky top-[57px] z-30 bg-sidebar px-3 pb-3 md:hidden">
