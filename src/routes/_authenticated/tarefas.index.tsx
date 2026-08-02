@@ -1,12 +1,20 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { listarAulas, listarCursos, listarModulos, listarSalas } from "@/lib/api";
-import { listarTarefas } from "@/lib/tarefas";
+import {
+  listarAulas,
+  listarCursos,
+  listarMatriculas,
+  listarModulos,
+  listarSalas,
+} from "@/lib/api";
+import { listarConclusoes, listarTarefas, progresso } from "@/lib/tarefas";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { ListChecks, ChevronRight } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/tarefas/")({
   head: () => ({
