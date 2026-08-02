@@ -431,6 +431,7 @@ function TarefasDaAula() {
               {(() => {
               const visiveis = ordenarAlunos(
                 alunos.filter((a) => {
+                  if (alunoSel !== "todos" && a.id !== alunoSel) return false;
                   if (filtroAlunos === "concluidos") return concluiu(t.id, a.id);
                   if (filtroAlunos === "pendentes") return !concluiu(t.id, a.id);
                   return true;
@@ -439,7 +440,7 @@ function TarefasDaAula() {
               );
               return (
               <Collapsible
-                open={filtroAlunos !== "todos" || !!abertos[t.id]}
+                open={filtroAlunos !== "todos" || alunoSel !== "todos" || !!abertos[t.id]}
                 onOpenChange={(o) => setAbertos((s) => ({ ...s, [t.id]: o }))}
               >
                 <CollapsibleTrigger className="text-xs text-muted-foreground underline-offset-2 hover:underline">
