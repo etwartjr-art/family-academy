@@ -254,7 +254,11 @@ function Chamada() {
             <div className="flex items-baseline justify-between gap-3">
               <h2 className="text-lg">Lista de presença</h2>
               <span className="text-sm text-muted-foreground">
-                {presentes.size}/{listaAlunos.length} presentes
+                {presentes.size}/{listaAlunos.length} presentes ·{" "}
+                {listaAlunos.length
+                  ? Math.round((presentes.size / listaAlunos.length) * 100)
+                  : 0}
+                %
               </span>
             </div>
             <ul className="divide-y rounded-xl border">
