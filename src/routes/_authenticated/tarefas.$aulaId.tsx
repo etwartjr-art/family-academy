@@ -123,6 +123,7 @@ function TarefasDaAula() {
   const [filtroAlunos, setFiltroAlunos] = useState<
     "todos" | "concluidos" | "pendentes"
   >("todos");
+  const [abertos, setAbertos] = useState<Record<string, boolean>>({});
 
   const ordenarAlunos = (listaAlunos: typeof alunos, tarefaId: string) => {
     const copia = [...listaAlunos];
@@ -410,20 +411,28 @@ function TarefasDaAula() {
                 <Progress value={progresso(quantos, total)} className="h-2" />
               </div>
 
-              <Collapsible>
+              {(() => {
+              const visiveis = ordenarAlunos(
+                alunos.filter((a) => {
+                  if (filtroAlunos === "concluidos") return concluiu(t.id, a.id);
+                  if (filtroAlunos === "pendentes") return !concluiu(t.id, a.id);
+                  return true;
+                }),
+                t.id,
+              );
+              return (
+              <Collapsible
+                open={filtroAlunos !== "todos" || !!abertos[t.id]}
+                onOpenChange={(o) => setAbertos((s) => ({ ...s, [t.id]: o }))}
+              >
                 <CollapsibleTrigger className="text-xs text-muted-foreground underline-offset-2 hover:underline">
                   Ver alunos e marcar manualmente
+                  {filtroAlunos === "concluidos" && ` · ${visiveis.length} concluídos`}
+                  {filtroAlunos === "pendentes" && ` · ${visiveis.length} pendentes`}
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <ul className="mt-2 divide-y rounded-xl border">
-                    {ordenarAlunos(
-                      alunos.filter((a) => {
-                        if (filtroAlunos === "concluidos") return concluiu(t.id, a.id);
-                        if (filtroAlunos === "pendentes") return !concluiu(t.id, a.id);
-                        return true;
-                      }),
-                      t.id,
-                    ).map((a) => {
+                    {visiveis.map((a) => {
                       const marcado = concluiu(t.id, a.id);
                       const registro = feitas.find(
                         (c) => c.tarefa_id === t.id && c.aluno_id === a.id,
@@ -475,6 +484,8 @@ function TarefasDaAula() {
                   </ul>
                 </CollapsibleContent>
               </Collapsible>
+              );
+              })()}
             </Card>
           );
         })}
