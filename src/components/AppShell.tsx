@@ -118,9 +118,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* barra lateral — desktop */}
       <aside className="sem-impressao sticky top-0 z-10 hidden h-screen w-[236px] shrink-0 flex-col justify-between bg-sidebar p-4 md:flex">
         <div>
-          <Marca />
+          <div className="flex items-start justify-between">
+            <Marca />
+            <SinoNotificacoes />
+          </div>
           {navegacao}
         </div>
+
         <button
           onClick={sair}
           className="flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-white"
