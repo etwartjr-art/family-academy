@@ -416,7 +416,14 @@ function TarefasDaAula() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <ul className="mt-2 divide-y rounded-xl border">
-                    {ordenarAlunos(alunos, t.id).map((a) => {
+                    {ordenarAlunos(
+                      alunos.filter((a) => {
+                        if (filtroAlunos === "concluidos") return concluiu(t.id, a.id);
+                        if (filtroAlunos === "pendentes") return !concluiu(t.id, a.id);
+                        return true;
+                      }),
+                      t.id,
+                    ).map((a) => {
                       const marcado = concluiu(t.id, a.id);
                       const registro = feitas.find(
                         (c) => c.tarefa_id === t.id && c.aluno_id === a.id,
@@ -444,7 +451,6 @@ function TarefasDaAula() {
                             </span>
                           )}
                         </li>
-
                       );
                     })}
                     {alunos.length === 0 && (
@@ -452,6 +458,20 @@ function TarefasDaAula() {
                         Nenhum aluno inscrito neste módulo.
                       </li>
                     )}
+                    {alunos.length > 0 &&
+                      filtroAlunos === "concluidos" &&
+                      alunos.every((a) => !concluiu(t.id, a.id)) && (
+                        <li className="px-3 py-2 text-sm text-muted-foreground">
+                          Nenhum aluno concluiu esta tarefa ainda.
+                        </li>
+                      )}
+                    {alunos.length > 0 &&
+                      filtroAlunos === "pendentes" &&
+                      alunos.every((a) => concluiu(t.id, a.id)) && (
+                        <li className="px-3 py-2 text-sm text-muted-foreground">
+                          Nenhum aluno pendente nesta tarefa.
+                        </li>
+                      )}
                   </ul>
                 </CollapsibleContent>
               </Collapsible>
