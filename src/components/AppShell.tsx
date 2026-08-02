@@ -46,6 +46,8 @@ export const MENU: Item[] = [
   { para: "/frequencia", rotulo: "Frequência", icone: ClipboardCheck, chave: "frequencia" },
   { para: "/materiais", rotulo: "Materiais", icone: Library, chave: "salas" },
   { para: "/meus-materiais", rotulo: "Meus materiais", icone: Library, chave: "meus_materiais" },
+  { para: "/tarefas", rotulo: "Tarefas", icone: ListChecks, chave: "tarefas" },
+  { para: "/minhas-tarefas", rotulo: "Minhas tarefas", icone: ListChecks, chave: "minhas_tarefas" },
   { para: "/carteirinhas", rotulo: "Carteirinhas", icone: IdCard, chave: "carteirinhas" },
   { para: "/pessoas", rotulo: "Pessoas", icone: Users, chave: "pessoas" },
   { para: "/acessos", rotulo: "Níveis de acesso", icone: ShieldCheck, chave: "acessos" },
