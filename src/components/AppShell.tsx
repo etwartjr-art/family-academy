@@ -14,6 +14,7 @@ import {
   ClipboardCheck,
   IdCard,
   Library,
+  ListChecks,
   ShieldCheck,
   LogOut,
   Menu,
