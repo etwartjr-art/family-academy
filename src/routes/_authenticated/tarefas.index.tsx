@@ -6,14 +6,20 @@ import {
   listarCursos,
   listarMatriculas,
   listarModulos,
+  listarPerfis,
   listarSalas,
 } from "@/lib/api";
 import { listarConclusoes, listarTarefas, progresso } from "@/lib/tarefas";
+import {
+  exportarRelatorioCSV,
+  exportarRelatorioPDF,
+  type LinhaRelatorio,
+} from "@/lib/relatorio-tarefas";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { ListChecks, ChevronRight } from "lucide-react";
+import { ListChecks, ChevronRight, FileDown } from "lucide-react";
 
 
 export const Route = createFileRoute("/_authenticated/tarefas/")({
@@ -39,6 +45,7 @@ function IndiceTarefas() {
   const tarefas = useQuery({ queryKey: ["tarefas"], queryFn: () => listarTarefas() });
   const conclusoes = useQuery({ queryKey: ["conclusoes-todas"], queryFn: () => listarConclusoes() });
   const matriculas = useQuery({ queryKey: ["matriculas-todas"], queryFn: () => listarMatriculas() });
+  const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const [busca, setBusca] = useState("");
 
   const contagem = useMemo(() => {
@@ -80,14 +87,84 @@ function IndiceTarefas() {
     (s) => !termo || s.nome.toLowerCase().includes(termo),
   );
 
+  /** Uma linha por aluno × módulo, com concluídas/total no módulo. */
+  const linhasRelatorio = useMemo<LinhaRelatorio[]>(() => {
+    const nomes = new Map((perfis.data ?? []).map((p) => [p.id, p]));
+    const linhas: LinhaRelatorio[] = [];
+    for (const curso of cursos.data ?? []) {
+      for (const sala of listaSalas.filter((s) => s.curso_id === curso.id)) {
+        const mats = (matriculas.data ?? []).filter(
+          (m) => m.sala_id === sala.id && m.status === "ativa",
+        );
+        for (const mod of (modulos.data ?? []).filter((m) => m.sala_id === sala.id)) {
+          const aulaIds = (aulas.data ?? [])
+            .filter((a) => a.modulo_id === mod.id)
+            .map((a) => a.id);
+          const tarefasDoModulo = (tarefas.data ?? []).filter((t) => aulaIds.includes(t.aula_id));
+          if (tarefasDoModulo.length === 0) continue;
+          const ids = new Set(tarefasDoModulo.map((t) => t.id));
+          for (const mat of mats) {
+            const perfil = nomes.get(mat.aluno_id);
+            const concluidas = (conclusoes.data ?? []).filter(
+              (c) => c.aluno_id === mat.aluno_id && ids.has(c.tarefa_id),
+            ).length;
+            linhas.push({
+              curso: curso.nome,
+              sala: sala.nome,
+              modulo: mod.nome,
+              aluno: perfil?.nome ?? "—",
+              codigo: perfil?.codigo ?? "",
+              tipo: mat.tipo === "casal" ? "Casal" : "Individual",
+              nomeCasal: mat.tipo === "casal" ? (mat.nome_casal ?? "—") : "—",
+              concluidas,
+              total: tarefasDoModulo.length,
+              percentual: progresso(concluidas, tarefasDoModulo.length),
+            });
+          }
+        }
+      }
+    }
+    return linhas;
+  }, [
+    cursos.data,
+    listaSalas,
+    matriculas.data,
+    modulos.data,
+    aulas.data,
+    tarefas.data,
+    conclusoes.data,
+    perfis.data,
+  ]);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl">Tarefas das aulas</h1>
-        <p className="text-sm text-muted-foreground">
-          Escolha a aula para publicar tarefas e ver quem já concluiu.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl">Tarefas das aulas</h1>
+          <p className="text-sm text-muted-foreground">
+            Escolha a aula para publicar tarefas e ver quem já concluiu.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            disabled={linhasRelatorio.length === 0}
+            onClick={() => exportarRelatorioCSV(linhasRelatorio)}
+          >
+            <FileDown className="size-4" />
+            Relatório CSV
+          </Button>
+          <Button
+            variant="outline"
+            disabled={linhasRelatorio.length === 0}
+            onClick={() => void exportarRelatorioPDF(linhasRelatorio)}
+          >
+            <FileDown className="size-4" />
+            Relatório PDF
+          </Button>
+        </div>
       </div>
+
 
       <Input
         value={busca}
