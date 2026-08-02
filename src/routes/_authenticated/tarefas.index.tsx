@@ -37,6 +37,8 @@ function IndiceTarefas() {
   const modulos = useQuery({ queryKey: ["modulos"], queryFn: () => listarModulos() });
   const aulas = useQuery({ queryKey: ["aulas-todas"], queryFn: () => listarAulas() });
   const tarefas = useQuery({ queryKey: ["tarefas"], queryFn: () => listarTarefas() });
+  const conclusoes = useQuery({ queryKey: ["conclusoes-todas"], queryFn: () => listarConclusoes() });
+  const matriculas = useQuery({ queryKey: ["matriculas-todas"], queryFn: () => listarMatriculas() });
   const [busca, setBusca] = useState("");
 
   const contagem = useMemo(() => {
@@ -44,6 +46,34 @@ function IndiceTarefas() {
     for (const t of tarefas.data ?? []) m.set(t.aula_id, (m.get(t.aula_id) ?? 0) + 1);
     return m;
   }, [tarefas.data]);
+
+  /** Conclusões por tarefa. */
+  const feitas = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const c of conclusoes.data ?? []) m.set(c.tarefa_id, (m.get(c.tarefa_id) ?? 0) + 1);
+    return m;
+  }, [conclusoes.data]);
+
+  /** Alunos ativos por sala. */
+  const alunosPorSala = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const mat of matriculas.data ?? []) {
+      if (mat.status !== "ativa") continue;
+      m.set(mat.sala_id, (m.get(mat.sala_id) ?? 0) + 1);
+    }
+    return m;
+  }, [matriculas.data]);
+
+  /** Média de conclusão da turma no módulo: concluídas / (tarefas × alunos). */
+  function mediaModulo(salaId: string, aulaIds: string[]) {
+    const alunos = alunosPorSala.get(salaId) ?? 0;
+    const tarefasDoModulo = (tarefas.data ?? []).filter((t) => aulaIds.includes(t.aula_id));
+    const total = tarefasDoModulo.length * alunos;
+    if (total === 0) return null;
+    const concluidas = tarefasDoModulo.reduce((s, t) => s + (feitas.get(t.id) ?? 0), 0);
+    return progresso(concluidas, total);
+  }
+
 
   const termo = busca.trim().toLowerCase();
   const listaSalas = (salas.data ?? []).filter(
