@@ -1010,10 +1010,11 @@ function SalaDetalhe() {
                       {(tarefasSala.data ?? []).filter((t) => t.aula_id === a.id).length}
                     </Link>
                   </Button>
-                  <span className="rounded-lg bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
-                    Presentes: {presencaAula(a.id).presentes}/{inscritosModulo} ·{" "}
-                    {presencaAula(a.id).pct}%
+                  <span className="basis-full rounded-lg bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground sm:basis-auto sm:whitespace-nowrap">
+                    Presentes: {presencaAula(a.id).presentes}/
+                    {presencaAula(a.id).inscritos} · {presencaAula(a.id).pct}%
                   </span>
+
 
 
                 </li>
