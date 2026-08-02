@@ -124,6 +124,7 @@ function TarefasDaAula() {
     "todos" | "concluidos" | "pendentes"
   >("todos");
   const [abertos, setAbertos] = useState<Record<string, boolean>>({});
+  const [alunoSel, setAlunoSel] = useState<string>("todos");
 
   const ordenarAlunos = (listaAlunos: typeof alunos, tarefaId: string) => {
     const copia = [...listaAlunos];
@@ -289,6 +290,22 @@ function TarefasDaAula() {
         <h2 className="text-lg font-semibold">Tarefas publicadas</h2>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Aluno</span>
+            <Select value={alunoSel} onValueChange={setAlunoSel}>
+              <SelectTrigger className="w-[12rem]">
+                <SelectValue placeholder="Selecionar aluno" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os alunos</SelectItem>
+                {alunos.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Filtrar alunos</span>
             <Select value={filtroAlunos} onValueChange={(v) => setFiltroAlunos(v as typeof filtroAlunos)}>
               <SelectTrigger className="w-[10rem]">
@@ -414,6 +431,7 @@ function TarefasDaAula() {
               {(() => {
               const visiveis = ordenarAlunos(
                 alunos.filter((a) => {
+                  if (alunoSel !== "todos" && a.id !== alunoSel) return false;
                   if (filtroAlunos === "concluidos") return concluiu(t.id, a.id);
                   if (filtroAlunos === "pendentes") return !concluiu(t.id, a.id);
                   return true;
@@ -422,7 +440,7 @@ function TarefasDaAula() {
               );
               return (
               <Collapsible
-                open={filtroAlunos !== "todos" || !!abertos[t.id]}
+                open={filtroAlunos !== "todos" || alunoSel !== "todos" || !!abertos[t.id]}
                 onOpenChange={(o) => setAbertos((s) => ({ ...s, [t.id]: o }))}
               >
                 <CollapsibleTrigger className="text-xs text-muted-foreground underline-offset-2 hover:underline">
@@ -467,20 +485,11 @@ function TarefasDaAula() {
                         Nenhum aluno inscrito neste módulo.
                       </li>
                     )}
-                    {alunos.length > 0 &&
-                      filtroAlunos === "concluidos" &&
-                      alunos.every((a) => !concluiu(t.id, a.id)) && (
-                        <li className="px-3 py-2 text-sm text-muted-foreground">
-                          Nenhum aluno concluiu esta tarefa ainda.
-                        </li>
-                      )}
-                    {alunos.length > 0 &&
-                      filtroAlunos === "pendentes" &&
-                      alunos.every((a) => concluiu(t.id, a.id)) && (
-                        <li className="px-3 py-2 text-sm text-muted-foreground">
-                          Nenhum aluno pendente nesta tarefa.
-                        </li>
-                      )}
+                    {alunos.length > 0 && visiveis.length === 0 && (
+                      <li className="px-3 py-2 text-sm text-muted-foreground">
+                        Nenhum aluno para os filtros selecionados.
+                      </li>
+                    )}
                   </ul>
                 </CollapsibleContent>
               </Collapsible>
