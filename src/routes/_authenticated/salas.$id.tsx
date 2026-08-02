@@ -52,11 +52,14 @@ import {
   GraduationCap,
   History as HistoryIcon,
   Library,
+  ListChecks,
   Pencil,
   Search,
   Trash2,
   UserPlus,
 } from "lucide-react";
+import { listarTarefas } from "@/lib/tarefas";
+
 
 
 const ROTULOS_CAMPO: Record<string, string> = {
@@ -174,6 +177,12 @@ function SalaDetalhe() {
     queryFn: () => listarMateriais(idsAulas),
     enabled: idsAulas.length > 0,
   });
+  const tarefasSala = useQuery({
+    queryKey: ["tarefas", idsAulas],
+    queryFn: () => listarTarefas(idsAulas),
+    enabled: idsAulas.length > 0,
+  });
+
 
   const navigate = useNavigate();
   const sala = (salas.data ?? []).find((s) => s.id === id);
@@ -963,6 +972,13 @@ function SalaDetalhe() {
                       {(materiais.data ?? []).filter((m) => m.aula_id === a.id).length}
                     </Link>
                   </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/tarefas/$aulaId" params={{ aulaId: a.id }}>
+                      <ListChecks className="size-4" /> Tarefas ·{" "}
+                      {(tarefasSala.data ?? []).filter((t) => t.aula_id === a.id).length}
+                    </Link>
+                  </Button>
+
                 </li>
               ))}
               {aulasDoModulo.length === 0 && (
