@@ -15,6 +15,8 @@ export type ChaveAcesso =
   | "pessoas"
   | "acessos"
   | "meus_materiais"
+  | "tarefas"
+  | "minhas_tarefas"
   | "material_visualizar"
   | "material_baixar"
   | "turma_editar"
@@ -43,6 +45,18 @@ export const CATALOGO: ItemCatalogo[] = [
     chave: "meus_materiais",
     rotulo: "Meus materiais",
     descricao: "Ver a lista de materiais de apoio dos módulos inscritos",
+    grupo: "area",
+  },
+  {
+    chave: "tarefas",
+    rotulo: "Tarefas",
+    descricao: "Publicar tarefas das aulas e acompanhar a adesão da turma",
+    grupo: "area",
+  },
+  {
+    chave: "minhas_tarefas",
+    rotulo: "Minhas tarefas",
+    descricao: "Ver e marcar as próprias tarefas com barra de progresso",
     grupo: "area",
   },
   {

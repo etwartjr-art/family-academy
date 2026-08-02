@@ -56,6 +56,45 @@ export type Database = {
           },
         ]
       }
+      conclusoes: {
+        Row: {
+          aluno_id: string
+          em: string
+          id: string
+          por: string
+          tarefa_id: string
+        }
+        Insert: {
+          aluno_id: string
+          em?: string
+          id?: string
+          por?: string
+          tarefa_id: string
+        }
+        Update: {
+          aluno_id?: string
+          em?: string
+          id?: string
+          por?: string
+          tarefa_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conclusoes_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conclusoes_tarefa_id_fkey"
+            columns: ["tarefa_id"]
+            isOneToOne: false
+            referencedRelation: "tarefas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curso_modulos: {
         Row: {
           curso_id: string
@@ -606,6 +645,57 @@ export type Database = {
           {
             foreignKeyName: "sessoes_chamada_criada_por_fkey"
             columns: ["criada_por"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tarefas: {
+        Row: {
+          aula_id: string
+          criado_em: string
+          criado_por: string | null
+          id: string
+          instrucoes: string | null
+          link: string | null
+          ordem: number
+          rotulo_link: string | null
+          titulo: string
+        }
+        Insert: {
+          aula_id: string
+          criado_em?: string
+          criado_por?: string | null
+          id?: string
+          instrucoes?: string | null
+          link?: string | null
+          ordem?: number
+          rotulo_link?: string | null
+          titulo: string
+        }
+        Update: {
+          aula_id?: string
+          criado_em?: string
+          criado_por?: string | null
+          id?: string
+          instrucoes?: string | null
+          link?: string | null
+          ordem?: number
+          rotulo_link?: string | null
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarefas_aula_id_fkey"
+            columns: ["aula_id"]
+            isOneToOne: false
+            referencedRelation: "aulas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tarefas_criado_por_fkey"
+            columns: ["criado_por"]
             isOneToOne: false
             referencedRelation: "perfis"
             referencedColumns: ["id"]

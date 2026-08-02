@@ -20,6 +20,7 @@ import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedFrequenciaRouteImport } from './routes/_authenticated/frequencia'
 import { Route as AuthenticatedMeuPainelRouteImport } from './routes/_authenticated/meu-painel'
 import { Route as AuthenticatedMeusMateriaisRouteImport } from './routes/_authenticated/meus-materiais'
+import { Route as AuthenticatedMinhasTarefasRouteImport } from './routes/_authenticated/minhas-tarefas'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticated/pessoas'
 import { Route as MatriculaConviteRouteImport } from './routes/matricula.$convite'
@@ -27,6 +28,8 @@ import { Route as AuthenticatedMateriaisIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedMateriaisAulaIdRouteImport } from './routes/_authenticated/materiais.$aulaId'
 import { Route as AuthenticatedSalasIndexRouteImport } from './routes/_authenticated/salas.index'
 import { Route as AuthenticatedSalasIdRouteImport } from './routes/_authenticated/salas.$id'
+import { Route as AuthenticatedTarefasIndexRouteImport } from './routes/_authenticated/tarefas.index'
+import { Route as AuthenticatedTarefasAulaIdRouteImport } from './routes/_authenticated/tarefas.$aulaId'
 import { Route as AuthenticatedSalasIdProfessoresAulasRouteImport } from './routes/_authenticated/salas.$id_.professores-aulas'
 
 const IndexRoute = IndexRouteImport.update({
@@ -85,6 +88,12 @@ const AuthenticatedMeusMateriaisRoute =
     path: '/meus-materiais',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMinhasTarefasRoute =
+  AuthenticatedMinhasTarefasRouteImport.update({
+    id: '/minhas-tarefas',
+    path: '/minhas-tarefas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
@@ -122,6 +131,18 @@ const AuthenticatedSalasIdRoute = AuthenticatedSalasIdRouteImport.update({
   path: '/salas/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTarefasIndexRoute =
+  AuthenticatedTarefasIndexRouteImport.update({
+    id: '/tarefas/',
+    path: '/tarefas/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTarefasAulaIdRoute =
+  AuthenticatedTarefasAulaIdRouteImport.update({
+    id: '/tarefas/$aulaId',
+    path: '/tarefas/$aulaId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSalasIdProfessoresAulasRoute =
   AuthenticatedSalasIdProfessoresAulasRouteImport.update({
     id: '/salas/$id_/professores-aulas',
@@ -140,13 +161,16 @@ export interface FileRoutesByFullPath {
   '/frequencia': typeof AuthenticatedFrequenciaRoute
   '/meu-painel': typeof AuthenticatedMeuPainelRoute
   '/meus-materiais': typeof AuthenticatedMeusMateriaisRoute
+  '/minhas-tarefas': typeof AuthenticatedMinhasTarefasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/materiais/$aulaId': typeof AuthenticatedMateriaisAulaIdRoute
   '/salas/$id': typeof AuthenticatedSalasIdRoute
+  '/tarefas/$aulaId': typeof AuthenticatedTarefasAulaIdRoute
   '/materiais/': typeof AuthenticatedMateriaisIndexRoute
   '/salas/': typeof AuthenticatedSalasIndexRoute
+  '/tarefas/': typeof AuthenticatedTarefasIndexRoute
   '/salas/$id/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
 export interface FileRoutesByTo {
@@ -160,13 +184,16 @@ export interface FileRoutesByTo {
   '/frequencia': typeof AuthenticatedFrequenciaRoute
   '/meu-painel': typeof AuthenticatedMeuPainelRoute
   '/meus-materiais': typeof AuthenticatedMeusMateriaisRoute
+  '/minhas-tarefas': typeof AuthenticatedMinhasTarefasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/materiais/$aulaId': typeof AuthenticatedMateriaisAulaIdRoute
   '/salas/$id': typeof AuthenticatedSalasIdRoute
+  '/tarefas/$aulaId': typeof AuthenticatedTarefasAulaIdRoute
   '/materiais': typeof AuthenticatedMateriaisIndexRoute
   '/salas': typeof AuthenticatedSalasIndexRoute
+  '/tarefas': typeof AuthenticatedTarefasIndexRoute
   '/salas/$id/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
 export interface FileRoutesById {
@@ -182,13 +209,16 @@ export interface FileRoutesById {
   '/_authenticated/frequencia': typeof AuthenticatedFrequenciaRoute
   '/_authenticated/meu-painel': typeof AuthenticatedMeuPainelRoute
   '/_authenticated/meus-materiais': typeof AuthenticatedMeusMateriaisRoute
+  '/_authenticated/minhas-tarefas': typeof AuthenticatedMinhasTarefasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/_authenticated/materiais/$aulaId': typeof AuthenticatedMateriaisAulaIdRoute
   '/_authenticated/salas/$id': typeof AuthenticatedSalasIdRoute
+  '/_authenticated/tarefas/$aulaId': typeof AuthenticatedTarefasAulaIdRoute
   '/_authenticated/materiais/': typeof AuthenticatedMateriaisIndexRoute
   '/_authenticated/salas/': typeof AuthenticatedSalasIndexRoute
+  '/_authenticated/tarefas/': typeof AuthenticatedTarefasIndexRoute
   '/_authenticated/salas/$id_/professores-aulas': typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
 export interface FileRouteTypes {
@@ -204,13 +234,16 @@ export interface FileRouteTypes {
     | '/frequencia'
     | '/meu-painel'
     | '/meus-materiais'
+    | '/minhas-tarefas'
     | '/painel'
     | '/pessoas'
     | '/matricula/$convite'
     | '/materiais/$aulaId'
     | '/salas/$id'
+    | '/tarefas/$aulaId'
     | '/materiais/'
     | '/salas/'
+    | '/tarefas/'
     | '/salas/$id/professores-aulas'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -224,13 +257,16 @@ export interface FileRouteTypes {
     | '/frequencia'
     | '/meu-painel'
     | '/meus-materiais'
+    | '/minhas-tarefas'
     | '/painel'
     | '/pessoas'
     | '/matricula/$convite'
     | '/materiais/$aulaId'
     | '/salas/$id'
+    | '/tarefas/$aulaId'
     | '/materiais'
     | '/salas'
+    | '/tarefas'
     | '/salas/$id/professores-aulas'
   id:
     | '__root__'
@@ -245,13 +281,16 @@ export interface FileRouteTypes {
     | '/_authenticated/frequencia'
     | '/_authenticated/meu-painel'
     | '/_authenticated/meus-materiais'
+    | '/_authenticated/minhas-tarefas'
     | '/_authenticated/painel'
     | '/_authenticated/pessoas'
     | '/matricula/$convite'
     | '/_authenticated/materiais/$aulaId'
     | '/_authenticated/salas/$id'
+    | '/_authenticated/tarefas/$aulaId'
     | '/_authenticated/materiais/'
     | '/_authenticated/salas/'
+    | '/_authenticated/tarefas/'
     | '/_authenticated/salas/$id_/professores-aulas'
   fileRoutesById: FileRoutesById
 }
@@ -341,6 +380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeusMateriaisRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/minhas-tarefas': {
+      id: '/_authenticated/minhas-tarefas'
+      path: '/minhas-tarefas'
+      fullPath: '/minhas-tarefas'
+      preLoaderRoute: typeof AuthenticatedMinhasTarefasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/painel': {
       id: '/_authenticated/painel'
       path: '/painel'
@@ -390,6 +436,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalasIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/tarefas/': {
+      id: '/_authenticated/tarefas/'
+      path: '/tarefas'
+      fullPath: '/tarefas/'
+      preLoaderRoute: typeof AuthenticatedTarefasIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tarefas/$aulaId': {
+      id: '/_authenticated/tarefas/$aulaId'
+      path: '/tarefas/$aulaId'
+      fullPath: '/tarefas/$aulaId'
+      preLoaderRoute: typeof AuthenticatedTarefasAulaIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/salas/$id_/professores-aulas': {
       id: '/_authenticated/salas/$id_/professores-aulas'
       path: '/salas/$id/professores-aulas'
@@ -409,12 +469,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFrequenciaRoute: typeof AuthenticatedFrequenciaRoute
   AuthenticatedMeuPainelRoute: typeof AuthenticatedMeuPainelRoute
   AuthenticatedMeusMateriaisRoute: typeof AuthenticatedMeusMateriaisRoute
+  AuthenticatedMinhasTarefasRoute: typeof AuthenticatedMinhasTarefasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
   AuthenticatedMateriaisAulaIdRoute: typeof AuthenticatedMateriaisAulaIdRoute
   AuthenticatedSalasIdRoute: typeof AuthenticatedSalasIdRoute
+  AuthenticatedTarefasAulaIdRoute: typeof AuthenticatedTarefasAulaIdRoute
   AuthenticatedMateriaisIndexRoute: typeof AuthenticatedMateriaisIndexRoute
   AuthenticatedSalasIndexRoute: typeof AuthenticatedSalasIndexRoute
+  AuthenticatedTarefasIndexRoute: typeof AuthenticatedTarefasIndexRoute
   AuthenticatedSalasIdProfessoresAulasRoute: typeof AuthenticatedSalasIdProfessoresAulasRoute
 }
 
@@ -427,12 +490,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFrequenciaRoute: AuthenticatedFrequenciaRoute,
   AuthenticatedMeuPainelRoute: AuthenticatedMeuPainelRoute,
   AuthenticatedMeusMateriaisRoute: AuthenticatedMeusMateriaisRoute,
+  AuthenticatedMinhasTarefasRoute: AuthenticatedMinhasTarefasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
   AuthenticatedMateriaisAulaIdRoute: AuthenticatedMateriaisAulaIdRoute,
   AuthenticatedSalasIdRoute: AuthenticatedSalasIdRoute,
+  AuthenticatedTarefasAulaIdRoute: AuthenticatedTarefasAulaIdRoute,
   AuthenticatedMateriaisIndexRoute: AuthenticatedMateriaisIndexRoute,
   AuthenticatedSalasIndexRoute: AuthenticatedSalasIndexRoute,
+  AuthenticatedTarefasIndexRoute: AuthenticatedTarefasIndexRoute,
   AuthenticatedSalasIdProfessoresAulasRoute:
     AuthenticatedSalasIdProfessoresAulasRoute,
 }
