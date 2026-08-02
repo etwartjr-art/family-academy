@@ -174,6 +174,12 @@ function SalaDetalhe() {
     queryFn: () => listarMateriais(idsAulas),
     enabled: idsAulas.length > 0,
   });
+  const tarefasSala = useQuery({
+    queryKey: ["tarefas", idsAulas],
+    queryFn: () => listarTarefas(idsAulas),
+    enabled: idsAulas.length > 0,
+  });
+
 
   const navigate = useNavigate();
   const sala = (salas.data ?? []).find((s) => s.id === id);
