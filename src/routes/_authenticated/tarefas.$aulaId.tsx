@@ -289,6 +289,22 @@ function TarefasDaAula() {
         <h2 className="text-lg font-semibold">Tarefas publicadas</h2>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Aluno</span>
+            <Select value={alunoSel} onValueChange={setAlunoSel}>
+              <SelectTrigger className="w-[12rem]">
+                <SelectValue placeholder="Selecionar aluno" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os alunos</SelectItem>
+                {alunos.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Filtrar alunos</span>
             <Select value={filtroAlunos} onValueChange={(v) => setFiltroAlunos(v as typeof filtroAlunos)}>
               <SelectTrigger className="w-[10rem]">
