@@ -20,6 +20,7 @@ import { Route as AuthenticatedCursosRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedFrequenciaRouteImport } from './routes/_authenticated/frequencia'
 import { Route as AuthenticatedMeuPainelRouteImport } from './routes/_authenticated/meu-painel'
 import { Route as AuthenticatedMeusMateriaisRouteImport } from './routes/_authenticated/meus-materiais'
+import { Route as AuthenticatedMinhasTarefasRouteImport } from './routes/_authenticated/minhas-tarefas'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticated/pessoas'
 import { Route as MatriculaConviteRouteImport } from './routes/matricula.$convite'
@@ -85,6 +86,12 @@ const AuthenticatedMeusMateriaisRoute =
     path: '/meus-materiais',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMinhasTarefasRoute =
+  AuthenticatedMinhasTarefasRouteImport.update({
+    id: '/minhas-tarefas',
+    path: '/minhas-tarefas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
@@ -140,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/frequencia': typeof AuthenticatedFrequenciaRoute
   '/meu-painel': typeof AuthenticatedMeuPainelRoute
   '/meus-materiais': typeof AuthenticatedMeusMateriaisRoute
+  '/minhas-tarefas': typeof AuthenticatedMinhasTarefasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
@@ -160,6 +168,7 @@ export interface FileRoutesByTo {
   '/frequencia': typeof AuthenticatedFrequenciaRoute
   '/meu-painel': typeof AuthenticatedMeuPainelRoute
   '/meus-materiais': typeof AuthenticatedMeusMateriaisRoute
+  '/minhas-tarefas': typeof AuthenticatedMinhasTarefasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
@@ -182,6 +191,7 @@ export interface FileRoutesById {
   '/_authenticated/frequencia': typeof AuthenticatedFrequenciaRoute
   '/_authenticated/meu-painel': typeof AuthenticatedMeuPainelRoute
   '/_authenticated/meus-materiais': typeof AuthenticatedMeusMateriaisRoute
+  '/_authenticated/minhas-tarefas': typeof AuthenticatedMinhasTarefasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/frequencia'
     | '/meu-painel'
     | '/meus-materiais'
+    | '/minhas-tarefas'
     | '/painel'
     | '/pessoas'
     | '/matricula/$convite'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/frequencia'
     | '/meu-painel'
     | '/meus-materiais'
+    | '/minhas-tarefas'
     | '/painel'
     | '/pessoas'
     | '/matricula/$convite'
@@ -245,6 +257,7 @@ export interface FileRouteTypes {
     | '/_authenticated/frequencia'
     | '/_authenticated/meu-painel'
     | '/_authenticated/meus-materiais'
+    | '/_authenticated/minhas-tarefas'
     | '/_authenticated/painel'
     | '/_authenticated/pessoas'
     | '/matricula/$convite'
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeusMateriaisRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/minhas-tarefas': {
+      id: '/_authenticated/minhas-tarefas'
+      path: '/minhas-tarefas'
+      fullPath: '/minhas-tarefas'
+      preLoaderRoute: typeof AuthenticatedMinhasTarefasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/painel': {
       id: '/_authenticated/painel'
       path: '/painel'
@@ -409,6 +429,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFrequenciaRoute: typeof AuthenticatedFrequenciaRoute
   AuthenticatedMeuPainelRoute: typeof AuthenticatedMeuPainelRoute
   AuthenticatedMeusMateriaisRoute: typeof AuthenticatedMeusMateriaisRoute
+  AuthenticatedMinhasTarefasRoute: typeof AuthenticatedMinhasTarefasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
   AuthenticatedMateriaisAulaIdRoute: typeof AuthenticatedMateriaisAulaIdRoute
@@ -427,6 +448,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFrequenciaRoute: AuthenticatedFrequenciaRoute,
   AuthenticatedMeuPainelRoute: AuthenticatedMeuPainelRoute,
   AuthenticatedMeusMateriaisRoute: AuthenticatedMeusMateriaisRoute,
+  AuthenticatedMinhasTarefasRoute: AuthenticatedMinhasTarefasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
   AuthenticatedMateriaisAulaIdRoute: AuthenticatedMateriaisAulaIdRoute,
