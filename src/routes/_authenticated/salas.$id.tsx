@@ -963,6 +963,13 @@ function SalaDetalhe() {
                       {(materiais.data ?? []).filter((m) => m.aula_id === a.id).length}
                     </Link>
                   </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/tarefas/$aulaId" params={{ aulaId: a.id }}>
+                      <ListChecks className="size-4" /> Tarefas ·{" "}
+                      {(tarefasSala.data ?? []).filter((t) => t.aula_id === a.id).length}
+                    </Link>
+                  </Button>
+
                 </li>
               ))}
               {aulasDoModulo.length === 0 && (
