@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.notificar_tarefa() FROM PUBLIC, anon, authenticated;
