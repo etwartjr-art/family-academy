@@ -41,11 +41,25 @@ function celulas(l: LinhaRelatorio) {
   ];
 }
 
-export function exportarRelatorioCSV(linhas: LinhaRelatorio[]) {
-  baixarCSV("conclusoes-por-aluno-e-modulo.csv", [CABECALHO, ...linhas.map(celulas)]);
+function sufixo(modulo?: string) {
+  if (!modulo || modulo === "todos") return "todos-os-modulos";
+  return modulo
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
-export async function exportarRelatorioPDF(linhas: LinhaRelatorio[]) {
+function rotulo(modulo?: string) {
+  return !modulo || modulo === "todos" ? "Todos os módulos" : modulo;
+}
+
+export function exportarRelatorioCSV(linhas: LinhaRelatorio[], modulo?: string) {
+  baixarCSV(`conclusoes-${sufixo(modulo)}.csv`, [CABECALHO, ...linhas.map(celulas)]);
+}
+
+export async function exportarRelatorioPDF(linhas: LinhaRelatorio[], modulo?: string) {
   const [{ jsPDF }, autoTableMod] = await Promise.all([
     import("jspdf"),
     import("jspdf-autotable"),
@@ -57,7 +71,7 @@ export async function exportarRelatorioPDF(linhas: LinhaRelatorio[]) {
   doc.text("Conclusões de tarefas por aluno e módulo — Escola de Finanças", 14, 14);
   doc.setFontSize(9);
   doc.text(
-    `${linhas.length} registro(s) · gerado em ${new Date().toLocaleDateString("pt-BR")}`,
+    `${rotulo(modulo)} · ${linhas.length} registro(s) · gerado em ${new Date().toLocaleDateString("pt-BR")}`,
     14,
     20,
   );
@@ -71,5 +85,5 @@ export async function exportarRelatorioPDF(linhas: LinhaRelatorio[]) {
     margin: { left: 14, right: 14 },
   });
 
-  doc.save("conclusoes-por-aluno-e-modulo.pdf");
+  doc.save(`conclusoes-${sufixo(modulo)}.pdf`);
 }

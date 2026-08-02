@@ -19,6 +19,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { ListChecks, ChevronRight, FileDown } from "lucide-react";
 
 
@@ -47,6 +55,19 @@ function IndiceTarefas() {
   const matriculas = useQuery({ queryKey: ["matriculas-todas"], queryFn: () => listarMatriculas() });
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const [busca, setBusca] = useState("");
+  /** "todos" ou o nome do módulo a exportar. */
+  const [moduloFiltro, setModuloFiltro] = useState("todos");
+
+  /** Nomes de módulos distintos (o mesmo módulo existe em várias turmas). */
+  const nomesModulos = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const mod of modulos.data ?? []) {
+      const atual = m.get(mod.nome);
+      if (atual === undefined || mod.ordem < atual) m.set(mod.nome, mod.ordem);
+    }
+    return [...m.entries()].sort((a, b) => a[1] - b[1]).map(([nome]) => nome);
+  }, [modulos.data]);
+
 
   const contagem = useMemo(() => {
     const m = new Map<string, number>();
@@ -96,7 +117,11 @@ function IndiceTarefas() {
         const mats = (matriculas.data ?? []).filter(
           (m) => m.sala_id === sala.id && m.status === "ativa",
         );
-        for (const mod of (modulos.data ?? []).filter((m) => m.sala_id === sala.id)) {
+        const modsFiltrados = (modulos.data ?? []).filter(
+          (m) => m.sala_id === sala.id && (moduloFiltro === "todos" || m.nome === moduloFiltro),
+        );
+        for (const mod of modsFiltrados) {
+
           const aulaIds = (aulas.data ?? [])
             .filter((a) => a.modulo_id === mod.id)
             .map((a) => a.id);
@@ -134,7 +159,9 @@ function IndiceTarefas() {
     tarefas.data,
     conclusoes.data,
     perfis.data,
+    moduloFiltro,
   ]);
+
 
   return (
     <div className="space-y-6">
@@ -145,11 +172,24 @@ function IndiceTarefas() {
             Escolha a aula para publicar tarefas e ver quem já concluiu.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={moduloFiltro} onValueChange={setModuloFiltro}>
+            <SelectTrigger className="w-56" aria-label="Filtrar módulo do relatório">
+              <SelectValue placeholder="Módulo do relatório" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os módulos</SelectItem>
+              {nomesModulos.map((nome) => (
+                <SelectItem key={nome} value={nome}>
+                  {nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             variant="outline"
             disabled={linhasRelatorio.length === 0}
-            onClick={() => exportarRelatorioCSV(linhasRelatorio)}
+            onClick={() => exportarRelatorioCSV(linhasRelatorio, moduloFiltro)}
           >
             <FileDown className="size-4" />
             Relatório CSV
@@ -157,12 +197,13 @@ function IndiceTarefas() {
           <Button
             variant="outline"
             disabled={linhasRelatorio.length === 0}
-            onClick={() => void exportarRelatorioPDF(linhasRelatorio)}
+            onClick={() => void exportarRelatorioPDF(linhasRelatorio, moduloFiltro)}
           >
             <FileDown className="size-4" />
             Relatório PDF
           </Button>
         </div>
+
       </div>
 
 
