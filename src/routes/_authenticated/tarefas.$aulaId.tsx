@@ -485,20 +485,11 @@ function TarefasDaAula() {
                         Nenhum aluno inscrito neste módulo.
                       </li>
                     )}
-                    {alunos.length > 0 &&
-                      filtroAlunos === "concluidos" &&
-                      alunos.every((a) => !concluiu(t.id, a.id)) && (
-                        <li className="px-3 py-2 text-sm text-muted-foreground">
-                          Nenhum aluno concluiu esta tarefa ainda.
-                        </li>
-                      )}
-                    {alunos.length > 0 &&
-                      filtroAlunos === "pendentes" &&
-                      alunos.every((a) => concluiu(t.id, a.id)) && (
-                        <li className="px-3 py-2 text-sm text-muted-foreground">
-                          Nenhum aluno pendente nesta tarefa.
-                        </li>
-                      )}
+                    {alunos.length > 0 && visiveis.length === 0 && (
+                      <li className="px-3 py-2 text-sm text-muted-foreground">
+                        Nenhum aluno para os filtros selecionados.
+                      </li>
+                    )}
                   </ul>
                 </CollapsibleContent>
               </Collapsible>
