@@ -183,6 +183,12 @@ function SalaDetalhe() {
     queryFn: () => listarTarefas(idsAulas),
     enabled: idsAulas.length > 0,
   });
+  const presencasSala = useQuery({
+    queryKey: ["presencas", idsAulas],
+    queryFn: () => listarPresencas(idsAulas),
+    enabled: idsAulas.length > 0,
+  });
+
 
 
   const navigate = useNavigate();
