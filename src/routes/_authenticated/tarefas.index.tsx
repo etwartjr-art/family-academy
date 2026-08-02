@@ -45,6 +45,7 @@ function IndiceTarefas() {
   const tarefas = useQuery({ queryKey: ["tarefas"], queryFn: () => listarTarefas() });
   const conclusoes = useQuery({ queryKey: ["conclusoes-todas"], queryFn: () => listarConclusoes() });
   const matriculas = useQuery({ queryKey: ["matriculas-todas"], queryFn: () => listarMatriculas() });
+  const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const [busca, setBusca] = useState("");
 
   const contagem = useMemo(() => {
