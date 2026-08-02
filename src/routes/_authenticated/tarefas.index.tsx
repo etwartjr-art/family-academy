@@ -117,12 +117,25 @@ function IndiceTarefas() {
                       const aulasDoModulo = (aulas.data ?? []).filter(
                         (a) => a.modulo_id === mod.id,
                       );
+                      const media = mediaModulo(
+                        sala.id,
+                        aulasDoModulo.map((a) => a.id),
+                      );
                       return (
                         <div key={mod.id} className="px-3 py-2.5">
-                          <div className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
-                            {mod.nome}
+                          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                              {mod.nome}
+                            </div>
+                            <div className="flex min-w-40 items-center gap-2">
+                              <Progress value={media ?? 0} className="h-1.5 flex-1" />
+                              <span className="text-xs text-muted-foreground">
+                                {media === null ? "sem dados" : `média ${media}%`}
+                              </span>
+                            </div>
                           </div>
                           <ul className="grid gap-2 sm:grid-cols-2">
+
                             {aulasDoModulo.map((a) => (
                               <li key={a.id}>
                                 <Button
