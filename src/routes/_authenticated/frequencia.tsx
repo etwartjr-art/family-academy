@@ -79,6 +79,13 @@ function Frequencia() {
   }, [modulo, aulasModulo, inscricoes.data, matriculas.data, perfis.data, presencas.data]);
 
   const abaixo = linhas.filter((l) => l.pct < FREQUENCIA_MINIMA);
+
+  const totaisAulas = aulasModulo.map((_, i) => {
+    const presentes = linhas.filter((l) => l.marcas[i]).length;
+    const pct = linhas.length ? Math.round((presentes / linhas.length) * 100) : 0;
+    return { presentes, pct };
+  });
+
   const modulosDaSala = (modulos.data ?? []).filter((m) => !salaId || m.sala_id === salaId);
 
   function exportar() {
@@ -89,7 +96,19 @@ function Frequencia() {
       ...l.marcas.map((m) => (m ? "P" : "F")),
       `${l.pct}%`,
     ]);
-    baixarCSV(`frequencia-${modulo?.nome ?? "modulo"}.csv`, [cabecalho, ...corpo]);
+    const rodapePresentes = [
+      "Presentes",
+      `${linhas.length} inscritos`,
+      ...totaisAulas.map((t) => String(t.presentes)),
+      "",
+    ];
+    const rodapePct = ["% por aula", "", ...totaisAulas.map((t) => `${t.pct}%`), ""];
+    baixarCSV(`frequencia-${modulo?.nome ?? "modulo"}.csv`, [
+      cabecalho,
+      ...corpo,
+      rodapePresentes,
+      rodapePct,
+    ]);
   }
 
   return (
@@ -202,6 +221,35 @@ function Frequencia() {
                   </tr>
                 )}
               </tbody>
+              {linhas.length > 0 && (
+                <tfoot className="border-t-2">
+                  <tr className="text-xs">
+                    <td className="py-2 pr-3 font-medium text-muted-foreground">
+                      Presentes ({linhas.length} inscritos)
+                    </td>
+                    {totaisAulas.map((t, i) => (
+                      <td key={i} className="px-2 py-2 text-center font-semibold">
+                        {t.presentes}
+                      </td>
+                    ))}
+                    <td />
+                  </tr>
+                  <tr className="text-xs">
+                    <td className="py-2 pr-3 font-medium text-muted-foreground">% por aula</td>
+                    {totaisAulas.map((t, i) => (
+                      <td
+                        key={i}
+                        className={`px-2 py-2 text-center font-semibold ${
+                          t.pct < FREQUENCIA_MINIMA ? "text-destructive" : "text-primary"
+                        }`}
+                      >
+                        {t.pct}%
+                      </td>
+                    ))}
+                    <td />
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </Card>
         </>
