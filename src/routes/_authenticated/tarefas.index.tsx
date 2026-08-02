@@ -109,7 +109,11 @@ function IndiceTarefas() {
         const mats = (matriculas.data ?? []).filter(
           (m) => m.sala_id === sala.id && m.status === "ativa",
         );
-        for (const mod of (modulos.data ?? []).filter((m) => m.sala_id === sala.id)) {
+        const modsFiltrados = (modulos.data ?? []).filter(
+          (m) => m.sala_id === sala.id && (moduloFiltro === "todos" || m.nome === moduloFiltro),
+        );
+        for (const mod of modsFiltrados) {
+
           const aulaIds = (aulas.data ?? [])
             .filter((a) => a.modulo_id === mod.id)
             .map((a) => a.id);
