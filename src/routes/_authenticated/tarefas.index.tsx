@@ -47,6 +47,19 @@ function IndiceTarefas() {
   const matriculas = useQuery({ queryKey: ["matriculas-todas"], queryFn: () => listarMatriculas() });
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
   const [busca, setBusca] = useState("");
+  /** "todos" ou o nome do módulo a exportar. */
+  const [moduloFiltro, setModuloFiltro] = useState("todos");
+
+  /** Nomes de módulos distintos (o mesmo módulo existe em várias turmas). */
+  const nomesModulos = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const mod of modulos.data ?? []) {
+      const atual = m.get(mod.nome);
+      if (atual === undefined || mod.ordem < atual) m.set(mod.nome, mod.ordem);
+    }
+    return [...m.entries()].sort((a, b) => a[1] - b[1]).map(([nome]) => nome);
+  }, [modulos.data]);
+
 
   const contagem = useMemo(() => {
     const m = new Map<string, number>();
