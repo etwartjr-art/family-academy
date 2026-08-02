@@ -286,18 +286,33 @@ function TarefasDaAula() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold">Tarefas publicadas</h2>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Ordenar alunos por</span>
-          <Select value={ordemAlunos} onValueChange={(v) => setOrdemAlunos(v as typeof ordemAlunos)}>
-            <SelectTrigger className="w-[11rem]">
-              <SelectValue placeholder="Ordenar por" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="nome">Nome</SelectItem>
-              <SelectItem value="conclusao-recente">Conclusão: mais recente</SelectItem>
-              <SelectItem value="conclusao-antiga">Conclusão: mais antiga</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Filtrar alunos</span>
+            <Select value={filtroAlunos} onValueChange={(v) => setFiltroAlunos(v as typeof filtroAlunos)}>
+              <SelectTrigger className="w-[10rem]">
+                <SelectValue placeholder="Filtrar por" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="concluidos">Apenas concluídos</SelectItem>
+                <SelectItem value="pendentes">Apenas pendentes</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Ordenar alunos por</span>
+            <Select value={ordemAlunos} onValueChange={(v) => setOrdemAlunos(v as typeof ordemAlunos)}>
+              <SelectTrigger className="w-[11rem]">
+                <SelectValue placeholder="Ordenar por" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="nome">Nome</SelectItem>
+                <SelectItem value="conclusao-recente">Conclusão: mais recente</SelectItem>
+                <SelectItem value="conclusao-antiga">Conclusão: mais antiga</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
