@@ -25,6 +25,7 @@ import { useSessao } from "@/hooks/useSessao";
 import { usePermissoes } from "@/hooks/usePermissoes";
 import type { ChaveAcesso } from "@/lib/permissoes";
 import { iniciais } from "@/lib/api";
+import { SinoNotificacoes } from "@/components/SinoNotificacoes";
 import { cn } from "@/lib/utils";
 import logoAsset from "@/assets/logo-escola-financas-academy.jpg.asset.json";
 
