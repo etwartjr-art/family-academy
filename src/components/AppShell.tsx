@@ -132,14 +132,18 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <header className="sem-impressao sticky top-0 z-30 flex items-center justify-between bg-sidebar px-3 py-2 md:hidden">
           <Marca />
-          <button
-            aria-label="Abrir menu"
-            onClick={() => setAberto((v) => !v)}
-            className="rounded-lg p-2 text-white"
-          >
-            {aberto ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+          <div className="flex items-center gap-1">
+            <SinoNotificacoes />
+            <button
+              aria-label="Abrir menu"
+              onClick={() => setAberto((v) => !v)}
+              className="rounded-lg p-2 text-white"
+            >
+              {aberto ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+          </div>
         </header>
+
 
         {aberto && (
           <div className="sem-impressao sticky top-[57px] z-30 bg-sidebar px-3 pb-3 md:hidden">
