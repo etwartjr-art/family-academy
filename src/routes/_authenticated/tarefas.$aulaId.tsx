@@ -286,13 +286,13 @@ function TarefasDaAula() {
         </Button>
       </Card>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Tarefas publicadas</h2>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Aluno</span>
+        <Card className="grid gap-3 p-3 sm:grid-cols-3">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">Aluno</span>
             <Select value={alunoSel} onValueChange={setAlunoSel}>
-              <SelectTrigger className="w-[12rem]">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecionar aluno" />
               </SelectTrigger>
               <SelectContent>
@@ -305,10 +305,10 @@ function TarefasDaAula() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Filtrar alunos</span>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">Filtrar alunos</span>
             <Select value={filtroAlunos} onValueChange={(v) => setFiltroAlunos(v as typeof filtroAlunos)}>
-              <SelectTrigger className="w-[10rem]">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Filtrar por" />
               </SelectTrigger>
               <SelectContent>
@@ -318,10 +318,10 @@ function TarefasDaAula() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Ordenar alunos por</span>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">Ordenar alunos por</span>
             <Select value={ordemAlunos} onValueChange={(v) => setOrdemAlunos(v as typeof ordemAlunos)}>
-              <SelectTrigger className="w-[11rem]">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Ordenar por" />
               </SelectTrigger>
               <SelectContent>
@@ -331,8 +331,9 @@ function TarefasDaAula() {
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </Card>
       </div>
+
 
       <div className="space-y-3">
         {lista.map((t, i) => {
