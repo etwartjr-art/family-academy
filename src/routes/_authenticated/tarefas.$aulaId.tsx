@@ -120,6 +120,9 @@ function TarefasDaAula() {
   const [ordemAlunos, setOrdemAlunos] = useState<
     "nome" | "conclusao-recente" | "conclusao-antiga"
   >("nome");
+  const [filtroAlunos, setFiltroAlunos] = useState<
+    "todos" | "concluidos" | "pendentes"
+  >("todos");
 
   const ordenarAlunos = (listaAlunos: typeof alunos, tarefaId: string) => {
     const copia = [...listaAlunos];
