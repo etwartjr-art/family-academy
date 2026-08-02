@@ -221,6 +221,35 @@ function Frequencia() {
                   </tr>
                 )}
               </tbody>
+              {linhas.length > 0 && (
+                <tfoot className="border-t-2">
+                  <tr className="text-xs">
+                    <td className="py-2 pr-3 font-medium text-muted-foreground">
+                      Presentes ({linhas.length} inscritos)
+                    </td>
+                    {totaisAulas.map((t, i) => (
+                      <td key={i} className="px-2 py-2 text-center font-semibold">
+                        {t.presentes}
+                      </td>
+                    ))}
+                    <td />
+                  </tr>
+                  <tr className="text-xs">
+                    <td className="py-2 pr-3 font-medium text-muted-foreground">% por aula</td>
+                    {totaisAulas.map((t, i) => (
+                      <td
+                        key={i}
+                        className={`px-2 py-2 text-center font-semibold ${
+                          t.pct < FREQUENCIA_MINIMA ? "text-destructive" : "text-primary"
+                        }`}
+                      >
+                        {t.pct}%
+                      </td>
+                    ))}
+                    <td />
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </Card>
         </>
