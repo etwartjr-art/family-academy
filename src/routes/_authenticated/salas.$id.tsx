@@ -11,6 +11,7 @@ import {
   listarPerfis,
   listarPapeis,
   listarInscricoes,
+  listarPresencas,
   dataBR,
   iniciais,
 } from "@/lib/api";
@@ -182,6 +183,12 @@ function SalaDetalhe() {
     queryFn: () => listarTarefas(idsAulas),
     enabled: idsAulas.length > 0,
   });
+  const presencasSala = useQuery({
+    queryKey: ["presencas", idsAulas],
+    queryFn: () => listarPresencas(idsAulas),
+    enabled: idsAulas.length > 0,
+  });
+
 
 
   const navigate = useNavigate();
@@ -205,6 +212,25 @@ function SalaDetalhe() {
   const moduloAtivo =
     listaModulos.find((m) => m.id === sala?.modulo_ativo_id) ?? listaModulos[0] ?? null;
   const aulasDoModulo = (aulas.data ?? []).filter((a) => a.modulo_id === moduloAtivo?.id);
+
+  const inscritosModulo = (() => {
+    if (!moduloAtivo) return 0;
+    const mats = new Set(
+      (inscricoes.data ?? [])
+        .filter((i) => i.modulo_id === moduloAtivo.id)
+        .map((i) => i.matricula_id),
+    );
+    return (matriculas.data ?? []).filter((m) => mats.has(m.id)).length;
+  })();
+
+  function presencaAula(aulaId: string) {
+    const presentes = new Set(
+      (presencasSala.data ?? []).filter((p) => p.aula_id === aulaId).map((p) => p.aluno_id),
+    ).size;
+    const pct = inscritosModulo ? Math.round((presentes / inscritosModulo) * 100) : 0;
+    return { presentes, pct };
+  }
+
   const equipePerfis = equipe
     .map((pid) => (perfis.data ?? []).find((p) => p.id === pid))
     .filter((p): p is NonNullable<typeof p> => !!p);
@@ -978,6 +1004,11 @@ function SalaDetalhe() {
                       {(tarefasSala.data ?? []).filter((t) => t.aula_id === a.id).length}
                     </Link>
                   </Button>
+                  <span className="rounded-lg bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
+                    Presentes: {presencaAula(a.id).presentes}/{inscritosModulo} ·{" "}
+                    {presencaAula(a.id).pct}%
+                  </span>
+
 
                 </li>
               ))}
