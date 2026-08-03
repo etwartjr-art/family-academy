@@ -345,7 +345,15 @@ function Chamada() {
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium">{a.nome}</span>
                       <span className="font-mono text-xs text-muted-foreground">{a.codigo}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        Frequência no módulo:{" "}
+                        <strong className={a.pct < FREQUENCIA_MINIMA ? "text-destructive" : ""}>
+                          {a.pct}%
+                        </strong>{" "}
+                        ({a.presencasModulo}/{a.totalAulas} aulas)
+                      </span>
                     </span>
+
                     <Button
                       size="sm"
                       variant={presente ? "default" : "secondary"}
