@@ -14,6 +14,7 @@ import {
   lerPayloadQR,
   dataBR,
   iniciais,
+  FREQUENCIA_MINIMA,
 } from "@/lib/api";
 import { useFiltroAluno, TODOS_ALUNOS } from "@/hooks/useFiltroAluno";
 
