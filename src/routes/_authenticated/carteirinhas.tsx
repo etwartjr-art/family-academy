@@ -57,11 +57,20 @@ function Carteirinhas() {
   );
   const termo = busca.trim().toLowerCase();
   const alunos = matriculasSala
-    .map((m) => (perfis.data ?? []).find((p) => p.id === m.aluno_id))
-    .filter((p): p is NonNullable<typeof p> => !!p)
-    .filter((p) => !filtrando || p.id === alunoSel)
+    .map((m) => {
+      const perfil = (perfis.data ?? []).find((p) => p.id === m.aluno_id);
+      if (!perfil) return null;
+      const casal = m.tipo === "casal" ? (m.nome_casal?.trim() || null) : null;
+      return { ...perfil, casal };
+    })
+    .filter((a): a is NonNullable<typeof a> => !!a)
+    .filter((a) => !filtrando || a.id === alunoSel)
     .filter(
-      (p) => !termo || p.nome.toLowerCase().includes(termo) || p.codigo.toLowerCase().includes(termo),
+      (a) =>
+        !termo ||
+        a.nome.toLowerCase().includes(termo) ||
+        a.codigo.toLowerCase().includes(termo) ||
+        (a.casal ?? "").toLowerCase().includes(termo),
     )
     .sort((a, b) => a.nome.localeCompare(b.nome));
 
@@ -69,6 +78,7 @@ function Carteirinhas() {
     .map((m) => (perfis.data ?? []).find((p) => p.id === m.aluno_id))
     .filter((p): p is NonNullable<typeof p> => !!p)
     .sort((a, b) => a.nome.localeCompare(b.nome));
+
 
   return (
     <div className="space-y-6">
