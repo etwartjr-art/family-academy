@@ -94,8 +94,11 @@ function Chamada() {
   }, [moduloDaAula, matriculas.data, inscricoes.data, perfis.data]);
 
   // Filtro de aluno compartilhado com Tarefas e Frequência.
-  const alunosVisiveis =
-    alunoSel === TODOS_ALUNOS ? listaAlunos : listaAlunos.filter((a) => a.id === alunoSel);
+  const filtroValido = alunoSel !== TODOS_ALUNOS && listaAlunos.some((a) => a.id === alunoSel);
+  const alunosVisiveis = filtroValido
+    ? listaAlunos.filter((a) => a.id === alunoSel)
+    : listaAlunos;
+
 
   const presentes = new Set((presencas.data ?? []).map((p) => p.aluno_id));
 
