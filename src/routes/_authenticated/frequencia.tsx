@@ -62,12 +62,16 @@ function Frequencia() {
 
   const linhas = useMemo(() => {
     if (!modulo) return [];
+    const ativas = (matriculas.data ?? []).filter(
+      (m) => m.sala_id === modulo.sala_id && m.status !== "cancelada",
+    );
     const inscritos = new Set(
       (inscricoes.data ?? []).filter((i) => i.modulo_id === modulo.id).map((i) => i.matricula_id),
     );
-    const mats = (matriculas.data ?? []).filter(
-      (m) => m.sala_id === modulo.sala_id && inscritos.has(m.id),
-    );
+    const inscritas = ativas.filter((m) => inscritos.has(m.id));
+    // Fallback: se nenhuma inscrição foi registrada no módulo, usa as
+    // matrículas ativas da sala para que as porcentagens sempre apareçam.
+    const mats = inscritas.length > 0 ? inscritas : ativas;
     const idsAulas = aulasModulo.map((a) => a.id);
     return mats
       .map((m) => {
@@ -87,6 +91,7 @@ function Frequencia() {
       })
       .sort((a, b) => a.nome.localeCompare(b.nome));
   }, [modulo, aulasModulo, inscricoes.data, matriculas.data, perfis.data, presencas.data]);
+
 
   // Filtro de aluno compartilhado com Tarefas e Chamada.
   // Só aplica o filtro quando o aluno escolhido existe neste módulo;
