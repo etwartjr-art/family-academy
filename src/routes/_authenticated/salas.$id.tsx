@@ -226,6 +226,35 @@ function SalaDetalhe() {
 
   const inscritosModulo = inscritosDoModulo(moduloAtivo?.id);
 
+  // Estado do cálculo de presença: carregando, erro ou pronto.
+  const presencaEstado: "carregando" | "erro" | "pronto" =
+    presencasSala.isError || inscricoes.isError || matriculas.isError
+      ? "erro"
+      : presencasSala.isPending || inscricoes.isPending || matriculas.isPending
+        ? "carregando"
+        : "pronto";
+
+  const presencaErro =
+    (presencasSala.error as Error | null)?.message ??
+    (inscricoes.error as Error | null)?.message ??
+    (matriculas.error as Error | null)?.message ??
+    null;
+
+  // Registra falhas de carregamento para diagnóstico.
+  useEffect(() => {
+    if (presencasSala.error)
+      console.error("[presenças] falha ao carregar presenças:", presencasSala.error);
+    if (inscricoes.error)
+      console.error("[presenças] falha ao carregar inscrições nos módulos:", inscricoes.error);
+    if (matriculas.error)
+      console.error("[presenças] falha ao carregar matrículas:", matriculas.error);
+    if (presencasSala.error || inscricoes.error || matriculas.error) {
+      toast.error("Não foi possível calcular a presença das aulas", {
+        description: presencaErro ?? undefined,
+      });
+    }
+  }, [presencasSala.error, inscricoes.error, matriculas.error, presencaErro]);
+
   function presencaAula(aulaId: string) {
     const aulaObj = (aulas.data ?? []).find((a) => a.id === aulaId);
     const inscritos = inscritosDoModulo(aulaObj?.modulo_id ?? moduloAtivo?.id);
@@ -235,6 +264,7 @@ function SalaDetalhe() {
     const pct = inscritos ? Math.round((presentes / inscritos) * 100) : 0;
     return { presentes, inscritos, pct };
   }
+
 
 
   const equipePerfis = equipe
