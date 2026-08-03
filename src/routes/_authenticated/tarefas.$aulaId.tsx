@@ -2,6 +2,8 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useFiltroAluno } from "@/hooks/useFiltroAluno";
+
 import {
   dataBR,
   dataHoraBR,
