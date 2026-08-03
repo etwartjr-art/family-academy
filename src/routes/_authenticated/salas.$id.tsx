@@ -1040,10 +1040,35 @@ function SalaDetalhe() {
                       {(tarefasSala.data ?? []).filter((t) => t.aula_id === a.id).length}
                     </Link>
                   </Button>
-                  <span className="basis-full rounded-lg bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground sm:basis-auto sm:whitespace-nowrap">
-                    Presentes: {presencaAula(a.id).presentes}/
-                    {presencaAula(a.id).inscritos} · {presencaAula(a.id).pct}%
-                  </span>
+                  {presencaEstado === "carregando" ? (
+                    <span className="basis-full animate-pulse rounded-lg bg-muted px-2 py-1 text-xs font-medium text-muted-foreground sm:basis-auto sm:whitespace-nowrap">
+                      Presentes: calculando…
+                    </span>
+                  ) : presencaEstado === "erro" ? (
+                    <span
+                      title={presencaErro ?? "Erro ao carregar presenças"}
+                      className="basis-full rounded-lg bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive sm:basis-auto sm:whitespace-nowrap"
+                    >
+                      Presença indisponível ·{" "}
+                      <button
+                        type="button"
+                        className="underline"
+                        onClick={() => {
+                          presencasSala.refetch();
+                          inscricoes.refetch();
+                          matriculas.refetch();
+                        }}
+                      >
+                        tentar novamente
+                      </button>
+                    </span>
+                  ) : (
+                    <span className="basis-full rounded-lg bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground sm:basis-auto sm:whitespace-nowrap">
+                      Presentes: {presencaAula(a.id).presentes}/
+                      {presencaAula(a.id).inscritos} · {presencaAula(a.id).pct}%
+                    </span>
+                  )}
+
 
 
 
