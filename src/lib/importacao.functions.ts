@@ -76,7 +76,7 @@ export const importarAlunosLote = createServerFn({ method: "POST" })
         let criado = false;
 
         if (!alunoId) {
-          const senha = l.senha || `Fa${Math.random().toString(36).slice(2, 10)}!${Date.now() % 997}`;
+          const senha = l.senha || SENHA_PADRAO;
           const { data: novo, error } = await supabaseAdmin.auth.admin.createUser({
             email,
             password: senha,
@@ -90,8 +90,13 @@ export const importarAlunosLote = createServerFn({ method: "POST" })
 
           await supabaseAdmin
             .from("perfis")
-            .update({ nome: l.nome, telefone: l.telefone || null })
+            .update({
+              nome: l.nome,
+              telefone: l.telefone || null,
+              senha_provisoria: ehSenhaPadrao(senha),
+            })
             .eq("id", alunoId);
+
         }
 
         const { data: matriculaExistente } = await supabaseAdmin
