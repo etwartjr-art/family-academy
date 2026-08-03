@@ -2,18 +2,26 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { mensagemAuth } from "@/lib/usuarios-erros";
+import { SENHA_PADRAO, ehSenhaPadrao } from "@/lib/senha-padrao";
 
 const esquema = z.object({
   nome: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(255),
-  senha: z.string().min(6).max(72),
+  senha: z.string().max(72).optional().default(SENHA_PADRAO),
   telefone: z.string().trim().max(30).optional().or(z.literal("")),
   papel: z.enum(["coordenador", "professor", "aluno"]),
 });
 
+
 export const criarUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => esquema.parse(input))
+  .inputValidator((input: unknown) => {
+    const d = esquema.parse(input);
+    const senha = d.senha.trim() === "" ? SENHA_PADRAO : d.senha;
+    if (senha.length < 6) throw new Error("A senha precisa de ao menos 6 caracteres");
+    return { ...d, senha };
+  })
+
   .handler(async ({ data, context }) => {
     const { data: ehCoordenador, error: erroPapel } = await context.supabase.rpc("tem_papel", {
       _user_id: context.userId,
@@ -47,8 +55,13 @@ export const criarUsuario = createServerFn({ method: "POST" })
 
     await supabaseAdmin
       .from("perfis")
-      .update({ nome: data.nome, telefone: data.telefone || null })
+      .update({
+        nome: data.nome,
+        telefone: data.telefone || null,
+        senha_provisoria: ehSenhaPadrao(data.senha),
+      })
       .eq("id", novoId);
+
 
     return { id: novoId };
   });
@@ -84,11 +97,26 @@ export const editarUsuario = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, atualizacao);
     if (error) throw new Error(mensagemAuth(error.message));
 
+    const camposPerfil: {
+      nome: string;
+      email: string;
+      telefone: string | null;
+      senha_provisoria?: boolean;
+    } = {
+      nome: data.nome,
+      email: data.email,
+      telefone: data.telefone || null,
+    };
+    // Se o coordenador redefiniu para a senha padrão, o usuário volta a ser obrigado a trocá-la.
+    if (data.senha) camposPerfil.senha_provisoria = ehSenhaPadrao(data.senha);
+
+
     const { error: erroPerfil } = await supabaseAdmin
       .from("perfis")
-      .update({ nome: data.nome, email: data.email, telefone: data.telefone || null })
+      .update(camposPerfil)
       .eq("id", data.id);
     if (erroPerfil) throw new Error(erroPerfil.message);
+
 
     return { id: data.id };
   });

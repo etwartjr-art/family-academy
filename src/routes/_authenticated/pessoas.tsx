@@ -5,6 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listarPerfis, listarPapeis, iniciais, type Papel } from "@/lib/api";
 import { criarUsuario, editarUsuario } from "@/lib/usuarios.functions";
+import { SENHA_PADRAO } from "@/lib/senha-padrao";
+
 import { useSessao } from "@/hooks/useSessao";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -167,13 +169,18 @@ function Pessoas() {
               <Label htmlFor="senha">Senha provisória</Label>
               <Input
                 id="senha"
-                type="password"
-                required
+                type="text"
                 minLength={6}
+                placeholder={SENHA_PADRAO}
                 value={form.senha}
                 onChange={(e) => setForm({ ...form, senha: e.target.value })}
               />
+              <p className="text-xs text-muted-foreground">
+                Deixe em branco para usar a senha padrão <strong>{SENHA_PADRAO}</strong>. No primeiro
+                acesso o usuário será obrigado a criar uma nova senha.
+              </p>
             </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="telefone">Telefone (opcional)</Label>
               <Input
