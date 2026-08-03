@@ -99,19 +99,28 @@ function TarefasDaAula() {
   const sala = (salas.data ?? []).find((s) => s.id === modulo?.sala_id) ?? null;
   const curso = (cursos.data ?? []).find((c) => c.id === sala?.curso_id) ?? null;
 
-  // Alunos inscritos no módulo desta aula.
-  const alunos = (matriculas.data ?? [])
-    .filter(
-      (m) =>
-        m.sala_id === sala?.id &&
-        m.status === "ativa" &&
-        (inscricoes.data ?? []).some(
-          (i) => i.matricula_id === m.id && i.modulo_id === modulo?.id,
-        ),
-    )
+  // Alunos da turma (ativos), usados como base do filtro.
+  const alunosDaSala = (matriculas.data ?? [])
+    .filter((m) => m.sala_id === sala?.id && m.status === "ativa")
     .map((m) => (perfis.data ?? []).find((p) => p.id === m.aluno_id))
     .filter((p): p is NonNullable<typeof p> => !!p)
     .sort((a, b) => a.nome.localeCompare(b.nome));
+
+  // Alunos inscritos no módulo desta aula. Se as inscrições ainda não
+  // existirem para o módulo, cai para todos os alunos ativos da turma.
+  const alunosDoModulo = alunosDaSala.filter((p) =>
+    (matriculas.data ?? []).some(
+      (m) =>
+        m.aluno_id === p.id &&
+        m.sala_id === sala?.id &&
+        (inscricoes.data ?? []).some(
+          (i) => i.matricula_id === m.id && i.modulo_id === modulo?.id,
+        ),
+    ),
+  );
+
+  const alunos = alunosDoModulo.length > 0 ? alunosDoModulo : alunosDaSala;
+
 
   const [titulo, setTitulo] = useState("");
   const [instrucoes, setInstrucoes] = useState("");
