@@ -14,6 +14,7 @@ import {
   lerPayloadQR,
   dataBR,
   iniciais,
+  FREQUENCIA_MINIMA,
 } from "@/lib/api";
 import { useFiltroAluno, TODOS_ALUNOS } from "@/hooks/useFiltroAluno";
 
@@ -76,9 +77,23 @@ function Chamada() {
     enabled: !!aulaId,
   });
 
+  const aulasModulo = useMemo(
+    () =>
+      (aulas.data ?? [])
+        .filter((a) => a.modulo_id === moduloDaAula?.id)
+        .sort((a, b) => a.numero - b.numero),
+    [aulas.data, moduloDaAula?.id],
+  );
+
+  const presencasModulo = useQuery({
+    queryKey: ["presencas-modulo", moduloDaAula?.id],
+    queryFn: () => listarPresencas(aulasModulo.map((a) => a.id)),
+    enabled: !!moduloDaAula && aulasModulo.length > 0,
+  });
+
   const listaAlunos = useMemo(() => {
     if (!moduloDaAula) return [];
-    const mats = (matriculas.data ?? []).filter(
+    const ativas = (matriculas.data ?? []).filter(
       (m) => m.sala_id === moduloDaAula.sala_id && m.status !== "cancelada",
     );
     const inscritos = new Set(
@@ -86,12 +101,34 @@ function Chamada() {
         .filter((i) => i.modulo_id === moduloDaAula.id)
         .map((i) => i.matricula_id),
     );
+    const inscritas = ativas.filter((m) => inscritos.has(m.id));
+    // Fallback: sem inscrições no módulo, usa as matrículas ativas da sala.
+    const mats = inscritas.length > 0 ? inscritas : ativas;
+    const totalAulas = aulasModulo.length;
     return mats
-      .filter((m) => inscritos.has(m.id))
-      .map((m) => (perfis.data ?? []).find((p) => p.id === m.aluno_id))
+      .map((m) => {
+        const perfil = (perfis.data ?? []).find((p) => p.id === m.aluno_id);
+        if (!perfil) return null;
+        const presencasAluno = (presencasModulo.data ?? []).filter(
+          (p) => p.aluno_id === m.aluno_id,
+        ).length;
+        return {
+          ...perfil,
+          presencasModulo: presencasAluno,
+          totalAulas,
+          pct: totalAulas ? Math.round((presencasAluno / totalAulas) * 100) : 0,
+        };
+      })
       .filter((p): p is NonNullable<typeof p> => !!p)
       .sort((a, b) => a.nome.localeCompare(b.nome));
-  }, [moduloDaAula, matriculas.data, inscricoes.data, perfis.data]);
+  }, [
+    moduloDaAula,
+    matriculas.data,
+    inscricoes.data,
+    perfis.data,
+    aulasModulo,
+    presencasModulo.data,
+  ]);
 
   // Filtro de aluno compartilhado com Tarefas e Frequência.
   const filtroValido = alunoSel !== TODOS_ALUNOS && listaAlunos.some((a) => a.id === alunoSel);
@@ -101,6 +138,7 @@ function Chamada() {
 
 
   const presentes = new Set((presencas.data ?? []).map((p) => p.aluno_id));
+
 
 
   async function registrar(args: {
@@ -308,7 +346,15 @@ function Chamada() {
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium">{a.nome}</span>
                       <span className="font-mono text-xs text-muted-foreground">{a.codigo}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        Frequência no módulo:{" "}
+                        <strong className={a.pct < FREQUENCIA_MINIMA ? "text-destructive" : ""}>
+                          {a.pct}%
+                        </strong>{" "}
+                        ({a.presencasModulo}/{a.totalAulas} aulas)
+                      </span>
                     </span>
+
                     <Button
                       size="sm"
                       variant={presente ? "default" : "secondary"}
