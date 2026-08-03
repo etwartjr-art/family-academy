@@ -230,9 +230,14 @@ function SalaDetalhe() {
   const presencaEstado: "carregando" | "erro" | "pronto" =
     presencasSala.isError || inscricoes.isError || matriculas.isError
       ? "erro"
-      : presencasSala.isPending || inscricoes.isPending || matriculas.isPending
+      : // isPending também é true quando a consulta está desabilitada (sem aulas);
+        // nesse caso já podemos exibir o resultado (0 presentes).
+        (presencasSala.isPending && presencasSala.fetchStatus !== "idle") ||
+          inscricoes.isPending ||
+          matriculas.isPending
         ? "carregando"
         : "pronto";
+
 
   const presencaErro =
     (presencasSala.error as Error | null)?.message ??
