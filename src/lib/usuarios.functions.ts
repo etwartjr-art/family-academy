@@ -15,7 +15,13 @@ const esquema = z.object({
 
 export const criarUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => esquema.parse(input))
+  .inputValidator((input: unknown) => {
+    const d = esquema.parse(input);
+    const senha = d.senha.trim() === "" ? SENHA_PADRAO : d.senha;
+    if (senha.length < 6) throw new Error("A senha precisa de ao menos 6 caracteres");
+    return { ...d, senha };
+  })
+
   .handler(async ({ data, context }) => {
     const { data: ehCoordenador, error: erroPapel } = await context.supabase.rpc("tem_papel", {
       _user_id: context.userId,
