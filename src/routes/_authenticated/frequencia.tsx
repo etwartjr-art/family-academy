@@ -254,12 +254,11 @@ function Frequencia() {
                 {linhasVisiveis.length === 0 && (
                   <tr>
                     <td colSpan={aulasModulo.length + 2} className="py-3 text-muted-foreground">
-                      {linhas.length === 0
-                        ? "Nenhum aluno inscrito neste módulo."
-                        : "O aluno filtrado não está inscrito neste módulo."}
+                      Nenhum aluno inscrito neste módulo.
                     </td>
                   </tr>
                 )}
+
 
               </tbody>
               {linhas.length > 0 && (
