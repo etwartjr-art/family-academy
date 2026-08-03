@@ -17,6 +17,7 @@ import {
   FREQUENCIA_MINIMA,
 } from "@/lib/api";
 import { useFiltroAluno, TODOS_ALUNOS } from "@/hooks/useFiltroAluno";
+import { useRealtimePresencas } from "@/hooks/useRealtimePresencas";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
