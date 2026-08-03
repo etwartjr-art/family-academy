@@ -217,7 +217,31 @@ function Chamada() {
             </SelectContent>
           </Select>
         </div>
+        <div className="space-y-1.5 md:col-span-3">
+          <Label>Aluno</Label>
+          <Select
+            value={alunoSel}
+            onValueChange={setAlunoSel}
+            disabled={listaAlunos.length === 0}
+          >
+            <SelectTrigger className="w-full min-w-0">
+              <SelectValue placeholder="Selecionar aluno" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[50vh]">
+              <SelectItem value={TODOS_ALUNOS}>Todos os alunos</SelectItem>
+              {listaAlunos.map((a) => (
+                <SelectItem key={a.id} value={a.id}>
+                  {a.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Este filtro é o mesmo usado nas telas de Tarefas e Frequência.
+          </p>
+        </div>
       </Card>
+
 
       {aulaId && (
         <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
