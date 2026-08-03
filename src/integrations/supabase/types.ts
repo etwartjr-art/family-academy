@@ -405,6 +405,7 @@ export type Database = {
           email: string | null
           id: string
           nome: string
+          senha_provisoria: boolean
           telefone: string | null
         }
         Insert: {
@@ -413,6 +414,7 @@ export type Database = {
           email?: string | null
           id: string
           nome: string
+          senha_provisoria?: boolean
           telefone?: string | null
         }
         Update: {
@@ -421,6 +423,7 @@ export type Database = {
           email?: string | null
           id?: string
           nome?: string
+          senha_provisoria?: boolean
           telefone?: string | null
         }
         Relationships: []
