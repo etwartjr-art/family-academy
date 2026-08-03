@@ -93,7 +93,12 @@ function Chamada() {
       .sort((a, b) => a.nome.localeCompare(b.nome));
   }, [moduloDaAula, matriculas.data, inscricoes.data, perfis.data]);
 
+  // Filtro de aluno compartilhado com Tarefas e Frequência.
+  const alunosVisiveis =
+    alunoSel === TODOS_ALUNOS ? listaAlunos : listaAlunos.filter((a) => a.id === alunoSel);
+
   const presentes = new Set((presencas.data ?? []).map((p) => p.aluno_id));
+
 
   async function registrar(args: {
     alunoId?: string;
