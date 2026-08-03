@@ -23,6 +23,7 @@ import { Route as AuthenticatedMeusMateriaisRouteImport } from './routes/_authen
 import { Route as AuthenticatedMinhasTarefasRouteImport } from './routes/_authenticated/minhas-tarefas'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPessoasRouteImport } from './routes/_authenticated/pessoas'
+import { Route as AuthenticatedTrocarSenhaRouteImport } from './routes/_authenticated/trocar-senha'
 import { Route as MatriculaConviteRouteImport } from './routes/matricula.$convite'
 import { Route as AuthenticatedMateriaisIndexRouteImport } from './routes/_authenticated/materiais.index'
 import { Route as AuthenticatedMateriaisAulaIdRouteImport } from './routes/_authenticated/materiais.$aulaId'
@@ -104,6 +105,12 @@ const AuthenticatedPessoasRoute = AuthenticatedPessoasRouteImport.update({
   path: '/pessoas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTrocarSenhaRoute =
+  AuthenticatedTrocarSenhaRouteImport.update({
+    id: '/trocar-senha',
+    path: '/trocar-senha',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const MatriculaConviteRoute = MatriculaConviteRouteImport.update({
   id: '/matricula/$convite',
   path: '/matricula/$convite',
@@ -164,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/minhas-tarefas': typeof AuthenticatedMinhasTarefasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
+  '/trocar-senha': typeof AuthenticatedTrocarSenhaRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/materiais/$aulaId': typeof AuthenticatedMateriaisAulaIdRoute
   '/salas/$id': typeof AuthenticatedSalasIdRoute
@@ -187,6 +195,7 @@ export interface FileRoutesByTo {
   '/minhas-tarefas': typeof AuthenticatedMinhasTarefasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/pessoas': typeof AuthenticatedPessoasRoute
+  '/trocar-senha': typeof AuthenticatedTrocarSenhaRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/materiais/$aulaId': typeof AuthenticatedMateriaisAulaIdRoute
   '/salas/$id': typeof AuthenticatedSalasIdRoute
@@ -212,6 +221,7 @@ export interface FileRoutesById {
   '/_authenticated/minhas-tarefas': typeof AuthenticatedMinhasTarefasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/pessoas': typeof AuthenticatedPessoasRoute
+  '/_authenticated/trocar-senha': typeof AuthenticatedTrocarSenhaRoute
   '/matricula/$convite': typeof MatriculaConviteRoute
   '/_authenticated/materiais/$aulaId': typeof AuthenticatedMateriaisAulaIdRoute
   '/_authenticated/salas/$id': typeof AuthenticatedSalasIdRoute
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/minhas-tarefas'
     | '/painel'
     | '/pessoas'
+    | '/trocar-senha'
     | '/matricula/$convite'
     | '/materiais/$aulaId'
     | '/salas/$id'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/minhas-tarefas'
     | '/painel'
     | '/pessoas'
+    | '/trocar-senha'
     | '/matricula/$convite'
     | '/materiais/$aulaId'
     | '/salas/$id'
@@ -284,6 +296,7 @@ export interface FileRouteTypes {
     | '/_authenticated/minhas-tarefas'
     | '/_authenticated/painel'
     | '/_authenticated/pessoas'
+    | '/_authenticated/trocar-senha'
     | '/matricula/$convite'
     | '/_authenticated/materiais/$aulaId'
     | '/_authenticated/salas/$id'
@@ -401,6 +414,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPessoasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/trocar-senha': {
+      id: '/_authenticated/trocar-senha'
+      path: '/trocar-senha'
+      fullPath: '/trocar-senha'
+      preLoaderRoute: typeof AuthenticatedTrocarSenhaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/matricula/$convite': {
       id: '/matricula/$convite'
       path: '/matricula/$convite'
@@ -472,6 +492,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMinhasTarefasRoute: typeof AuthenticatedMinhasTarefasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPessoasRoute: typeof AuthenticatedPessoasRoute
+  AuthenticatedTrocarSenhaRoute: typeof AuthenticatedTrocarSenhaRoute
   AuthenticatedMateriaisAulaIdRoute: typeof AuthenticatedMateriaisAulaIdRoute
   AuthenticatedSalasIdRoute: typeof AuthenticatedSalasIdRoute
   AuthenticatedTarefasAulaIdRoute: typeof AuthenticatedTarefasAulaIdRoute
@@ -493,6 +514,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMinhasTarefasRoute: AuthenticatedMinhasTarefasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPessoasRoute: AuthenticatedPessoasRoute,
+  AuthenticatedTrocarSenhaRoute: AuthenticatedTrocarSenhaRoute,
   AuthenticatedMateriaisAulaIdRoute: AuthenticatedMateriaisAulaIdRoute,
   AuthenticatedSalasIdRoute: AuthenticatedSalasIdRoute,
   AuthenticatedTarefasAulaIdRoute: AuthenticatedTarefasAulaIdRoute,
