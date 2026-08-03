@@ -12,6 +12,8 @@ import {
   baixarCSV,
   FREQUENCIA_MINIMA,
 } from "@/lib/api";
+import { useFiltroAluno, TODOS_ALUNOS } from "@/hooks/useFiltroAluno";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
