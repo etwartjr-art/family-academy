@@ -89,8 +89,11 @@ function Frequencia() {
   }, [modulo, aulasModulo, inscricoes.data, matriculas.data, perfis.data, presencas.data]);
 
   // Filtro de aluno compartilhado com Tarefas e Chamada.
-  const linhasVisiveis =
-    alunoSel === TODOS_ALUNOS ? linhas : linhas.filter((l) => l.id === alunoSel);
+  // Só aplica o filtro quando o aluno escolhido existe neste módulo;
+  // caso contrário mostra todos (evita tabela vazia sem porcentagens).
+  const filtroValido = alunoSel !== TODOS_ALUNOS && linhas.some((l) => l.id === alunoSel);
+  const linhasVisiveis = filtroValido ? linhas.filter((l) => l.id === alunoSel) : linhas;
+
 
   const abaixo = linhas.filter((l) => l.pct < FREQUENCIA_MINIMA);
 
@@ -251,12 +254,11 @@ function Frequencia() {
                 {linhasVisiveis.length === 0 && (
                   <tr>
                     <td colSpan={aulasModulo.length + 2} className="py-3 text-muted-foreground">
-                      {linhas.length === 0
-                        ? "Nenhum aluno inscrito neste módulo."
-                        : "O aluno filtrado não está inscrito neste módulo."}
+                      Nenhum aluno inscrito neste módulo.
                     </td>
                   </tr>
                 )}
+
 
               </tbody>
               {linhas.length > 0 && (
