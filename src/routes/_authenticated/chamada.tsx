@@ -57,6 +57,8 @@ function Chamada() {
   const [moduloId, setModuloId] = useState("");
   const [aulaId, setAulaId] = useState(busca.aula ?? "");
   const [codigo, setCodigo] = useState("");
+  const { alunoSel, setAlunoSel } = useFiltroAluno();
+
 
   const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });
   const modulos = useQuery({ queryKey: ["modulos"], queryFn: () => listarModulos() });
