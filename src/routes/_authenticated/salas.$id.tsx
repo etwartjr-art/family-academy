@@ -18,6 +18,7 @@ import {
 import { listarMateriais } from "@/lib/materiais";
 import { useSessao } from "@/hooks/useSessao";
 import { usePermissoes } from "@/hooks/usePermissoes";
+import { useRealtimePresencas } from "@/hooks/useRealtimePresencas";
 import { useServerFn } from "@tanstack/react-start";
 import { criarUsuario } from "@/lib/usuarios.functions";
 import { Card } from "@/components/ui/card";
@@ -102,6 +103,7 @@ export const Route = createFileRoute("/_authenticated/salas/$id")({
 function SalaDetalhe() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  useRealtimePresencas();
   const { data: sessao } = useSessao();
 
   const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });

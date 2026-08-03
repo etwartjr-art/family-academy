@@ -17,6 +17,7 @@ import {
   FREQUENCIA_MINIMA,
 } from "@/lib/api";
 import { useFiltroAluno, TODOS_ALUNOS } from "@/hooks/useFiltroAluno";
+import { useRealtimePresencas } from "@/hooks/useRealtimePresencas";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ export const Route = createFileRoute("/_authenticated/chamada")({
 function Chamada() {
   const busca = Route.useSearch();
   const qc = useQueryClient();
+  useRealtimePresencas();
   const [salaId, setSalaId] = useState("");
   const [moduloId, setModuloId] = useState("");
   const [aulaId, setAulaId] = useState(busca.aula ?? "");
