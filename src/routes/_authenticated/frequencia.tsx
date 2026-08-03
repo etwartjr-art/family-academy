@@ -172,7 +172,27 @@ function Frequencia() {
             </SelectContent>
           </Select>
         </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label>Aluno</Label>
+          <Select value={alunoSel} onValueChange={setAlunoSel} disabled={linhas.length === 0}>
+            <SelectTrigger className="w-full min-w-0">
+              <SelectValue placeholder="Selecionar aluno" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[50vh]">
+              <SelectItem value={TODOS_ALUNOS}>Todos os alunos</SelectItem>
+              {linhas.map((l) => (
+                <SelectItem key={l.id} value={l.id}>
+                  {l.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Este filtro é o mesmo usado nas telas de Tarefas e Chamada.
+          </p>
+        </div>
       </Card>
+
 
       {modulo && (
         <>
