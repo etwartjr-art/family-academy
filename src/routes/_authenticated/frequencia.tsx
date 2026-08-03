@@ -226,7 +226,7 @@ function Frequencia() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {linhas.map((l) => (
+                {linhasVisiveis.map((l) => (
                   <tr key={l.codigo}>
                     <td className="py-2 pr-3">
                       <span className="block font-medium">{l.nome}</span>
@@ -248,13 +248,16 @@ function Frequencia() {
                     </td>
                   </tr>
                 ))}
-                {linhas.length === 0 && (
+                {linhasVisiveis.length === 0 && (
                   <tr>
                     <td colSpan={aulasModulo.length + 2} className="py-3 text-muted-foreground">
-                      Nenhum aluno inscrito neste módulo.
+                      {linhas.length === 0
+                        ? "Nenhum aluno inscrito neste módulo."
+                        : "O aluno filtrado não está inscrito neste módulo."}
                     </td>
                   </tr>
                 )}
+
               </tbody>
               {linhas.length > 0 && (
                 <tfoot className="border-t-2">
