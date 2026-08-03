@@ -324,11 +324,10 @@ function Chamada() {
               })}
               {alunosVisiveis.length === 0 && (
                 <li className="px-3 py-3 text-sm text-muted-foreground">
-                  {listaAlunos.length === 0
-                    ? "Nenhum aluno inscrito neste módulo."
-                    : "O aluno filtrado não está inscrito neste módulo."}
+                  Nenhum aluno inscrito neste módulo.
                 </li>
               )}
+
 
             </ul>
           </Card>
