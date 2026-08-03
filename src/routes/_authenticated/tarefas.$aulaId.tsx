@@ -298,9 +298,15 @@ function TarefasDaAula() {
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Tarefas publicadas</h2>
         <Card className="grid gap-3 p-3 sm:grid-cols-3">
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Aluno</span>
-            <Select value={alunoSel} onValueChange={setAlunoSel}>
+          <div className="flex flex-col gap-1 sm:col-span-3">
+            <span className="text-xs text-muted-foreground">
+              Aluno {alunos.length > 0 ? `(${alunos.length} na turma)` : ""}
+            </span>
+            <Select
+              value={alunoSel}
+              onValueChange={setAlunoSel}
+              disabled={alunos.length === 0}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecionar aluno" />
               </SelectTrigger>
@@ -313,7 +319,15 @@ function TarefasDaAula() {
                 ))}
               </SelectContent>
             </Select>
+            {alunos.length === 0 && (
+              <span className="text-xs text-muted-foreground">
+                {matriculas.isPending || inscricoes.isPending
+                  ? "Carregando alunos…"
+                  : "Nenhum aluno matriculado nesta turma ainda."}
+              </span>
+            )}
           </div>
+
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground">Filtrar alunos</span>
             <Select value={filtroAlunos} onValueChange={(v) => setFiltroAlunos(v as typeof filtroAlunos)}>
