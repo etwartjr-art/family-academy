@@ -36,16 +36,36 @@ export const Route = createFileRoute("/_authenticated/carteirinhas")({
 });
 
 function Carteirinhas() {
+  const [cursoId, setCursoId] = useState(TODOS_CURSOS);
   const [salaId, setSalaId] = useState("");
+  const [busca, setBusca] = useState("");
+  const { alunoSel, setAlunoSel, filtrando } = useFiltroAluno();
+
   const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });
   const cursos = useQuery({ queryKey: ["cursos"], queryFn: listarCursos });
   const matriculas = useQuery({ queryKey: ["matriculas"], queryFn: () => listarMatriculas() });
   const perfis = useQuery({ queryKey: ["perfis"], queryFn: listarPerfis });
 
-  const sala = (salas.data ?? []).find((s) => s.id === salaId);
+  const salasFiltradas = (salas.data ?? []).filter(
+    (s) => cursoId === TODOS_CURSOS || s.curso_id === cursoId,
+  );
+  const sala = salasFiltradas.find((s) => s.id === salaId);
   const curso = (cursos.data ?? []).find((c) => c.id === sala?.curso_id);
-  const alunos = (matriculas.data ?? [])
-    .filter((m) => m.sala_id === salaId)
+
+  const matriculasSala = (matriculas.data ?? []).filter(
+    (m) => m.sala_id === salaId && m.status !== "cancelada",
+  );
+  const termo = busca.trim().toLowerCase();
+  const alunos = matriculasSala
+    .map((m) => (perfis.data ?? []).find((p) => p.id === m.aluno_id))
+    .filter((p): p is NonNullable<typeof p> => !!p)
+    .filter((p) => !filtrando || p.id === alunoSel)
+    .filter(
+      (p) => !termo || p.nome.toLowerCase().includes(termo) || p.codigo.toLowerCase().includes(termo),
+    )
+    .sort((a, b) => a.nome.localeCompare(b.nome));
+
+  const alunosDaSala = matriculasSala
     .map((m) => (perfis.data ?? []).find((p) => p.id === m.aluno_id))
     .filter((p): p is NonNullable<typeof p> => !!p)
     .sort((a, b) => a.nome.localeCompare(b.nome));
@@ -59,27 +79,89 @@ function Carteirinhas() {
             Cada QR contém o código do aluno usado na chamada.
           </p>
         </div>
-        <Button variant="secondary" onClick={() => window.print()} disabled={!salaId}>
+        <Button
+          variant="secondary"
+          onClick={() => window.print()}
+          disabled={!salaId || alunos.length === 0}
+        >
           <Printer className="size-4" /> Imprimir
         </Button>
       </div>
 
       <Card className="sem-impressao gap-3 p-4">
-        <div className="space-y-1.5">
-          <Label>Sala</Label>
-          <Select value={salaId} onValueChange={setSalaId}>
-            <SelectTrigger className="max-w-sm">
-              <SelectValue placeholder="Escolha a sala" />
-            </SelectTrigger>
-            <SelectContent>
-              {(salas.data ?? []).map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  {s.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-1.5">
+            <Label>Curso</Label>
+            <Select
+              value={cursoId}
+              onValueChange={(v) => {
+                setCursoId(v);
+                setSalaId("");
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todos os cursos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={TODOS_CURSOS}>Todos os cursos</SelectItem>
+                {(cursos.data ?? []).map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Sala</Label>
+            <Select value={salaId} onValueChange={setSalaId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Escolha a sala" />
+              </SelectTrigger>
+              <SelectContent>
+                {salasFiltradas.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Aluno</Label>
+            <Select value={alunoSel} onValueChange={setAlunoSel}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos os alunos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={TODOS_ALUNOS}>Todos os alunos</SelectItem>
+                {alunosDaSala.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Buscar</Label>
+            <Input
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Nome ou código"
+            />
+          </div>
         </div>
+
+        {salaId && (
+          <p className="text-xs text-muted-foreground">
+            {alunos.length} de {matriculasSala.length} aluno(s) selecionado(s)
+            {filtrando ? " · filtro de aluno ativo" : ""}
+          </p>
+        )}
       </Card>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -100,9 +182,15 @@ function Carteirinhas() {
           </div>
         ))}
         {salaId && alunos.length === 0 && (
-          <p className="text-sm text-muted-foreground">Nenhum aluno matriculado nesta sala.</p>
+          <p className="text-sm text-muted-foreground">
+            Nenhum aluno encontrado com os filtros aplicados.
+          </p>
+        )}
+        {!salaId && (
+          <p className="text-sm text-muted-foreground">Escolha uma sala para gerar as carteirinhas.</p>
         )}
       </div>
     </div>
   );
 }
+
