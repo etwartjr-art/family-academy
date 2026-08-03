@@ -2,10 +2,12 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { listarSalas, listarMatriculas, listarPerfis, listarCursos } from "@/lib/api";
+import { useFiltroAluno, TODOS_ALUNOS } from "@/hooks/useFiltroAluno";
 import { QRCodeBox } from "@/components/QRCodeBox";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -14,6 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Printer } from "lucide-react";
+
+const TODOS_CURSOS = "todos";
+
 
 export const Route = createFileRoute("/_authenticated/carteirinhas")({
   head: () => ({
