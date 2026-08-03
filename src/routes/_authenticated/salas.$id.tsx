@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -226,6 +226,35 @@ function SalaDetalhe() {
 
   const inscritosModulo = inscritosDoModulo(moduloAtivo?.id);
 
+  // Estado do cálculo de presença: carregando, erro ou pronto.
+  const presencaEstado: "carregando" | "erro" | "pronto" =
+    presencasSala.isError || inscricoes.isError || matriculas.isError
+      ? "erro"
+      : presencasSala.isPending || inscricoes.isPending || matriculas.isPending
+        ? "carregando"
+        : "pronto";
+
+  const presencaErro =
+    (presencasSala.error as Error | null)?.message ??
+    (inscricoes.error as Error | null)?.message ??
+    (matriculas.error as Error | null)?.message ??
+    null;
+
+  // Registra falhas de carregamento para diagnóstico.
+  useEffect(() => {
+    if (presencasSala.error)
+      console.error("[presenças] falha ao carregar presenças:", presencasSala.error);
+    if (inscricoes.error)
+      console.error("[presenças] falha ao carregar inscrições nos módulos:", inscricoes.error);
+    if (matriculas.error)
+      console.error("[presenças] falha ao carregar matrículas:", matriculas.error);
+    if (presencasSala.error || inscricoes.error || matriculas.error) {
+      toast.error("Não foi possível calcular a presença das aulas", {
+        description: presencaErro ?? undefined,
+      });
+    }
+  }, [presencasSala.error, inscricoes.error, matriculas.error, presencaErro]);
+
   function presencaAula(aulaId: string) {
     const aulaObj = (aulas.data ?? []).find((a) => a.id === aulaId);
     const inscritos = inscritosDoModulo(aulaObj?.modulo_id ?? moduloAtivo?.id);
@@ -235,6 +264,7 @@ function SalaDetalhe() {
     const pct = inscritos ? Math.round((presentes / inscritos) * 100) : 0;
     return { presentes, inscritos, pct };
   }
+
 
 
   const equipePerfis = equipe
@@ -1010,10 +1040,35 @@ function SalaDetalhe() {
                       {(tarefasSala.data ?? []).filter((t) => t.aula_id === a.id).length}
                     </Link>
                   </Button>
-                  <span className="basis-full rounded-lg bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground sm:basis-auto sm:whitespace-nowrap">
-                    Presentes: {presencaAula(a.id).presentes}/
-                    {presencaAula(a.id).inscritos} · {presencaAula(a.id).pct}%
-                  </span>
+                  {presencaEstado === "carregando" ? (
+                    <span className="basis-full animate-pulse rounded-lg bg-muted px-2 py-1 text-xs font-medium text-muted-foreground sm:basis-auto sm:whitespace-nowrap">
+                      Presentes: calculando…
+                    </span>
+                  ) : presencaEstado === "erro" ? (
+                    <span
+                      title={presencaErro ?? "Erro ao carregar presenças"}
+                      className="basis-full rounded-lg bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive sm:basis-auto sm:whitespace-nowrap"
+                    >
+                      Presença indisponível ·{" "}
+                      <button
+                        type="button"
+                        className="underline"
+                        onClick={() => {
+                          presencasSala.refetch();
+                          inscricoes.refetch();
+                          matriculas.refetch();
+                        }}
+                      >
+                        tentar novamente
+                      </button>
+                    </span>
+                  ) : (
+                    <span className="basis-full rounded-lg bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground sm:basis-auto sm:whitespace-nowrap">
+                      Presentes: {presencaAula(a.id).presentes}/
+                      {presencaAula(a.id).inscritos} · {presencaAula(a.id).pct}%
+                    </span>
+                  )}
+
 
 
 
