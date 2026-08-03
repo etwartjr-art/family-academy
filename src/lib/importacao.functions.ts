@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { mensagemAuth } from "@/lib/usuarios-erros";
+import { SENHA_PADRAO, ehSenhaPadrao } from "@/lib/senha-padrao";
+
 
 const linha = z
   .object({
