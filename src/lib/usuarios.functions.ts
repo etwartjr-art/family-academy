@@ -97,13 +97,19 @@ export const editarUsuario = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, atualizacao);
     if (error) throw new Error(mensagemAuth(error.message));
 
-    const camposPerfil: Record<string, unknown> = {
+    const camposPerfil: {
+      nome: string;
+      email: string;
+      telefone: string | null;
+      senha_provisoria?: boolean;
+    } = {
       nome: data.nome,
       email: data.email,
       telefone: data.telefone || null,
     };
     // Se o coordenador redefiniu para a senha padrão, o usuário volta a ser obrigado a trocá-la.
-    if (data.senha) camposPerfil['senha_provisoria'] = ehSenhaPadrao(data.senha);
+    if (data.senha) camposPerfil.senha_provisoria = ehSenhaPadrao(data.senha);
+
 
     const { error: erroPerfil } = await supabaseAdmin
       .from("perfis")
