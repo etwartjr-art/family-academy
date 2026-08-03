@@ -295,7 +295,7 @@ function Chamada() {
               </span>
             </div>
             <ul className="divide-y rounded-xl border">
-              {listaAlunos.map((a) => {
+              {alunosVisiveis.map((a) => {
                 const presente = presentes.has(a.id);
                 return (
                   <li key={a.id} className="flex items-center gap-3 px-3 py-2.5">
