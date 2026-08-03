@@ -213,23 +213,29 @@ function SalaDetalhe() {
     listaModulos.find((m) => m.id === sala?.modulo_ativo_id) ?? listaModulos[0] ?? null;
   const aulasDoModulo = (aulas.data ?? []).filter((a) => a.modulo_id === moduloAtivo?.id);
 
-  const inscritosModulo = (() => {
-    if (!moduloAtivo) return 0;
+  // Inscritos de um módulo qualquer (não só o ativo).
+  const inscritosDoModulo = (moduloId?: string | null) => {
+    if (!moduloId) return 0;
     const mats = new Set(
       (inscricoes.data ?? [])
-        .filter((i) => i.modulo_id === moduloAtivo.id)
+        .filter((i) => i.modulo_id === moduloId)
         .map((i) => i.matricula_id),
     );
     return (matriculas.data ?? []).filter((m) => mats.has(m.id)).length;
-  })();
+  };
+
+  const inscritosModulo = inscritosDoModulo(moduloAtivo?.id);
 
   function presencaAula(aulaId: string) {
+    const aulaObj = (aulas.data ?? []).find((a) => a.id === aulaId);
+    const inscritos = inscritosDoModulo(aulaObj?.modulo_id ?? moduloAtivo?.id);
     const presentes = new Set(
       (presencasSala.data ?? []).filter((p) => p.aula_id === aulaId).map((p) => p.aluno_id),
     ).size;
-    const pct = inscritosModulo ? Math.round((presentes / inscritosModulo) * 100) : 0;
-    return { presentes, pct };
+    const pct = inscritos ? Math.round((presentes / inscritos) * 100) : 0;
+    return { presentes, inscritos, pct };
   }
+
 
   const equipePerfis = equipe
     .map((pid) => (perfis.data ?? []).find((p) => p.id === pid))
@@ -1004,10 +1010,11 @@ function SalaDetalhe() {
                       {(tarefasSala.data ?? []).filter((t) => t.aula_id === a.id).length}
                     </Link>
                   </Button>
-                  <span className="rounded-lg bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
-                    Presentes: {presencaAula(a.id).presentes}/{inscritosModulo} ·{" "}
-                    {presencaAula(a.id).pct}%
+                  <span className="basis-full rounded-lg bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground sm:basis-auto sm:whitespace-nowrap">
+                    Presentes: {presencaAula(a.id).presentes}/
+                    {presencaAula(a.id).inscritos} · {presencaAula(a.id).pct}%
                   </span>
+
 
 
                 </li>
