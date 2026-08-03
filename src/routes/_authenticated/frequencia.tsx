@@ -77,10 +77,20 @@ function Frequencia() {
         );
         const total = marcas.filter(Boolean).length;
         const pct = idsAulas.length ? Math.round((total / idsAulas.length) * 100) : 0;
-        return { nome: perfil?.nome ?? "—", codigo: perfil?.codigo ?? "—", marcas, pct };
+        return {
+          id: m.aluno_id,
+          nome: perfil?.nome ?? "—",
+          codigo: perfil?.codigo ?? "—",
+          marcas,
+          pct,
+        };
       })
       .sort((a, b) => a.nome.localeCompare(b.nome));
   }, [modulo, aulasModulo, inscricoes.data, matriculas.data, perfis.data, presencas.data]);
+
+  // Filtro de aluno compartilhado com Tarefas e Chamada.
+  const linhasVisiveis =
+    alunoSel === TODOS_ALUNOS ? linhas : linhas.filter((l) => l.id === alunoSel);
 
   const abaixo = linhas.filter((l) => l.pct < FREQUENCIA_MINIMA);
 
@@ -94,7 +104,8 @@ function Frequencia() {
 
   function exportar() {
     const cabecalho = ["Aluno", "Código", ...aulasModulo.map((a) => `Aula ${a.numero}`), "%"];
-    const corpo = linhas.map((l) => [
+    const corpo = linhasVisiveis.map((l) => [
+
       l.nome,
       l.codigo,
       ...l.marcas.map((m) => (m ? "P" : "F")),
