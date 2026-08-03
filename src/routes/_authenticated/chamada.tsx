@@ -15,6 +15,8 @@ import {
   dataBR,
   iniciais,
 } from "@/lib/api";
+import { useFiltroAluno, TODOS_ALUNOS } from "@/hooks/useFiltroAluno";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
