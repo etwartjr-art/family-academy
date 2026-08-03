@@ -297,9 +297,9 @@ function TarefasDaAula() {
 
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Tarefas publicadas</h2>
-        <Card className="grid gap-3 p-3 sm:grid-cols-3">
-          <div className="flex flex-col gap-1 sm:col-span-3">
-            <span className="text-xs text-muted-foreground">
+        <Card className="sticky top-2 z-20 grid grid-cols-1 gap-3 border-border/80 bg-card/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80 sm:static sm:grid-cols-3 sm:bg-card sm:backdrop-blur-none">
+          <div className="flex min-w-0 flex-col gap-1 sm:col-span-3">
+            <span className="truncate text-xs text-muted-foreground">
               Aluno {alunos.length > 0 ? `(${alunos.length} na turma)` : ""}
             </span>
             <Select
@@ -307,10 +307,10 @@ function TarefasDaAula() {
               onValueChange={setAlunoSel}
               disabled={alunos.length === 0}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full min-w-0">
                 <SelectValue placeholder="Selecionar aluno" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[50vh]">
                 <SelectItem value="todos">Todos os alunos</SelectItem>
                 {alunos.map((a) => (
                   <SelectItem key={a.id} value={a.id}>
@@ -328,34 +328,49 @@ function TarefasDaAula() {
             )}
           </div>
 
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Filtrar alunos</span>
+          <div className="flex min-w-0 flex-col gap-1">
+            <span className="truncate text-xs text-muted-foreground">Filtrar alunos</span>
             <Select value={filtroAlunos} onValueChange={(v) => setFiltroAlunos(v as typeof filtroAlunos)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full min-w-0">
                 <SelectValue placeholder="Filtrar por" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[50vh]">
                 <SelectItem value="todos">Todos</SelectItem>
                 <SelectItem value="concluidos">Apenas concluídos</SelectItem>
                 <SelectItem value="pendentes">Apenas pendentes</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Ordenar alunos por</span>
+          <div className="flex min-w-0 flex-col gap-1">
+            <span className="truncate text-xs text-muted-foreground">Ordenar alunos por</span>
             <Select value={ordemAlunos} onValueChange={(v) => setOrdemAlunos(v as typeof ordemAlunos)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full min-w-0">
                 <SelectValue placeholder="Ordenar por" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[50vh]">
                 <SelectItem value="nome">Nome</SelectItem>
                 <SelectItem value="conclusao-recente">Conclusão: mais recente</SelectItem>
                 <SelectItem value="conclusao-antiga">Conclusão: mais antiga</SelectItem>
               </SelectContent>
             </Select>
           </div>
+          {(alunoSel !== "todos" || filtroAlunos !== "todos" || ordemAlunos !== "nome") && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full sm:w-fit"
+              onClick={() => {
+                setAlunoSel("todos");
+                setFiltroAlunos("todos");
+                setOrdemAlunos("nome");
+              }}
+            >
+              Limpar filtros
+            </Button>
+          )}
         </Card>
       </div>
+
 
 
       <div className="space-y-3">
