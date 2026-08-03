@@ -57,11 +57,20 @@ function Carteirinhas() {
   );
   const termo = busca.trim().toLowerCase();
   const alunos = matriculasSala
-    .map((m) => (perfis.data ?? []).find((p) => p.id === m.aluno_id))
-    .filter((p): p is NonNullable<typeof p> => !!p)
-    .filter((p) => !filtrando || p.id === alunoSel)
+    .map((m) => {
+      const perfil = (perfis.data ?? []).find((p) => p.id === m.aluno_id);
+      if (!perfil) return null;
+      const casal = m.tipo === "casal" ? (m.nome_casal?.trim() || null) : null;
+      return { ...perfil, casal };
+    })
+    .filter((a): a is NonNullable<typeof a> => !!a)
+    .filter((a) => !filtrando || a.id === alunoSel)
     .filter(
-      (p) => !termo || p.nome.toLowerCase().includes(termo) || p.codigo.toLowerCase().includes(termo),
+      (a) =>
+        !termo ||
+        a.nome.toLowerCase().includes(termo) ||
+        a.codigo.toLowerCase().includes(termo) ||
+        (a.casal ?? "").toLowerCase().includes(termo),
     )
     .sort((a, b) => a.nome.localeCompare(b.nome));
 
@@ -69,6 +78,7 @@ function Carteirinhas() {
     .map((m) => (perfis.data ?? []).find((p) => p.id === m.aluno_id))
     .filter((p): p is NonNullable<typeof p> => !!p)
     .sort((a, b) => a.nome.localeCompare(b.nome));
+
 
   return (
     <div className="space-y-6">
@@ -170,15 +180,24 @@ function Carteirinhas() {
             key={a.id}
             className="flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-diario"
           >
-            <QRCodeBox valor={`FA|ALUNO|${a.codigo}`} tamanho={84} />
+            <QRCodeBox
+              valor={a.casal ? `FA|ALUNO|${a.codigo}|CASAL|${a.casal}` : `FA|ALUNO|${a.codigo}`}
+              tamanho={84}
+            />
             <div className="min-w-0">
               <div className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
                 {curso?.nome ?? "Escola de Finanças"}
               </div>
               <div className="truncate font-display text-base font-extrabold">{a.nome}</div>
+              {a.casal && (
+                <div className="truncate text-xs font-semibold text-primary">
+                  Casal: {a.casal}
+                </div>
+              )}
               <div className="font-mono text-sm">{a.codigo}</div>
               <div className="text-xs text-muted-foreground">{sala?.nome}</div>
             </div>
+
           </div>
         ))}
         {salaId && alunos.length === 0 && (
