@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,6 +118,14 @@ function Entrada() {
               <Button type="submit" className="w-full" disabled={carregando}>
                 {carregando ? "Entrando…" : "Entrar"}
               </Button>
+              <div className="text-center">
+                <Link
+                  to="/esqueci-senha"
+                  className="text-sm text-muted-foreground underline underline-offset-4"
+                >
+                  Esqueci minha senha
+                </Link>
+              </div>
             </form>
           ) : (
             <form onSubmit={irParaConvite} className="space-y-4">
