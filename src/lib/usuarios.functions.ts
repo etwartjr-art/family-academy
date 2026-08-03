@@ -55,8 +55,13 @@ export const criarUsuario = createServerFn({ method: "POST" })
 
     await supabaseAdmin
       .from("perfis")
-      .update({ nome: data.nome, telefone: data.telefone || null })
+      .update({
+        nome: data.nome,
+        telefone: data.telefone || null,
+        senha_provisoria: ehSenhaPadrao(data.senha),
+      })
       .eq("id", novoId);
+
 
     return { id: novoId };
   });
