@@ -5,6 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listarPerfis, listarPapeis, iniciais, type Papel } from "@/lib/api";
 import { criarUsuario, editarUsuario } from "@/lib/usuarios.functions";
+import { SENHA_PADRAO } from "@/lib/senha-padrao";
+
 import { useSessao } from "@/hooks/useSessao";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
