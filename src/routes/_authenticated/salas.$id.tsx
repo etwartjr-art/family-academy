@@ -214,29 +214,44 @@ function SalaDetalhe() {
   const aulasDoModulo = (aulas.data ?? []).filter((a) => a.modulo_id === moduloAtivo?.id);
 
   // Inscritos de um módulo qualquer (não só o ativo).
+  // Fallback: se o módulo não tem inscrições registradas, usa as matrículas
+  // ativas da turma para que a porcentagem nunca fique presa em 0/0.
   const inscritosDoModulo = (moduloId?: string | null) => {
-    if (!moduloId) return 0;
+    const ativas = (matriculas.data ?? []).filter((m) => m.status !== "cancelada");
+    if (!moduloId) return ativas.length;
     const mats = new Set(
       (inscricoes.data ?? [])
         .filter((i) => i.modulo_id === moduloId)
         .map((i) => i.matricula_id),
     );
-    return (matriculas.data ?? []).filter((m) => mats.has(m.id)).length;
+    const inscritas = ativas.filter((m) => mats.has(m.id)).length;
+    return inscritas > 0 ? inscritas : ativas.length;
   };
 
   const inscritosModulo = inscritosDoModulo(moduloAtivo?.id);
 
   // Estado do cálculo de presença: carregando, erro ou pronto.
+  // `fetchStatus === "fetching"` evita ficar em "calculando…" quando a consulta
+  // está apenas desabilitada (sem aulas) — nesse caso o resultado já é 0.
+  const carregandoDados =
+    modulos.fetchStatus === "fetching" ||
+    aulas.fetchStatus === "fetching" ||
+    presencasSala.fetchStatus === "fetching" ||
+    inscricoes.fetchStatus === "fetching" ||
+    matriculas.fetchStatus === "fetching";
+
   const presencaEstado: "carregando" | "erro" | "pronto" =
     presencasSala.isError || inscricoes.isError || matriculas.isError
       ? "erro"
-      : // isPending também é true quando a consulta está desabilitada (sem aulas);
-        // nesse caso já podemos exibir o resultado (0 presentes).
-        (presencasSala.isPending && presencasSala.fetchStatus !== "idle") ||
-          inscricoes.isPending ||
-          matriculas.isPending
+      : // Só mostra "calculando…" enquanto ainda não há dados em cache;
+        // refetches em background mantêm os números anteriores visíveis.
+        carregandoDados &&
+          (presencasSala.data === undefined ||
+            inscricoes.data === undefined ||
+            matriculas.data === undefined)
         ? "carregando"
         : "pronto";
+
 
 
   const presencaErro =
