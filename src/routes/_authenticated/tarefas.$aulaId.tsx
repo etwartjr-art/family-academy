@@ -2,6 +2,8 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useFiltroAluno } from "@/hooks/useFiltroAluno";
+
 import {
   dataBR,
   dataHoraBR,
@@ -133,7 +135,7 @@ function TarefasDaAula() {
     "todos" | "concluidos" | "pendentes"
   >("todos");
   const [abertos, setAbertos] = useState<Record<string, boolean>>({});
-  const [alunoSel, setAlunoSel] = useState<string>("todos");
+  const { alunoSel, setAlunoSel } = useFiltroAluno();
 
   const ordenarAlunos = (listaAlunos: typeof alunos, tarefaId: string) => {
     const copia = [...listaAlunos];

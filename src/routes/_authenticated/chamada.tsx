@@ -15,6 +15,8 @@ import {
   dataBR,
   iniciais,
 } from "@/lib/api";
+import { useFiltroAluno, TODOS_ALUNOS } from "@/hooks/useFiltroAluno";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +57,8 @@ function Chamada() {
   const [moduloId, setModuloId] = useState("");
   const [aulaId, setAulaId] = useState(busca.aula ?? "");
   const [codigo, setCodigo] = useState("");
+  const { alunoSel, setAlunoSel } = useFiltroAluno();
+
 
   const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });
   const modulos = useQuery({ queryKey: ["modulos"], queryFn: () => listarModulos() });
@@ -89,7 +93,12 @@ function Chamada() {
       .sort((a, b) => a.nome.localeCompare(b.nome));
   }, [moduloDaAula, matriculas.data, inscricoes.data, perfis.data]);
 
+  // Filtro de aluno compartilhado com Tarefas e Frequência.
+  const alunosVisiveis =
+    alunoSel === TODOS_ALUNOS ? listaAlunos : listaAlunos.filter((a) => a.id === alunoSel);
+
   const presentes = new Set((presencas.data ?? []).map((p) => p.aluno_id));
+
 
   async function registrar(args: {
     alunoId?: string;
@@ -208,7 +217,31 @@ function Chamada() {
             </SelectContent>
           </Select>
         </div>
+        <div className="space-y-1.5 md:col-span-3">
+          <Label>Aluno</Label>
+          <Select
+            value={alunoSel}
+            onValueChange={setAlunoSel}
+            disabled={listaAlunos.length === 0}
+          >
+            <SelectTrigger className="w-full min-w-0">
+              <SelectValue placeholder="Selecionar aluno" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[50vh]">
+              <SelectItem value={TODOS_ALUNOS}>Todos os alunos</SelectItem>
+              {listaAlunos.map((a) => (
+                <SelectItem key={a.id} value={a.id}>
+                  {a.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Este filtro é o mesmo usado nas telas de Tarefas e Frequência.
+          </p>
+        </div>
       </Card>
+
 
       {aulaId && (
         <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
@@ -262,7 +295,7 @@ function Chamada() {
               </span>
             </div>
             <ul className="divide-y rounded-xl border">
-              {listaAlunos.map((a) => {
+              {alunosVisiveis.map((a) => {
                 const presente = presentes.has(a.id);
                 return (
                   <li key={a.id} className="flex items-center gap-3 px-3 py-2.5">
@@ -286,11 +319,14 @@ function Chamada() {
                   </li>
                 );
               })}
-              {listaAlunos.length === 0 && (
+              {alunosVisiveis.length === 0 && (
                 <li className="px-3 py-3 text-sm text-muted-foreground">
-                  Nenhum aluno inscrito neste módulo.
+                  {listaAlunos.length === 0
+                    ? "Nenhum aluno inscrito neste módulo."
+                    : "O aluno filtrado não está inscrito neste módulo."}
                 </li>
               )}
+
             </ul>
           </Card>
         </div>

@@ -12,6 +12,8 @@ import {
   baixarCSV,
   FREQUENCIA_MINIMA,
 } from "@/lib/api";
+import { useFiltroAluno, TODOS_ALUNOS } from "@/hooks/useFiltroAluno";
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -42,6 +44,8 @@ export const Route = createFileRoute("/_authenticated/frequencia")({
 function Frequencia() {
   const [salaId, setSalaId] = useState("");
   const [moduloId, setModuloId] = useState("");
+  const { alunoSel, setAlunoSel } = useFiltroAluno();
+
 
   const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });
   const modulos = useQuery({ queryKey: ["modulos"], queryFn: () => listarModulos() });
@@ -73,10 +77,20 @@ function Frequencia() {
         );
         const total = marcas.filter(Boolean).length;
         const pct = idsAulas.length ? Math.round((total / idsAulas.length) * 100) : 0;
-        return { nome: perfil?.nome ?? "—", codigo: perfil?.codigo ?? "—", marcas, pct };
+        return {
+          id: m.aluno_id,
+          nome: perfil?.nome ?? "—",
+          codigo: perfil?.codigo ?? "—",
+          marcas,
+          pct,
+        };
       })
       .sort((a, b) => a.nome.localeCompare(b.nome));
   }, [modulo, aulasModulo, inscricoes.data, matriculas.data, perfis.data, presencas.data]);
+
+  // Filtro de aluno compartilhado com Tarefas e Chamada.
+  const linhasVisiveis =
+    alunoSel === TODOS_ALUNOS ? linhas : linhas.filter((l) => l.id === alunoSel);
 
   const abaixo = linhas.filter((l) => l.pct < FREQUENCIA_MINIMA);
 
@@ -90,7 +104,8 @@ function Frequencia() {
 
   function exportar() {
     const cabecalho = ["Aluno", "Código", ...aulasModulo.map((a) => `Aula ${a.numero}`), "%"];
-    const corpo = linhas.map((l) => [
+    const corpo = linhasVisiveis.map((l) => [
+
       l.nome,
       l.codigo,
       ...l.marcas.map((m) => (m ? "P" : "F")),
@@ -157,7 +172,27 @@ function Frequencia() {
             </SelectContent>
           </Select>
         </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label>Aluno</Label>
+          <Select value={alunoSel} onValueChange={setAlunoSel} disabled={linhas.length === 0}>
+            <SelectTrigger className="w-full min-w-0">
+              <SelectValue placeholder="Selecionar aluno" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[50vh]">
+              <SelectItem value={TODOS_ALUNOS}>Todos os alunos</SelectItem>
+              {linhas.map((l) => (
+                <SelectItem key={l.id} value={l.id}>
+                  {l.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Este filtro é o mesmo usado nas telas de Tarefas e Chamada.
+          </p>
+        </div>
       </Card>
+
 
       {modulo && (
         <>
@@ -191,7 +226,7 @@ function Frequencia() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {linhas.map((l) => (
+                {linhasVisiveis.map((l) => (
                   <tr key={l.codigo}>
                     <td className="py-2 pr-3">
                       <span className="block font-medium">{l.nome}</span>
@@ -213,13 +248,16 @@ function Frequencia() {
                     </td>
                   </tr>
                 ))}
-                {linhas.length === 0 && (
+                {linhasVisiveis.length === 0 && (
                   <tr>
                     <td colSpan={aulasModulo.length + 2} className="py-3 text-muted-foreground">
-                      Nenhum aluno inscrito neste módulo.
+                      {linhas.length === 0
+                        ? "Nenhum aluno inscrito neste módulo."
+                        : "O aluno filtrado não está inscrito neste módulo."}
                     </td>
                   </tr>
                 )}
+
               </tbody>
               {linhas.length > 0 && (
                 <tfoot className="border-t-2">
