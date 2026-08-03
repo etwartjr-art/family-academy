@@ -2,14 +2,16 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { mensagemAuth } from "@/lib/usuarios-erros";
+import { SENHA_PADRAO, ehSenhaPadrao } from "@/lib/senha-padrao";
 
 const esquema = z.object({
   nome: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(255),
-  senha: z.string().min(6).max(72),
+  senha: z.string().max(72).optional().default(SENHA_PADRAO),
   telefone: z.string().trim().max(30).optional().or(z.literal("")),
   papel: z.enum(["coordenador", "professor", "aluno"]),
 });
+
 
 export const criarUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
