@@ -180,15 +180,24 @@ function Carteirinhas() {
             key={a.id}
             className="flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-diario"
           >
-            <QRCodeBox valor={`FA|ALUNO|${a.codigo}`} tamanho={84} />
+            <QRCodeBox
+              valor={a.casal ? `FA|ALUNO|${a.codigo}|CASAL|${a.casal}` : `FA|ALUNO|${a.codigo}`}
+              tamanho={84}
+            />
             <div className="min-w-0">
               <div className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
                 {curso?.nome ?? "Escola de Finanças"}
               </div>
               <div className="truncate font-display text-base font-extrabold">{a.nome}</div>
+              {a.casal && (
+                <div className="truncate text-xs font-semibold text-primary">
+                  Casal: {a.casal}
+                </div>
+              )}
               <div className="font-mono text-sm">{a.codigo}</div>
               <div className="text-xs text-muted-foreground">{sala?.nome}</div>
             </div>
+
           </div>
         ))}
         {salaId && alunos.length === 0 && (
