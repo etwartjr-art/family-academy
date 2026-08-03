@@ -103,6 +103,7 @@ export const Route = createFileRoute("/_authenticated/salas/$id")({
 function SalaDetalhe() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  useRealtimePresencas();
   const { data: sessao } = useSessao();
 
   const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });

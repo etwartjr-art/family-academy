@@ -46,6 +46,7 @@ function Frequencia() {
   const [salaId, setSalaId] = useState("");
   const [moduloId, setModuloId] = useState("");
   const { alunoSel, setAlunoSel } = useFiltroAluno();
+  useRealtimePresencas();
 
 
   const salas = useQuery({ queryKey: ["salas"], queryFn: () => listarSalas() });

@@ -55,6 +55,7 @@ export const Route = createFileRoute("/_authenticated/chamada")({
 function Chamada() {
   const busca = Route.useSearch();
   const qc = useQueryClient();
+  useRealtimePresencas();
   const [salaId, setSalaId] = useState("");
   const [moduloId, setModuloId] = useState("");
   const [aulaId, setAulaId] = useState(busca.aula ?? "");
